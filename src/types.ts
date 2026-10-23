@@ -5,6 +5,7 @@ export type ActionKind = StepType | 'side' | 'decider';
 export type Side = 'atk' | 'def';
 export type Phase = 'setup' | 'veto' | 'result';
 export type FirstTurn = 'a' | 'b' | 'coin';
+export type PoolPreset = 'competitive' | 'all' | 'custom';
 
 export interface MapInfo {
   id: string;
@@ -40,6 +41,8 @@ export interface Setup {
   first: FirstTurn;
   format: Format;
   pool: string[];
+  /** the team's own pool, remembered while a preset is active */
+  customPool: string[];
   custom: MapInfo[];
   /** null = auto-generated from format + pool size */
   seq: SeqStep[] | null;

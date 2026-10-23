@@ -30,6 +30,11 @@ export const MAPS: MapInfo[] = [
     desc: 'A compact two-site map with a contested mid. Quick rotations and close-quarters fights around market and courtyard.' },
 ];
 
+/** The competitive map rotation. Update this list when Riot rotates the pool. */
+export const COMPETITIVE_POOL = ['abyss', 'ascent', 'bind', 'corrode', 'haven', 'lotus', 'sunset'];
+/** Every official map (custom maps are not included). */
+export const ALL_MAP_IDS = MAPS.map(m => m.id);
+
 export const FORMATS: Record<Format, { label: string; name: string; d: string }> = {
   1: { label: 'Bo1', name: 'Best of 1', d: 'Ban down to one' },
   2: { label: 'Bo2', name: 'Best of 2', d: 'One pick each' },
@@ -42,7 +47,8 @@ export const defaultSetup = (): Setup => ({
   teams: ['Team Alpha', 'Team Bravo'],
   first: 'a',
   format: 3,
-  pool: ['abyss', 'ascent', 'bind', 'corrode', 'haven', 'lotus', 'sunset'],
+  pool: [...COMPETITIVE_POOL],
+  customPool: [],
   custom: [],
   seq: null,
   sidePick: true,

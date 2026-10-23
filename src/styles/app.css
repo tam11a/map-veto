@@ -191,6 +191,12 @@ input::placeholder, textarea::placeholder { color: var(--dim); }
 .lobby-h h2 { font-family: var(--fd); font-size: var(--fs-25); }
 .lobby-h .btn { margin-left: auto; }
 .lobby-meta { font-size: var(--fs-14); color: var(--mute); font-variant-numeric: tabular-nums; }
+.pool-h { flex-wrap: wrap; align-items: center; margin-bottom: var(--s-1); }
+.pool-presets { margin-left: auto; }
+.pool-presets button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding-inline: 12px; }
+.pool-presets small { font-size: var(--fs-12); font-weight: 600; color: var(--dim); font-variant-numeric: tabular-nums; }
+.pool-presets button.on small { color: var(--mute); }
+.pool-hint { margin-bottom: var(--s-3); }
 
 .pool { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: var(--s-2); }
 .ptile {
@@ -584,6 +590,8 @@ input::placeholder, textarea::placeholder { color: var(--dim); }
   .fmt-tab { padding-inline: var(--s-2); }
   .fmt-tab::after { left: var(--s-2); right: var(--s-2); }
   .fmt-tab b { font-size: var(--fs-25); }
+  .pool-presets { width: 100%; margin-left: 0; }
+  .pool-presets button { gap: 4px; padding-inline: 4px; }
   .rule-opts, .rule { width: 100%; }
   .rule { justify-content: space-between; }
   .rule .seg { flex: 1; min-width: 0; max-width: 260px; }

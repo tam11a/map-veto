@@ -1,9 +1,9 @@
 import { Fragment, useRef, useState } from 'react';
-import { FORMATS, TEAMC, defaultSetup } from '../data/maps';
+import { ALL_MAP_IDS, COMPETITIVE_POOL, FORMATS, TEAMC } from '../data/maps';
 import { cx, vars } from '../lib/fx';
-import { allMaps, deciderSideTeam, getSeq, other, simulate } from '../lib/veto';
+import { allMaps, deciderSideTeam, getSeq, other, poolPreset, simulate, sortPool } from '../lib/veto';
 import { useApp } from '../state';
-import type { FirstTurn, Format, SeqStep, StepType, TeamIdx } from '../types';
+import type { FirstTurn, Format, PoolPreset, SeqStep, Setup, StepType, TeamIdx } from '../types';
 import { Icon } from './Icons';
 import { MapArt } from './MapArt';
 
@@ -110,39 +110,77 @@ function MapPool() {
   const [img, setImg] = useState('');
   const maps = allMaps(S);
 
-  const toggle = (id: string) => patch(s => {
-    const order = allMaps(s).map(m => m.id);
-    const pool = s.pool.includes(id) ? s.pool.filter(x => x !== id) : [...s.pool, id];
-    pool.sort((a, b) => order.indexOf(a) - order.indexOf(b));
-    return { pool, seq: null };
-  });
+  const preset = poolPreset(S.pool);
+  // the custom list on hand: the live pool when it's custom, otherwise the one we remembered
+  const savedCustom = preset === 'custom' ? S.pool : S.customPool;
+
+  /** Any hand edit makes the pool the team's custom list, so remember it. */
+  const commit = (s: Setup, next: string[]) => {
+    const pool = sortPool(s, next);
+    return { pool, customPool: poolPreset(pool) === 'custom' ? pool : s.customPool, seq: null };
+  };
+  const toggle = (id: string) => patch(s => commit(s, s.pool.includes(id) ? s.pool.filter(x => x !== id) : [...s.pool, id]));
+
+  const choose = (p: PoolPreset) => {
+    if (p === preset) return;
+    if (p === 'custom' && !savedCustom.length) {
+      toast('Select or remove maps below to build your custom list');
+      return;
+    }
+    patch(s => {
+      const saved = poolPreset(s.pool) === 'custom' ? s.pool : s.customPool;
+      const pool = p === 'competitive' ? COMPETITIVE_POOL : p === 'all' ? ALL_MAP_IDS : saved;
+      return { pool: sortPool(s, pool), customPool: saved, seq: null };
+    });
+  };
   const add = () => {
     const n = name.trim();
     if (!n) return toast('Give the map a name');
     const hue = Math.floor(Math.random() * 360), id = 'c_' + Date.now().toString(36);
-    patch(s => ({
-      custom: [...s.custom, {
+    patch(s => {
+      const custom = [...s.custom, {
         id, name: n, loc: 'Custom map', sites: '—', tag: 'Custom', desc: '', custom: true,
-        img: /^https?:\/\//.test(img.trim()) ? img.trim() : '', c: [`hsl(${hue} 40% 32%)`, `hsl(${hue} 40% 9%)`],
-      }],
-      pool: [...s.pool, id],
-      seq: null,
-    }));
+        img: /^https?:\/\//.test(img.trim()) ? img.trim() : '', c: [`hsl(${hue} 40% 32%)`, `hsl(${hue} 40% 9%)`] as [string, string],
+      }];
+      return { custom, ...commit({ ...s, custom }, [...s.pool, id]) };
+    });
     setName('');
     setImg('');
     setAdding(false);
     toast(`${n} added to the pool`);
   };
-  const remove = (id: string) => patch(s => ({ custom: s.custom.filter(m => m.id !== id), pool: s.pool.filter(x => x !== id), seq: null }));
-  const isDefault = S.pool.join() === defaultSetup().pool.join();
+  const remove = (id: string) => patch(s => ({
+    custom: s.custom.filter(m => m.id !== id),
+    pool: s.pool.filter(x => x !== id),
+    customPool: s.customPool.filter(x => x !== id),
+    seq: null,
+  }));
+
+  const presets: { k: PoolPreset; label: string; n: number | null }[] = [
+    { k: 'competitive', label: 'Competitive', n: COMPETITIVE_POOL.length },
+    { k: 'all', label: 'All maps', n: ALL_MAP_IDS.length },
+    { k: 'custom', label: 'Custom', n: savedCustom.length || null },
+  ];
+  const presetHint = {
+    competitive: 'The current competitive rotation.',
+    all: 'Every official map.',
+    custom: 'Your own list, saved in this browser. Select maps below to change it.',
+  }[preset];
 
   return (
     <section className="pool-sec" aria-labelledby="pool-h">
-      <header className="lobby-h">
+      <header className="lobby-h pool-h">
         <h2 id="pool-h">Map pool</h2>
         <span className="lobby-meta">{S.pool.length} of {maps.length} in play</span>
-        {!isDefault && <button className="btn ghost sm" onClick={() => patch({ pool: defaultSetup().pool, seq: null })}>Reset pool</button>}
+        <div className="seg pool-presets" role="group" aria-label="Map pool preset">
+          {presets.map(p => (
+            <button key={p.k} className={cx(preset === p.k && 'on')} aria-pressed={preset === p.k} onClick={() => choose(p.k)}>
+              {p.label}{p.n != null && <small>{p.n}</small>}
+            </button>
+          ))}
+        </div>
       </header>
+      <p className="hint pool-hint">{presetHint}</p>
       <div className="pool">
         {maps.map(m => {
           const on = S.pool.includes(m.id);

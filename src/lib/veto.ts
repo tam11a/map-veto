@@ -1,10 +1,25 @@
-import { MAPS } from '../data/maps';
-import type { Action, ActionKind, Format, Game, MapInfo, SeqStep, Setup, Side, TeamIdx } from '../types';
+import { ALL_MAP_IDS, COMPETITIVE_POOL, MAPS } from '../data/maps';
+import type { Action, ActionKind, Format, Game, MapInfo, PoolPreset, SeqStep, Setup, Side, TeamIdx } from '../types';
 
 export const other = (t: TeamIdx) => (1 - t) as TeamIdx;
 export const allMaps = (s: Setup) => MAPS.concat(s.custom);
 export const getMap = (s: Setup, id: string): MapInfo =>
   allMaps(s).find(m => m.id === id) ?? { id, name: id, loc: '—', sites: '—', tag: '', desc: '', c: ['#333', '#111'] };
+
+const sameSet = (a: string[], b: string[]) => a.length === b.length && a.every(x => b.includes(x));
+
+/** Which preset the pool matches; anything else is the team's custom list. */
+export function poolPreset(pool: string[]): PoolPreset {
+  if (sameSet(pool, COMPETITIVE_POOL)) return 'competitive';
+  if (sameSet(pool, ALL_MAP_IDS)) return 'all';
+  return 'custom';
+}
+
+/** Keeps a pool in the order maps appear in the picker. */
+export function sortPool(s: Setup, pool: string[]) {
+  const order = allMaps(s).map(m => m.id);
+  return [...pool].sort((a, b) => order.indexOf(a) - order.indexOf(b));
+}
 
 /** Default ban/pick order for a format, adapted to the pool size. */
 export function genSeq(fmt: Format, n: number): SeqStep[] {

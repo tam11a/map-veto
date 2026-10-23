@@ -55,12 +55,18 @@ input::placeholder, textarea::placeholder { color: var(--dim); }
 .ico * { vector-effect: non-scaling-stroke; }
 
 /* ---------- buttons ---------- */
+/* Sizes are set by height + side padding. Barlow's tall ascender makes the caps sit off-centre
+   by ~1px, in a direction that depends on the size (measured in Chrome): --nudge recentres them. */
 .btn {
+  --h: 40px;
+  --px: 18px;
+  --nudge: 1px; /* + moves the label down, - moves it up */
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: var(--s-2);
-  padding: 10px 16px;
+  min-height: var(--h);
+  padding: max(0px, calc(var(--nudge) * 2)) var(--px) max(0px, calc(var(--nudge) * -2));
   border-radius: var(--r-sm);
   border: 1px solid var(--line-2);
   background: var(--glass-2);
@@ -77,8 +83,10 @@ input::placeholder, textarea::placeholder { color: var(--dim); }
 .btn.primary { background: var(--ban); border-color: var(--ban); color: var(--on-accent); }
 .btn.mint { background: var(--pick); border-color: var(--pick); color: var(--on-accent); }
 .btn.ghost { background: transparent; border-color: transparent; }
-.btn.lg { padding: 14px 22px; font-size: var(--fs-16); }
-.btn.sm { padding: 6px 10px; font-size: var(--fs-12); }
+.btn.lg { --h: 48px; --px: 28px; --nudge: -1px; font-size: var(--fs-16); }
+.btn.sm { --h: 30px; --px: 12px; --nudge: 0px; font-size: var(--fs-12); }
+/* optical alignment: 2px less padding on the icon side */
+.btn:has(> .ico:first-child) { padding-left: calc(var(--px) - 2px); }
 @media (hover: hover) {
   .btn:not(:disabled):hover { background: #243042; }
   .btn.primary:not(:disabled):hover { background: color-mix(in srgb, var(--ban) 86%, #fff); }

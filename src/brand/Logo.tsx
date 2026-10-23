@@ -4,7 +4,7 @@ export const BRAND = {
   name: 'Map Veto',
   tagline: 'Valorant Map Picker',
   full: 'Map Veto: Valorant Map Picker',
-  pitch: 'Run a pro-style map veto for Bo1, Bo2, Bo3 and Bo5 — then share the plan with your team.',
+  pitch: 'Run a pro-style map veto for Bo1, Bo2, Bo3 and Bo5, then share the plan with your team.',
 };
 
 /** Shared geometry so the canvas export draws the exact same mark. */

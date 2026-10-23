@@ -1,0 +1,21 @@
+import type { CSSProperties } from 'react';
+import { GOLD, TEAMC } from '../data/maps';
+
+export function confetti() {
+  const box = document.createElement('div');
+  box.className = 'confetti';
+  const cols = [TEAMC[0], TEAMC[1], GOLD, '#ffffff'];
+  for (let i = 0; i < 90; i++) {
+    const p = document.createElement('i');
+    p.style.cssText = `left:${Math.random() * 100}%;background:${cols[i % 4]};animation-delay:${Math.random() * 0.5}s;`
+      + `animation-duration:${1.8 + Math.random() * 1.6}s;--dx:${(Math.random() - 0.5) * 240}px;--r:${Math.random() * 900}deg`;
+    box.appendChild(p);
+  }
+  document.body.appendChild(box);
+  setTimeout(() => box.remove(), 4200);
+}
+
+/** Typed helper for inline CSS custom properties. */
+export const vars = (o: Record<string, string | number>) => o as CSSProperties;
+
+export const cx = (...c: (string | false | null | undefined)[]) => c.filter(Boolean).join(' ');

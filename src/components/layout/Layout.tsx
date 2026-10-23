@@ -3,14 +3,18 @@ import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { BRAND, Logo } from '../../brand/Logo';
 import { cx } from '../../lib/fx';
 
+const FLUSH = [/^\/$/, /^\/maps\/[^/]+$/];
+
 export function Layout() {
   const { pathname, hash } = useLocation();
   // hash links (e.g. /guide#faq) scroll themselves; everything else starts at the top
   useEffect(() => { if (!hash) window.scrollTo({ top: 0 }); }, [pathname]); // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <>
+      <div className="ambient" aria-hidden="true" />
       <Nav />
-      <main><Outlet /></main>
+      {/* full-bleed heroes run underneath the floating header */}
+      <main className={cx(FLUSH.some(r => r.test(pathname)) && 'flush')}><Outlet /></main>
       <Footer />
     </>
   );
@@ -31,8 +35,8 @@ function Nav() {
 
   return (
     <header className={cx('nav', scrolled && 'scrolled', open && 'open')}>
-      <div className="container nav-in">
-        <Link to="/" aria-label={`${BRAND.name} home`}><Logo size={36} /></Link>
+      <div className="nav-pill">
+        <Link to="/" className="nav-home" aria-label={`${BRAND.name} home`}><Logo size={32} /></Link>
         <button className="burger" aria-label="Menu" aria-expanded={open} onClick={() => setOpen(o => !o)}><i /></button>
         <nav className="nav-links">
           <NavLink to="/" end>Home</NavLink>

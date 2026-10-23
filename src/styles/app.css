@@ -67,7 +67,7 @@ input::placeholder, textarea::placeholder { color: var(--dim); }
   gap: var(--s-2);
   min-height: var(--h);
   padding: max(0px, calc(var(--nudge) * 2)) var(--px) max(0px, calc(var(--nudge) * -2));
-  border-radius: var(--r-sm);
+  border-radius: var(--r-pill);
   border: 1px solid var(--line-2);
   background: var(--glass-2);
   font-size: var(--fs-14);
@@ -83,6 +83,8 @@ input::placeholder, textarea::placeholder { color: var(--dim); }
 .btn.primary { background: var(--ban); border-color: var(--ban); color: var(--on-accent); }
 .btn.mint { background: var(--pick); border-color: var(--pick); color: var(--on-accent); }
 .btn.ghost { background: transparent; border-color: transparent; }
+.btn.glassy { background: var(--frost); border-color: var(--frost-line); box-shadow: var(--frost-hi); backdrop-filter: var(--frost-blur); -webkit-backdrop-filter: var(--frost-blur); }
+.btn.primary { box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.25), 0 10px 30px -12px color-mix(in srgb, var(--ban) 80%, transparent); }
 .btn.lg { --h: 48px; --px: 28px; --nudge: -1px; font-size: var(--fs-16); }
 .btn.sm { --h: 30px; --px: 12px; --nudge: 0px; font-size: var(--fs-12); }
 /* optical alignment: 2px less padding on the icon side */
@@ -92,14 +94,15 @@ input::placeholder, textarea::placeholder { color: var(--dim); }
   .btn.primary:not(:disabled):hover { background: color-mix(in srgb, var(--ban) 86%, #fff); }
   .btn.mint:not(:disabled):hover { background: color-mix(in srgb, var(--pick) 86%, #fff); }
   .btn.ghost:not(:disabled):hover { background: var(--glass-2); }
+  .btn.glassy:not(:disabled):hover { background: rgb(255 255 255 / 0.1); }
 }
 
 /* ---------- segmented control: outer 10 = inner 6 + padding 3 + border 1 ---------- */
-.seg { display: flex; gap: 2px; padding: 3px; background: var(--well); border: 1px solid var(--line); border-radius: var(--r-sm); }
+.seg { display: flex; gap: 2px; padding: 3px; background: var(--well); border: 1px solid var(--line); border-radius: var(--r-pill); }
 .seg button {
   flex: 1;
-  padding: 8px;
-  border-radius: var(--r-xs);
+  padding: 8px 12px;
+  border-radius: var(--r-pill);
   font-size: var(--fs-14);
   font-weight: 600;
   color: var(--mute);

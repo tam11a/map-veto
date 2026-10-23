@@ -34,8 +34,8 @@
   --b: var(--ban);
   --gold: var(--decider);
 
-  /* type — Chakra Petch for display & HUD, Barlow for UI and body */
-  --fd: 'Chakra Petch', system-ui, sans-serif;
+  /* type — Big Shoulders Display (condensed, broadcast) for display & HUD, Barlow for UI and body */
+  --fd: 'Big Shoulders Display', 'Barlow Condensed', system-ui, sans-serif;
   --fb: 'Barlow', system-ui, sans-serif;
   /* 1.25 scale on a 16px base */
   --fs-12: 0.75rem;
@@ -96,6 +96,19 @@
   --ring-hover: 0 0 0 1px oklch(1 0 0 / 0.13);
   --image-outline: oklch(1 0 0 / 0.1);
   --depth: 0 24px 48px -24px rgb(0 0 0 / 0.8);
+
+  /* frosted glass — needs colour behind it (see .ambient) */
+  --frost: rgb(255 255 255 / 0.055);
+  --frost-strong: rgb(20 24 33 / 0.58);
+  --frost-line: rgb(255 255 255 / 0.12);
+  --frost-hi: inset 0 1px 0 rgb(255 255 255 / 0.14);
+  --frost-shadow: 0 24px 60px -24px rgb(0 0 0 / 0.75);
+  --frost-blur: blur(22px) saturate(160%);
+}
+
+/* without backdrop-filter, glass falls back to a solid tint */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  :root { --frost: rgb(32 38 50 / 0.92); --frost-strong: rgb(22 27 37 / 0.96); }
 }
 
 @media (prefers-reduced-motion: reduce) {

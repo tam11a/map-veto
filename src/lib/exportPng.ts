@@ -37,7 +37,7 @@ function rr(x: Ctx, X: number, Y: number, w: number, h: number, r: number) {
 }
 
 /** Shrinks the font until `text` fits, then truncates with an ellipsis as a last resort. */
-function fit(x: Ctx, text: string, maxW: number, size: number, weight = 700, fam = 'Chakra Petch', min = 14) {
+function fit(x: Ctx, text: string, maxW: number, size: number, weight = 700, fam = 'Big Shoulders Display', min = 14) {
   let s = size;
   x.font = `${weight} ${s}px "${fam}"`;
   while (x.measureText(text).width > maxW && s > min) { s -= 2; x.font = `${weight} ${s}px "${fam}"`; }
@@ -82,7 +82,7 @@ export async function buildPNG(s: Setup, v: VetoState): Promise<HTMLCanvasElemen
   });
   let cx = P, cy = 0;
   const lay = chips.map(chip => {
-    x.font = '700 14px "Chakra Petch"';
+    x.font = '700 14px "Big Shoulders Display"';
     const tw = x.measureText(chip.tag).width + 16;
     x.font = '600 19px Barlow';
     const w = tw + x.measureText(chip.txt).width + 30;
@@ -113,13 +113,13 @@ export async function buildPNG(s: Setup, v: VetoState): Promise<HTMLCanvasElemen
   // header
   spacing(x, '4px');
   x.fillStyle = '#8b95a9';
-  x.font = '600 18px "Chakra Petch"';
+  x.font = '600 18px "Big Shoulders Display"';
   x.textAlign = 'left';
   x.fillText(`${FORMATS[s.format].name.toUpperCase()} MATCH PLAN`, P, 76);
   spacing(x, '0px');
   x.fillStyle = '#e9edf5';
   x.fillText(fit(x, s.title || `${t[0]} vs ${t[1]}`, W - 2 * P - 320, 56), P, 140);
-  x.font = '700 26px "Chakra Petch"';
+  x.font = '700 26px "Big Shoulders Display"';
   let tx = P;
   ([[t[0], TEAMC[0]], ['  VS  ', '#7d879a'], [t[1], TEAMC[1]]] as const).forEach(([str, col]) => {
     x.fillStyle = col;
@@ -129,7 +129,7 @@ export async function buildPNG(s: Setup, v: VetoState): Promise<HTMLCanvasElemen
   // brand lockup, top right
   x.textAlign = 'right';
   spacing(x, '3px');
-  x.font = '700 24px "Chakra Petch"';
+  x.font = '700 24px "Big Shoulders Display"';
   x.fillStyle = '#ff4655';
   x.fillText('VETO', W - P, 72);
   const vetoW = x.measureText('VETO').width;
@@ -162,7 +162,7 @@ export async function buildPNG(s: Setup, v: VetoState): Promise<HTMLCanvasElemen
       const sc = Math.max(cw / img.width, ch / img.height), iw = img.width * sc, ih = img.height * sc;
       x.drawImage(img, X + (cw - iw) / 2, Y + (ch - ih) / 2, iw, ih);
     } else {
-      x.font = '700 120px "Chakra Petch"';
+      x.font = '700 120px "Big Shoulders Display"';
       x.fillStyle = 'rgba(255,255,255,.06)';
       x.fillText(m.name, X + 10, Y + ch * 0.55);
     }
@@ -180,7 +180,7 @@ export async function buildPNG(s: Setup, v: VetoState): Promise<HTMLCanvasElemen
     x.stroke();
 
     const badge = `MAP ${i + 1}${gm.decider ? ' DECIDER' : ''}`;
-    x.font = '700 15px "Chakra Petch"';
+    x.font = '700 15px "Big Shoulders Display"';
     const bw = x.measureText(badge).width + 22;
     x.fillStyle = col;
     rr(x, X + 18, Y + 18, bw, 32, 8);
@@ -212,11 +212,11 @@ export async function buildPNG(s: Setup, v: VetoState): Promise<HTMLCanvasElemen
       x.fillStyle = TEAMC[team];
       x.fillRect(ix + 12, by - 24, 9, 9);
       const lbl = sd ? (sd === 'atk' ? 'ATK' : 'DEF') : 'TBD';
-      x.font = '700 15px "Chakra Petch"';
+      x.font = '700 15px "Big Shoulders Display"';
       const lw = x.measureText(lbl).width + 16;
       x.fillStyle = '#e9edf5';
       x.fillText(fit(x, t[team], iw2 - lw - 52, 17, 600, 'Barlow', 12), ix + 30, by - 14);
-      x.font = '700 15px "Chakra Petch"';
+      x.font = '700 15px "Big Shoulders Display"';
       x.fillStyle = sd === 'atk' ? 'rgba(255,154,98,.2)' : sd === 'def' ? 'rgba(127,178,255,.22)' : 'rgba(255,255,255,.06)';
       rr(x, ix + iw2 - lw - 8, by - 32, lw, 24, 5);
       x.fill();
@@ -246,7 +246,7 @@ export async function buildPNG(s: Setup, v: VetoState): Promise<HTMLCanvasElemen
 
   // veto log
   spacing(x, '4px');
-  x.font = '600 16px "Chakra Petch"';
+  x.font = '600 16px "Big Shoulders Display"';
   x.fillStyle = '#8b95a9';
   x.fillText('VETO LOG', P, logY - 22);
   spacing(x, '0px');
@@ -263,7 +263,7 @@ export async function buildPNG(s: Setup, v: VetoState): Promise<HTMLCanvasElemen
     rr(x, l.x + 8, Y + 9, l.tw, 24, 5);
     x.fill();
     x.fillStyle = '#06100e';
-    x.font = '700 14px "Chakra Petch"';
+    x.font = '700 14px "Big Shoulders Display"';
     x.fillText(l.tag, l.x + 16, Y + 26);
     x.fillStyle = l.ban ? '#8b95a9' : '#e9edf5';
     x.font = '600 19px Barlow';

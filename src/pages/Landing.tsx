@@ -20,10 +20,10 @@ export function Landing() {
       <Roles />
       <PoolPreview />
       <section className="closing">
-        <div className="container closing-in">
+        <div className="container"><div className="closing-in frost">
           <h2>Both captains ready?</h2>
           <Link to="/veto" className="btn primary lg">Start a veto</Link>
-        </div>
+        </div></div>
       </section>
     </>
   );
@@ -79,21 +79,25 @@ function VetoWall() {
         })}
       </div>
 
-      <div className="wall-hud container">
-        <span><b style={{ color: TEAMC[0] }}>{TEAMS[0]}</b> vs <b style={{ color: TEAMC[1] }}>{TEAMS[1]}</b>, best of 3</span>
-        <span className="wall-status" role="status" key={n}>
-          <em>{done ? 'Veto complete' : `Step ${n + 1} of ${PLAY.length}`}</em>{status}
-        </span>
-        {done && <button className="btn ghost sm" onClick={() => { setN(0); setRun(r => r + 1); }}><Icon.play /> Replay</button>}
-      </div>
-
       <div className="wall-copy container">
-        <h1>Run the veto like it’s the grand final.</h1>
-        <p>Bans, picks, sides and a decider for Bo1 to Bo5. When it’s done, your whole team gets the plan as an image or a link.</p>
-        <div className="hero-cta">
-          <Link to="/veto" className="btn primary lg">Start a veto</Link>
-          <Link to="/maps" className="btn lg">Browse maps</Link>
+        <div>
+          <h1>Run the veto like it’s the grand final.</h1>
+          <p>Bans, picks, sides and a decider for Bo1 to Bo5. When it’s done, your whole team gets the plan as an image or a link.</p>
+          <div className="hero-cta">
+            <Link to="/veto" className="btn primary lg">Start a veto</Link>
+            <Link to="/maps" className="btn glassy lg">Browse maps</Link>
+          </div>
         </div>
+        <aside className="wall-hud frost" aria-label="Example veto status">
+          <div className="match"><b style={{ color: TEAMC[0] }}>{TEAMS[0]}</b> vs <b style={{ color: TEAMC[1] }}>{TEAMS[1]}</b>, best of 3</div>
+          <div className="wall-steps" aria-hidden="true">
+            {PLAY.map((a, i) => <i key={i} className={cx(i < n && 'done')} style={vars({ '--tc': a.team != null ? TEAMC[a.team] : GOLD })} />)}
+          </div>
+          <div className="wall-status" role="status" key={n}>
+            <em>{done ? 'Veto complete' : `Step ${n + 1} of ${PLAY.length}`}</em>{status}
+          </div>
+          {done && <button className="btn glassy sm" onClick={() => { setN(0); setRun(r => r + 1); }}><Icon.play /> Replay</button>}
+        </aside>
       </div>
     </section>
   );
@@ -133,6 +137,7 @@ function FormatExplainer() {
   return (
     <section className="section">
       <div className="container">
+        <div className="explain frost">
         <div className="sec-title">
           <div>
             <h2>Every format, step by step</h2>
@@ -182,7 +187,8 @@ function FormatExplainer() {
         </ol>
         <div className="seq-note">
           <p><b>{FORMATS[f].name}.</b> {FORMAT_RULE[f]}</p>
-          <Link to={`/veto?format=${f}`} className="btn">Plan a {FORMATS[f].label}</Link>
+          <Link to={`/veto?format=${f}`} className="btn glassy">Plan a {FORMATS[f].label}</Link>
+        </div>
         </div>
       </div>
     </section>
@@ -223,7 +229,7 @@ function Roles() {
               <h3>{r.h}</h3>
               <ul>{r.points.map(p => <li key={p}><Icon.check />{p}</li>)}</ul>
             </div>
-            <div className="role-vis" aria-hidden="true">{r.visual}</div>
+            <div className="role-vis frost" aria-hidden="true">{r.visual}</div>
           </div>
         ))}
       </div>
@@ -308,8 +314,10 @@ function PoolPreview() {
             return (
               <Link to={`/maps/${m.id}`} key={m.id} className={cx('pool-card', !live && 'out')}>
                 <MapArt map={m} kind="wide" watermark={false} />
-                <span className="pc-name">{m.name}</span>
-                <small>{live ? m.tag : 'Out of rotation'}</small>
+                <span className="pc-label">
+                  <span className="pc-name">{m.name}</span>
+                  <small>{live ? m.tag : 'Out of rotation'}</small>
+                </span>
               </Link>
             );
           })}

@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { CoinToss } from '../components/CoinToss';
 import { Overlay } from '../components/Overlay';
 import { ResultView } from '../components/ResultView';
-import { SetupView } from '../components/SetupView';
+import { IMPORT_ERROR, SetupView } from '../components/SetupView';
 import { VetoView } from '../components/VetoView';
 import { confetti } from '../lib/fx';
 import { type Payload, clearHash, loadPayload, readHashPlan } from '../lib/share';
@@ -83,7 +83,7 @@ export function VetoPage() {
       setPhase('result');
       toast('Plan imported');
     } catch {
-      toast('That file is not a valid Map Veto plan');
+      toast(IMPORT_ERROR);
     }
   };
 

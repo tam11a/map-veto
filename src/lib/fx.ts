@@ -1,7 +1,11 @@
 import type { CSSProperties } from 'react';
 import { GOLD, TEAMC } from '../data/maps';
 
+export const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/** Celebration on veto completion — skipped entirely for people who prefer reduced motion. */
 export function confetti() {
+  if (prefersReducedMotion()) return;
   const box = document.createElement('div');
   box.className = 'confetti';
   const cols = [TEAMC[0], TEAMC[1], GOLD, '#ffffff'];

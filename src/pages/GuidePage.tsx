@@ -52,8 +52,7 @@ export function GuidePage() {
   return (
     <div className="container">
       <section className="page-hero">
-        <div className="kicker">Veto guide</div>
-        <h1>How the <span className="grad">veto</span> works</h1>
+        <h1>How the veto works</h1>
         <p>Everything you need to run a fair map veto — the default orders {BRAND.name} uses, how sides are decided and how to adapt it to your own rules.</p>
       </section>
       <div className="guide">
@@ -72,10 +71,10 @@ export function GuidePage() {
             <div className="gfmt">
               {([1, 2, 3, 5] as Format[]).map(f => (
                 <div className="card" key={f}>
-                  <h3>{FORMATS[f].label} <span>{FORMATS[f].name.toUpperCase()}</span></h3>
+                  <h3>{FORMATS[f].label} <span>{FORMATS[f].name}</span></h3>
                   <p>{FORMAT_RULES[f]}</p>
                   <SeqChips fmt={f} />
-                  <div style={{ marginTop: 14 }}><Link to={`/veto?format=${f}`} className="btn" style={{ padding: '8px 14px', fontSize: 13 }}>Plan a {FORMATS[f].label} →</Link></div>
+                  <Link to={`/veto?format=${f}`} className="btn sm">Plan a {FORMATS[f].label}</Link>
                 </div>
               ))}
             </div>

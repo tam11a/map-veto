@@ -39,7 +39,7 @@ export function ResultView({ veto, onReplay, onNew }: { veto: VetoState; onRepla
   return (
     <>
       <div className="rhead rise" style={vars({ '--i': 0 })}>
-        <div className="kicker">Match plan · {FORMATS[S.format].name}</div>
+        <div className="kicker">{FORMATS[S.format].name} match plan</div>
         <h1>{S.title || `${t[0]} vs ${t[1]}`}</h1>
         <div className="vs"><span style={{ color: TEAMC[0] }}>{t[0]}</span><i>VS</i><span style={{ color: TEAMC[1] }}>{t[1]}</span></div>
       </div>
@@ -50,12 +50,12 @@ export function ResultView({ veto, onReplay, onNew }: { veto: VetoState; onRepla
           return (
             <div className="game" key={gm.map} style={vars({ '--i': i, '--mc': color })}>
               <MapArt map={m} kind={g.length >= 4 ? 'tall' : 'splash'} watermark={false} />
-              <span className="badge">{gm.decider ? 'DECIDER · ' : ''}MAP {i + 1}</span>
-              <button className="note-btn" title="Map details & notes" onClick={() => openInfo(gm.map)}>📝</button>
+              <span className="badge">MAP {i + 1}{gm.decider ? ' DECIDER' : ''}</span>
+              <button className="note-btn" aria-label={`${m.name} details and notes`} onClick={() => openInfo(gm.map)}><Icon.note /></button>
               <div className="gb">
-                <div className="loc">{m.loc} · {m.sites}</div>
+                <div className="loc"><span>{m.loc}</span><span>Sites {m.sites}</span></div>
                 <h3>{m.name}</h3>
-                <div className="pickby">{gm.by == null ? 'Decider — last map standing' : <>Picked by <b>{t[gm.by]}</b></>}</div>
+                <div className="pickby">{gm.by == null ? 'Decider, the last map standing' : <>Picked by <b>{t[gm.by]}</b></>}</div>
                 <div className="srow">
                   {([0, 1] as const).map(team => {
                     const sd = sideFor(gm, team);
@@ -80,7 +80,7 @@ export function ResultView({ veto, onReplay, onNew }: { veto: VetoState; onRepla
           {veto.hist.map((h, i) => {
             const who = h.team != null ? t[h.team] : 'Auto';
             return (
-              <div key={i} className={`lg k-${h.k}`} style={vars({ '--i': i })}>
+              <div key={i} className={`log-item k-${h.k}`} style={vars({ '--i': i })}>
                 <b style={{ background: h.team != null ? TEAMC[h.team] : GOLD }}>{h.k.toUpperCase()}</b>
                 {h.k === 'ban' ? <>{who} banned <s>{name(h.map)}</s></>
                   : h.k === 'pick' ? <>{who} picked <strong>{name(h.map)}</strong></>
@@ -90,7 +90,7 @@ export function ResultView({ veto, onReplay, onNew }: { veto: VetoState; onRepla
             );
           })}
           {unplayed.map((id, i) => (
-            <div key={id} className="lg" style={vars({ '--i': veto.hist.length + i, opacity: 0.6 })}>
+            <div key={id} className="log-item" style={vars({ '--i': veto.hist.length + i, opacity: 0.6 })}>
               <b style={{ background: 'var(--dim)' }}>UNPLAYED</b>{name(id)}
             </div>
           ))}

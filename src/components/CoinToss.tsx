@@ -29,7 +29,7 @@ export function CoinToss({ teams, onDone }: { teams: [string, string]; onDone: (
         </div>
       </div>
       <h3>{landed && <><span style={{ color: TEAMC[win] }}>{teams[win]}</span> starts the veto</>}</h3>
-      <p>{teams[0]} = A · {teams[1]} = B</p>
+      <p>A is {teams[0]}, B is {teams[1]}</p>
     </div>
   );
 }

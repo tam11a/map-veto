@@ -1,0 +1,108 @@
+/* ============================================================
+   Map Veto — design tokens ("Observer HUD")
+   Colour only appears where it carries meaning:
+   pick = Team A, ban = Team B / primary action, decider = last map.
+   ============================================================ */
+:root {
+  color-scheme: dark;
+
+  /* colour — named palette */
+  --range: #0f1218;      /* page */
+  --glass: #171c25;      /* panels */
+  --glass-2: #1d2430;    /* raised controls */
+  --well: #12161d;       /* inputs, tracks */
+  --line: #273041;
+  --line-2: #344056;
+  --signal: #e6e9ef;     /* text */
+  --mute: #a0a9ba;       /* secondary text, 7.6:1 on range */
+  --dim: #7d879a;        /* tertiary text, 5.2:1 on range */
+  --pick: #2ee6c5;
+  --ban: #ff4655;
+  --decider: #ffc861;
+  --atk: #ff9a62;
+  --def: #7fb2ff;
+  --on-accent: #0f1218;
+
+  /* aliases used by inline styles in components */
+  --bg: var(--range);
+  --bg2: var(--well);
+  --panel: var(--glass);
+  --panel2: var(--glass-2);
+  --line2: var(--line-2);
+  --text: var(--signal);
+  --a: var(--pick);
+  --b: var(--ban);
+  --gold: var(--decider);
+
+  /* type — Chakra Petch for display & HUD, Barlow for UI and body */
+  --fd: 'Chakra Petch', system-ui, sans-serif;
+  --fb: 'Barlow', system-ui, sans-serif;
+  /* 1.25 scale on a 16px base */
+  --fs-12: 0.75rem;
+  --fs-14: 0.875rem;
+  --fs-16: 1rem;
+  --fs-20: 1.25rem;
+  --fs-25: 1.5625rem;
+  --fs-31: 1.9375rem;
+  --fs-39: 2.4375rem;
+  --fs-49: 3.0625rem;
+  --fs-61: 3.8125rem;
+  --fs-76: 4.75rem;
+  --lh-tight: 1.05;
+  --lh-body: 1.55;
+  --measure: 68ch;
+
+  /* radius — nested surfaces follow outer = inner + padding (+ border) */
+  --r-xs: 6px;
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 20px;
+  --r-xl: 28px;
+  --r-pill: 999px;
+
+  /* space */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 24px;
+  --s-6: 32px;
+  --s-7: 48px;
+  --s-8: 64px;
+  --s-9: 96px;
+
+  /* motion */
+  --dur-fast: 150ms;
+  --dur-base: 300ms;
+  --ease-out: cubic-bezier(0.2, 0, 0, 1);
+  --ease-spring: cubic-bezier(0.2, 1.4, 0.4, 1);
+  /* movement distances — zeroed under reduced motion so every enter becomes a fade */
+  --rise: 12px;
+  --blur: 4px;
+  --press: 0.96;
+  --lift: -6px;
+
+  /* layers */
+  --z-raise: 2;
+  --z-hit: 3;
+  --z-ctl: 4;
+  --z-nav: 40;
+  --z-overlay: 50;
+  --z-fx: 90;
+  --z-toast: 100;
+
+  /* surfaces (dark mode keeps a single white ring) */
+  --ring: 0 0 0 1px oklch(1 0 0 / 0.08);
+  --ring-hover: 0 0 0 1px oklch(1 0 0 / 0.13);
+  --image-outline: oklch(1 0 0 / 0.1);
+  --depth: 0 24px 48px -24px rgb(0 0 0 / 0.8);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --rise: 0px;
+    --blur: 0px;
+    --press: 1;
+    --lift: 0px;
+  }
+}

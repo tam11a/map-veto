@@ -1,4 +1,5 @@
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Icon } from '../components/Icons';
 import { MapArt } from '../components/MapArt';
 import { MAPS } from '../data/maps';
 import { useTitle } from '../lib/useTitle';
@@ -38,10 +39,10 @@ export function MapDetail() {
       <section className="md-hero" key={m.id}>
         <MapArt map={m} kind="splash" watermark={false} />
         <div className="container">
-          <Link to="/maps" className="back">← All maps</Link>
-          <div className="kicker">{m.loc} · Released {m.year}</div>
+          <Link to="/maps" className="back">All maps</Link>
+          <div className="kicker">{m.loc}, released {m.year}</div>
           <h1>{m.name}</h1>
-          <div className="tagline"><span>{m.sites}</span><span>{m.tag}</span>{inPool && <span style={{ color: 'var(--a)' }}>✓ In your pool</span>}</div>
+          <div className="tagline"><span>Sites {m.sites}</span><span>{m.tag}</span>{inPool && <span style={{ color: 'var(--pick)' }}><Icon.check /> In your pool</span>}</div>
         </div>
       </section>
       <div className="container">
@@ -61,14 +62,14 @@ export function MapDetail() {
             <div className="kicker">Plan around {m.name}</div>
             <p>{inPool ? `${m.name} is in your veto pool.` : `${m.name} isn’t in your veto pool yet.`} Your pool currently has {setup.pool.length} maps.</p>
             <div className="md-actions">
-              <button className="btn primary" onClick={vetoWith}>Start a veto with {m.name} →</button>
+              <button className="btn primary" onClick={vetoWith}>Start a veto with {m.name}</button>
               <button className="btn" onClick={togglePool}>{inPool ? 'Remove from pool' : '+ Add to pool'}</button>
             </div>
           </div>
         </div>
         <div className="md-nav">
-          <Link to={`/maps/${prev.id}`}><MapArt map={prev} kind="wide" watermark={false} /><small>← Previous</small><b>{prev.name}</b></Link>
-          <Link to={`/maps/${next.id}`} className="next"><MapArt map={next} kind="wide" watermark={false} /><small>Next →</small><b>{next.name}</b></Link>
+          <Link to={`/maps/${prev.id}`}><MapArt map={prev} kind="wide" watermark={false} /><small>Previous map</small><b>{prev.name}</b></Link>
+          <Link to={`/maps/${next.id}`} className="next"><MapArt map={next} kind="wide" watermark={false} /><small>Next map</small><b>{next.name}</b></Link>
         </div>
       </div>
     </>

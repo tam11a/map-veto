@@ -76,15 +76,15 @@ export async function buildPNG(s: Setup, v: VetoState): Promise<HTMLCanvasElemen
   const chips = v.hist.map(h => {
     const who = h.team != null ? t[h.team] : '';
     const tag = h.k === 'decider' ? 'DECIDER' : h.k.toUpperCase();
-    const txt = h.k === 'side' ? `${who} · ${h.side === 'atk' ? 'Attack' : 'Defense'} on ${name(h.map)}`
-      : h.k === 'decider' ? name(h.map) : `${who} · ${name(h.map)}`;
+    const txt = h.k === 'side' ? `${who} starts ${h.side === 'atk' ? 'Attack' : 'Defense'} on ${name(h.map)}`
+      : h.k === 'decider' ? `${name(h.map)} is the decider` : `${who} ${h.k === 'ban' ? 'banned' : 'picked'} ${name(h.map)}`;
     return { tag, txt, color: h.team != null ? TEAMC[h.team] : GOLD, ban: h.k === 'ban' };
   });
   let cx = P, cy = 0;
   const lay = chips.map(chip => {
     x.font = '700 14px "Chakra Petch"';
     const tw = x.measureText(chip.tag).width + 16;
-    x.font = '600 19px Inter';
+    x.font = '600 19px Barlow';
     const w = tw + x.measureText(chip.txt).width + 30;
     if (cx + w > W - P) { cx = P; cy += 52; }
     const pos = { ...chip, x: cx, y: cy, w, tw };
@@ -96,7 +96,7 @@ export async function buildPNG(s: Setup, v: VetoState): Promise<HTMLCanvasElemen
   c.height = H;
 
   // background
-  x.fillStyle = '#0a0d13';
+  x.fillStyle = '#0f1218';
   x.fillRect(0, 0, W, H);
   ([[0, TEAMC[0]], [W, TEAMC[1]]] as const).forEach(([gx, col]) => {
     const rg = x.createRadialGradient(gx, 0, 0, gx, 0, 900);
@@ -115,13 +115,13 @@ export async function buildPNG(s: Setup, v: VetoState): Promise<HTMLCanvasElemen
   x.fillStyle = '#8b95a9';
   x.font = '600 18px "Chakra Petch"';
   x.textAlign = 'left';
-  x.fillText(`MATCH PLAN · ${FORMATS[s.format].name.toUpperCase()}`, P, 76);
+  x.fillText(`${FORMATS[s.format].name.toUpperCase()} MATCH PLAN`, P, 76);
   spacing(x, '0px');
   x.fillStyle = '#e9edf5';
   x.fillText(fit(x, s.title || `${t[0]} vs ${t[1]}`, W - 2 * P - 320, 56), P, 140);
   x.font = '700 26px "Chakra Petch"';
   let tx = P;
-  ([[t[0], TEAMC[0]], ['  VS  ', '#5b6579'], [t[1], TEAMC[1]]] as const).forEach(([str, col]) => {
+  ([[t[0], TEAMC[0]], ['  VS  ', '#7d879a'], [t[1], TEAMC[1]]] as const).forEach(([str, col]) => {
     x.fillStyle = col;
     x.fillText(str, tx, 184);
     tx += x.measureText(str).width;
@@ -137,13 +137,13 @@ export async function buildPNG(s: Setup, v: VetoState): Promise<HTMLCanvasElemen
   x.fillText('MAP ', W - P - vetoW, 72);
   const wordW = vetoW + x.measureText('MAP ').width;
   spacing(x, '2.5px');
-  x.font = '600 11px Inter';
+  x.font = '600 11px Barlow';
   x.fillStyle = '#8b95a9';
   x.fillText('VALORANT MAP PICKER', W - P, 92);
   spacing(x, '0px');
   drawMark(x, W - P - wordW - 64, 38, 54);
-  x.font = '500 15px Inter';
-  x.fillStyle = '#5b6579';
+  x.font = '500 15px Barlow';
+  x.fillStyle = '#7d879a';
   x.fillText(new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }), W - P, 124);
   x.textAlign = 'left';
 
@@ -179,7 +179,7 @@ export async function buildPNG(s: Setup, v: VetoState): Promise<HTMLCanvasElemen
     rr(x, X + 1.5, Y + 1.5, cw - 3, ch - 3, 19);
     x.stroke();
 
-    const badge = `${gm.decider ? 'DECIDER · ' : ''}MAP ${i + 1}`;
+    const badge = `MAP ${i + 1}${gm.decider ? ' DECIDER' : ''}`;
     x.font = '700 15px "Chakra Petch"';
     const bw = x.measureText(badge).width + 22;
     x.fillStyle = col;
@@ -193,7 +193,7 @@ export async function buildPNG(s: Setup, v: VetoState): Promise<HTMLCanvasElemen
     let by = Y + ch - 24;
     const note = s.notes[gm.map];
     if (note) {
-      x.font = '500 16px Inter';
+      x.font = '500 16px Barlow';
       const lines = wrap(x, note, iw2 - 14, n >= 4 ? 3 : 2), nh = lines.length * 22 + 14;
       x.fillStyle = 'rgba(255,255,255,.06)';
       rr(x, ix, by - nh, iw2, nh, 8);
@@ -215,24 +215,24 @@ export async function buildPNG(s: Setup, v: VetoState): Promise<HTMLCanvasElemen
       x.font = '700 15px "Chakra Petch"';
       const lw = x.measureText(lbl).width + 16;
       x.fillStyle = '#e9edf5';
-      x.fillText(fit(x, t[team], iw2 - lw - 52, 17, 600, 'Inter', 12), ix + 30, by - 14);
+      x.fillText(fit(x, t[team], iw2 - lw - 52, 17, 600, 'Barlow', 12), ix + 30, by - 14);
       x.font = '700 15px "Chakra Petch"';
-      x.fillStyle = sd === 'atk' ? 'rgba(255,77,94,.22)' : sd === 'def' ? 'rgba(80,150,255,.24)' : 'rgba(255,255,255,.06)';
+      x.fillStyle = sd === 'atk' ? 'rgba(255,154,98,.2)' : sd === 'def' ? 'rgba(127,178,255,.22)' : 'rgba(255,255,255,.06)';
       rr(x, ix + iw2 - lw - 8, by - 32, lw, 24, 5);
       x.fill();
-      x.fillStyle = sd === 'atk' ? '#ff8a95' : sd === 'def' ? '#8fbcff' : '#5b6579';
+      x.fillStyle = sd === 'atk' ? '#ff9a62' : sd === 'def' ? '#7fb2ff' : '#7d879a';
       x.fillText(lbl, ix + iw2 - lw, by - 14);
       by -= 48;
     }
     by -= 4;
-    x.font = '500 17px Inter';
+    x.font = '500 17px Barlow';
     x.fillStyle = '#8b95a9';
-    const pb = gm.by == null ? 'Decider — last map standing' : 'Picked by ';
+    const pb = gm.by == null ? 'Decider, the last map standing' : 'Picked by ';
     x.fillText(pb, ix, by);
     if (gm.by != null) {
       const pw = x.measureText(pb).width;
       x.fillStyle = col;
-      x.fillText(fit(x, t[gm.by], iw2 - pw, 17, 700, 'Inter', 12), ix + pw, by);
+      x.fillText(fit(x, t[gm.by], iw2 - pw, 17, 700, 'Barlow', 12), ix + pw, by);
     }
     by -= 34;
     x.fillStyle = '#ffffff';
@@ -240,7 +240,7 @@ export async function buildPNG(s: Setup, v: VetoState): Promise<HTMLCanvasElemen
     by -= n >= 4 ? 44 : 56;
     spacing(x, '2px');
     x.fillStyle = 'rgba(255,255,255,.6)';
-    x.fillText(fit(x, `${m.loc} · ${m.sites}`.toUpperCase(), iw2, 13, 600, 'Inter', 10), ix, by);
+    x.fillText(fit(x, `${m.loc}   SITES ${m.sites}`.toUpperCase(), iw2, 13, 600, 'Barlow', 10), ix, by);
     spacing(x, '0px');
   });
 
@@ -266,7 +266,7 @@ export async function buildPNG(s: Setup, v: VetoState): Promise<HTMLCanvasElemen
     x.font = '700 14px "Chakra Petch"';
     x.fillText(l.tag, l.x + 16, Y + 26);
     x.fillStyle = l.ban ? '#8b95a9' : '#e9edf5';
-    x.font = '600 19px Inter';
+    x.font = '600 19px Barlow';
     x.fillText(l.txt, l.x + l.tw + 18, Y + 28);
   }
 
@@ -276,11 +276,11 @@ export async function buildPNG(s: Setup, v: VetoState): Promise<HTMLCanvasElemen
   x.moveTo(P, H - 60);
   x.lineTo(W - P, H - 60);
   x.stroke();
-  x.font = '500 15px Inter';
-  x.fillStyle = '#5b6579';
-  x.fillText(`${t[0]} vs ${t[1]} · ${FORMATS[s.format].name}${s.sidePick ? ' · side selection on' : ''}`, P, H - 28);
+  x.font = '500 15px Barlow';
+  x.fillStyle = '#7d879a';
+  x.fillText(`${t[0]} vs ${t[1]}, ${FORMATS[s.format].name.toLowerCase()}${s.sidePick ? ', side selection on' : ''}`, P, H - 28);
   x.textAlign = 'right';
-  x.fillText('Planned with Map Veto · Valorant Map Picker', W - P, H - 28);
+  x.fillText('Planned with Map Veto: Valorant Map Picker', W - P, H - 28);
   x.textAlign = 'left';
   return c;
 }

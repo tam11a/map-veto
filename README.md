@@ -39,8 +39,10 @@ npx netlify-cli deploy --build --prod
 ## Brand
 
 - **Mark** — an angular V: the mint arm is the *pick*, the red arm the *ban*, the gold diamond the *decider*. Source: `public/favicon.svg`, `public/logo.svg`, `src/brand/Logo.tsx`.
-- **Colours** — Ink `#0A0D13`, Pick mint `#2EE6C5`, Ban red `#FF4655`, Decider gold `#FFC861`.
-- **Type** — Chakra Petch (display), Inter (UI/body).
+- **Direction** — "Observer HUD": a tournament broadcast overlay. Colour appears only where it means something.
+- **Colours** — Range `#0F1218`, Glass `#171C25`, Signal `#E6E9EF`, Pick `#2EE6C5`, Ban `#FF4655`, Decider `#FFC861` (sides: Attack `#FF9A62`, Defense `#7FB2FF`).
+- **Type** — Chakra Petch (display & HUD), Barlow (UI/body), on a 1.25 scale from 12 to 76px.
+- **Tokens** — `src/styles/tokens.css` holds colour, type, radius, spacing, motion and z-index. Movement distances are zeroed under `prefers-reduced-motion`.
 
 ## Structure
 
@@ -49,7 +51,8 @@ src/
   brand/Logo.tsx       logo mark, wordmark and brand strings
   pages/               Landing, VetoPage, MapsPage, MapDetail, GuidePage, NotFound
   components/          SetupView, VetoView, ResultView, MapArt, Overlay, CoinToss, InfoModal
-  components/layout/   Nav, Footer, Reveal (scroll animations)
+  components/layout/   Nav, Footer
+  styles/              tokens.css, app.css (veto app), site.css (chrome, landing, pages)
   lib/veto.ts          pure veto logic — sequence generation, plan, current step, games
   lib/share.ts         share links, JSON payload, text summary, local storage
   lib/exportPng.ts     canvas renderer for the shareable plan image

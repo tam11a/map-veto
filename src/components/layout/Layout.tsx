@@ -1,4 +1,4 @@
-import { type CSSProperties, type ReactNode, useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { BRAND, Logo } from '../../brand/Logo';
 import { cx } from '../../lib/fx';
@@ -38,7 +38,7 @@ function Nav() {
           <NavLink to="/" end>Home</NavLink>
           <NavLink to="/maps">Maps</NavLink>
           <NavLink to="/guide">Veto guide</NavLink>
-          <Link to="/veto" className="btn primary nav-cta">Start veto <span className="arr">→</span></Link>
+          <Link to="/veto" className="btn primary nav-cta">Start a veto</Link>
         </nav>
       </div>
     </header>
@@ -82,25 +82,5 @@ function Footer() {
         </div>
       </div>
     </footer>
-  );
-}
-
-/** Fades children in when they scroll into view. */
-export function Reveal({ children, delay = 0, className, as: Tag = 'div', style }: {
-  children: ReactNode; delay?: number; className?: string; as?: 'div' | 'section' | 'li'; style?: CSSProperties;
-}) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [inView, setInView] = useState(false);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setInView(true); io.disconnect(); } }, { rootMargin: '0px 0px -8% 0px' });
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
-  return (
-    <Tag ref={ref as never} className={cx('reveal', inView && 'in', className)} style={{ ...style, ['--d' as string]: `${delay}ms` }}>
-      {children}
-    </Tag>
   );
 }

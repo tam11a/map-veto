@@ -3,13 +3,13 @@ import { GOLD, TEAMC } from '../data/maps';
 import { cx, vars } from '../lib/fx';
 import { type Step, curStep, games, getMap, plan, remaining, sideLabel } from '../lib/veto';
 import { useApp } from '../state';
-import type { Action, ActionKind, Side, TeamIdx, VetoState } from '../types';
+import type { Action, ActionKind, MapInfo, Side, TeamIdx, VetoState } from '../types';
 import { Icon } from './Icons';
 import { MapArt } from './MapArt';
 import { Overlay } from './Overlay';
 
 type HistUpdate = (fn: (h: Action[]) => Action[]) => void;
-interface Rec { k: ActionKind; team: TeamIdx | null; g?: number }
+export interface Rec { k: ActionKind; team: TeamIdx | null; g?: number }
 
 interface Props {
   veto: VetoState;
@@ -126,6 +126,10 @@ export function VetoView({ veto, updateHist, replay, onFinish, onSkip, onExit }:
     return r;
   }, [hist]);
 
+  // the map touched by the latest ban/pick/decider plays its one-shot feedback
+  const last = hist[hist.length - 1];
+  const fresh = last && last.k !== 'side' ? last.map : null;
+
   // keep the side sheet's content while it fades out
   const lastSide = useRef<Step | null>(null);
   if (step?.k === 'side') lastSide.current = step;
@@ -133,44 +137,27 @@ export function VetoView({ veto, updateHist, replay, onFinish, onSkip, onExit }:
 
   return (
     <>
-      <div className="vbar">
+      <div className="vbar rise" style={vars({ '--i': 0 })}>
         {([0, 1] as const).map(t => <TeamCard key={t} team={t} name={teams[t]} hist={hist} active={step?.team === t} />)}
         <TurnBanner step={step} teams={teams} timer={S.timer} deadline={deadline} now={now} />
       </div>
-      <Timeline teams={teams} hist={hist} />
-      <div className="grid" data-mode={live ? step!.k : 'idle'} style={vars({ '--tc': step?.team != null ? TEAMC[step.team] : GOLD })}>
-        {S.pool.map((id, i) => {
-          const m = getMap(S, id), r = rec[id];
-          const color = r?.team != null ? TEAMC[r.team] : r ? GOLD : 'var(--dim)';
-          return (
-            <div
-              key={id}
-              className={cx('mcard', r?.k === 'ban' && 'banned', r?.k === 'pick' && 'picked', r?.k === 'decider' && 'decider', !step && !r && 'unplayed', live && !r && 'live')}
-              role="button"
-              tabIndex={0}
-              style={vars({ '--i': i, '--mc': color })}
-              onClick={() => act(id)}
-              onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); act(id); } }}
-            >
-              <MapArt map={m} />
-              <div className="shade" />
-              <span className="by">{r?.team != null ? `${r.k === 'ban' ? '✕' : '★'} ${teams[r.team]}` : ''}</span>
-              <div className="meta">
-                <span className="loc">{m.loc}</span>
-                <h3>{m.name}</h3>
-                <div className="det"><div>
-                  <span>{m.sites}</span>
-                  {m.tag && <span>{m.tag}</span>}
-                  {S.notes[id] && <span>📝 Notes</span>}
-                </div></div>
-              </div>
-              <span className="info" title="Map details" onClick={e => { e.stopPropagation(); openInfo(id); }}>i</span>
-              <div className="stamp">
-                {r ? (r.k === 'ban' ? 'BANNED' : r.k === 'pick' ? `MAP ${r.g} · PICK` : `MAP ${r.g} · DECIDER`) : !step ? 'UNPLAYED' : ''}
-              </div>
-            </div>
-          );
-        })}
+      <div className="rise" style={vars({ '--i': 1 })}><Timeline teams={teams} hist={hist} /></div>
+      <div className="grid rise" data-mode={live ? step!.k : 'idle'} style={vars({ '--i': 2, '--tc': step?.team != null ? TEAMC[step.team] : GOLD })}>
+        {S.pool.map(id => (
+          <MapCard
+            key={id}
+            map={getMap(S, id)}
+            rec={rec[id]}
+            live={live && !rec[id]}
+            done={!step}
+            fresh={fresh === id}
+            teams={teams}
+            hasNotes={!!S.notes[id]}
+            action={step?.k === 'pick' ? 'Pick' : 'Ban'}
+            onAct={() => act(id)}
+            onInfo={() => openInfo(id)}
+          />
+        ))}
       </div>
       <div className="vfoot">
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
@@ -178,11 +165,11 @@ export function VetoView({ veto, updateHist, replay, onFinish, onSkip, onExit }:
           <button className="btn ghost" disabled={!!replay} onClick={() => { if (confirm('Restart the veto from the first step?')) updateHist(() => []); }}>Restart</button>
           <button className="btn ghost" onClick={onExit}>Back to setup</button>
         </div>
-        <div className="hint" style={{ alignSelf: 'center' }}><kbd>Ctrl</kbd> + <kbd>Z</kbd> to undo · <kbd>i</kbd> on a card for map details</div>
+        <div className="hint" style={{ alignSelf: 'center' }}>Press <kbd>Ctrl</kbd> + <kbd>Z</kbd> to undo. Use <kbd>i</kbd> on a card for map details.</div>
       </div>
       {replay && (
-        <div className="replaying"><i />REPLAYING VETO
-          <button className="btn ghost" style={{ padding: '4px 10px', fontSize: 12 }} onClick={onSkip}>Skip</button>
+        <div className="replaying" role="status"><i />REPLAYING VETO
+          <button className="btn ghost sm" onClick={onSkip}>Skip</button>
         </div>
       )}
       <Overlay open={step?.k === 'side'}>
@@ -190,14 +177,14 @@ export function VetoView({ veto, updateHist, replay, onFinish, onSkip, onExit }:
           <>
             <div className="hero-art"><MapArt map={getMap(S, sideStep.map)} kind="splash" watermark={false} /></div>
             <div className="body">
-              <div className="kicker" style={{ color: TEAMC[sideStep.team] }}>{teams[sideStep.team]} · choose your starting side</div>
+              <div className="kicker" style={{ color: TEAMC[sideStep.team] }}>{teams[sideStep.team]} chooses a starting side</div>
               <h2>{getMap(S, sideStep.map).name}</h2>
               <div className="hint">
-                Map {games(hist).findIndex(g => g.map === sideStep.map) + 1} · {getMap(S, sideStep.map).loc} · {getMap(S, sideStep.map).sites}
+                Map {games(hist).findIndex(g => g.map === sideStep.map) + 1} in {getMap(S, sideStep.map).loc}, sites {getMap(S, sideStep.map).sites}
               </div>
               <div className="sides">
-                <button className="atk" onClick={() => chooseSide('atk')}><b>ATTACK</b><small>Start on offense — plant the spike</small></button>
-                <button className="def" onClick={() => chooseSide('def')}><b>DEFENSE</b><small>Start holding sites</small></button>
+                <button className="atk" disabled={!!replay} onClick={() => chooseSide('atk')}><b>ATTACK</b><small>Start on offense and plant the spike</small></button>
+                <button className="def" disabled={!!replay} onClick={() => chooseSide('def')}><b>DEFENSE</b><small>Start holding the sites</small></button>
               </div>
             </div>
           </>
@@ -207,13 +194,58 @@ export function VetoView({ veto, updateHist, replay, onFinish, onSkip, onExit }:
   );
 }
 
-function TeamCard({ team, name, hist, active }: { team: TeamIdx; name: string; hist: Action[]; active: boolean }) {
+interface MapCardProps {
+  map: MapInfo;
+  rec?: Rec;
+  live: boolean;
+  done: boolean;
+  fresh: boolean;
+  teams: [string, string];
+  hasNotes: boolean;
+  action: 'Ban' | 'Pick';
+  onAct?: () => void;
+  onInfo?: () => void;
+}
+
+/** A map on the veto board. State lives in classes driven by transitions; the action is a real button. */
+export function MapCard({ map: m, rec: r, live, done, fresh, teams, hasNotes, action, onAct, onInfo }: MapCardProps) {
+  const color = r?.team != null ? TEAMC[r.team] : r ? GOLD : 'var(--dim)';
+  const stamp = r ? (r.k === 'ban' ? 'BANNED' : r.k === 'pick' ? `MAP ${r.g} PICK` : `MAP ${r.g} DECIDER`) : done ? 'UNPLAYED' : '';
+  const status = r ? (r.k === 'ban' ? `banned by ${teams[r.team!]}` : r.k === 'pick' ? `map ${r.g}, picked by ${teams[r.team!]}` : `map ${r.g}, decider`) : done ? 'unplayed' : 'available';
+  return (
+    <div
+      className={cx('mcard', r?.k === 'ban' && 'banned', r?.k === 'pick' && 'picked', r?.k === 'decider' && 'decider', done && !r && 'unplayed', live && 'live')}
+      data-fresh={fresh || undefined}
+      style={vars({ '--mc': color })}
+    >
+      <MapArt map={m} />
+      <div className="shade" />
+      <span className="by">{r?.team != null ? teams[r.team] : ''}</span>
+      <div className="meta">
+        <span className="loc">{m.loc}</span>
+        <h3>{m.name}</h3>
+        <div className="det">
+          <span>Sites {m.sites}</span>
+          {m.tag && <span>{m.tag}</span>}
+          {hasNotes && <span><Icon.note /> Notes</span>}
+        </div>
+      </div>
+      <div className="stamp" aria-hidden="true">{stamp}</div>
+      {onAct && (
+        <button className="mcard-hit" disabled={!live} onClick={onAct} aria-label={live ? `${action} ${m.name}` : `${m.name}, ${status}`} />
+      )}
+      {onInfo && <button className="info" onClick={onInfo} aria-label={`${m.name} details`}>i</button>}
+    </div>
+  );
+}
+
+export function TeamCard({ team, name, hist, active }: { team: TeamIdx; name: string; hist: Action[]; active: boolean }) {
   const bans = hist.filter(h => h.k === 'ban' && h.team === team).length;
   const picks = hist.filter(h => h.k === 'pick' && h.team === team).length;
   return (
     <div className={cx('tmc', team === 1 && 'r', active && 'active')} style={vars({ '--tc': TEAMC[team], order: team ? 3 : 1 })}>
       <span className="tag" style={{ background: TEAMC[team] }}>{team ? 'B' : 'A'}</span>
-      <div><b>{name}</b><small>{bans} ban{bans === 1 ? '' : 's'} · {picks} pick{picks === 1 ? '' : 's'}</small></div>
+      <div><b>{name}</b><small>{bans} ban{bans === 1 ? '' : 's'}, {picks} pick{picks === 1 ? '' : 's'}</small></div>
     </div>
   );
 }
@@ -262,7 +294,7 @@ function Timeline({ teams, hist }: { teams: [string, string]; hist: Action[] }) 
       {p.map((st, i) => {
         const h = hist[i];
         const name = h ? getMap(setup, h.map).name : '';
-        const sub = h ? (h.k === 'side' && h.side ? `${sideLabel(h.side)} · ${name}` : name) : st.team != null ? teams[st.team].slice(0, 10) : 'Auto';
+        const sub = h ? (h.k === 'side' && h.side ? `${sideLabel(h.side)} on ${name}` : name) : st.team != null ? teams[st.team].slice(0, 10) : 'Auto';
         return (
           <div key={i} className={cx('tl', st.k, i < n && 'done', i === n && 'now')} style={vars({ '--tc': st.team != null ? TEAMC[st.team] : GOLD })}>
             <span><i />{st.k.toUpperCase()}</span>

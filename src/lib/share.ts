@@ -75,7 +75,7 @@ export function clearHash() {
 
 export function textSummary(s: Setup, v: VetoState) {
   const t = v.teams, name = (id: string) => getMap(s, id).name;
-  const L = [`🗺️ ${s.title ? s.title + ' — ' : ''}${t[0]} vs ${t[1]} · ${FORMATS[s.format].name}`, '', 'VETO'];
+  const L = [`🗺️ ${s.title ? s.title + ': ' : ''}${t[0]} vs ${t[1]}, ${FORMATS[s.format].name.toLowerCase()}`, '', 'VETO'];
   v.hist.forEach((h, i) => {
     const who = h.team != null ? t[h.team] : '';
     L.push(`${String(i + 1).padStart(2, ' ')}. ` + (
@@ -91,7 +91,7 @@ export function textSummary(s: Setup, v: VetoState) {
       + (s0 ? ` — ${t[0]} ${s0.toUpperCase()} / ${t[1]} ${s0 === 'atk' ? 'DEF' : 'ATK'}` : ''));
     if (s.notes[g.map]) L.push('   📝 ' + s.notes[g.map].replace(/\n/g, ' / '));
   });
-  L.push('', '— planned with Map Veto: Valorant Map Picker');
+  L.push('', 'Planned with Map Veto: Valorant Map Picker');
   return L.join('\n');
 }
 

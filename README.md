@@ -187,7 +187,10 @@ The license covers this repository's code and its own assets (the Map Veto logo 
 ## Credits
 
 - Map art, minimaps, callouts and agent portraits: [valorant-api.com](https://valorant-api.com)
-- Rotation data: [Valorant Wiki](https://valorant.fandom.com) (CC BY-SA) and [HenrikDev](https://docs.henrikdev.xyz/)
+- Live competitive rotation: the [HenrikDev API](https://docs.henrikdev.xyz/), which reads Riot's queue data. Thanks to HenrikDev for running it.
+- Rotation fallback: the [Valorant Wiki](https://valorant.fandom.com) (CC BY-SA)
 - Fonts: Big Shoulders Display and Barlow, from Google Fonts
+
+Designed and built by [tam11a](https://tam11a.dev).
 
 Map Veto is a fan-made tool and is not affiliated with or endorsed by Riot Games. VALORANT and all related names and artwork are trademarks of Riot Games, Inc.

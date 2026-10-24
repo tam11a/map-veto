@@ -181,7 +181,7 @@ function RotationSource({ info }: { info: RotationInfo }) {
     : info.origin === 'henrikdev' ? ' from Riot’s queue data' : null;
   const note = info.source === 'built-in' ? 'May be out of date'
     : info.origin === 'wiki' ? 'Community-edited, CC BY-SA'
-    : 'Via HenrikDev';
+    : <>Via the <a href="https://docs.henrikdev.xyz/" target="_blank" rel="noreferrer">HenrikDev API</a></>;
   // the ranked pool is 7 maps; a different count usually means the source is mid-update
   const odd = info.source !== 'built-in' && COMPETITIVE_POOL.length !== RANKED_POOL_SIZE;
   // two text blocks only, so the pill never splits the sentence into columns

@@ -85,13 +85,25 @@ function Footer() {
             <Link to="/guide#sides">Side selection</Link>
             <Link to="/guide#faq">FAQ</Link>
           </div>
+          <div className="foot-col">
+            <h4>Data from</h4>
+            <a href="https://docs.henrikdev.xyz/" target="_blank" rel="noreferrer">HenrikDev API</a>
+            <a href="https://valorant-api.com/" target="_blank" rel="noreferrer">Valorant-API</a>
+            <a href="https://valorant.fandom.com/wiki/Maps" target="_blank" rel="noreferrer">Valorant Wiki</a>
+          </div>
         </div>
         <div className="legal">
           <span>
-            {BRAND.name} is a fan-made tool and is not affiliated with or endorsed by Riot Games.
+            Live map rotation by the <a href="https://docs.henrikdev.xyz/" target="_blank" rel="noreferrer">HenrikDev API</a>; map art, minimaps and agents by <a href="https://valorant-api.com/" target="_blank" rel="noreferrer">Valorant-API</a>.
+            {' '}{BRAND.name} is a fan-made tool and is not affiliated with or endorsed by Riot Games.
             VALORANT and all related names and artwork are trademarks of Riot Games, Inc.
           </span>
-          <span>© {new Date().getFullYear()} {BRAND.full}</span>
+          <span className="foot-sign">
+            © {new Date().getFullYear()} {BRAND.full}
+            <a className="maker" href="https://tam11a.dev" target="_blank" rel="noreferrer">
+              Designed and built by <b>tam11a</b>
+            </a>
+          </span>
         </div>
       </div>
     </footer>

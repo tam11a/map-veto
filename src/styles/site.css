@@ -197,13 +197,22 @@ main.flush { padding-top: 0; }
 
 /* ---------- footer ---------- */
 .footer { padding: var(--s-7) 0 var(--s-6); border-top: 1px solid var(--line); }
-.foot-grid { display: grid; grid-template-columns: 1.7fr 1fr 1fr 1fr; gap: var(--s-6); }
+.foot-grid { display: grid; grid-template-columns: 1.7fr repeat(4, 1fr); gap: var(--s-6); }
 .foot-grid p { max-width: 320px; margin-top: var(--s-4); font-size: var(--fs-14); line-height: 1.6; color: var(--mute); }
 .foot-col h4 { margin-bottom: var(--s-3); font-size: var(--fs-14); font-weight: 600; color: var(--signal); }
 .foot-col a { display: block; padding: 4px 0; font-size: var(--fs-14); color: var(--mute); transition: color var(--dur-fast) ease-out; }
 @media (hover: hover) { .foot-col a:hover { color: var(--signal); } }
 .legal { display: flex; justify-content: space-between; flex-wrap: wrap; gap: var(--s-4); margin-top: var(--s-7); padding-top: var(--s-5); border-top: 1px solid var(--line); font-size: var(--fs-12); line-height: 1.6; color: var(--dim); }
 .legal span { max-width: 640px; }
+.legal a { color: var(--mute); text-decoration: underline; text-decoration-color: var(--line-2); text-underline-offset: 3px; transition: color var(--dur-fast) ease-out; }
+.foot-sign { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2) var(--s-4); }
+.legal a.maker { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: var(--r-pill); border: 1px solid var(--line-2); background: var(--glass); color: var(--mute); text-decoration: none; transition-property: color, border-color; transition-duration: var(--dur-fast); }
+.legal a.maker b { font-family: var(--fd); font-size: var(--fs-14); font-weight: 800; letter-spacing: 0.02em; color: var(--signal); }
+@media (hover: hover) {
+  .legal a:hover { color: var(--signal); }
+  .legal a.maker:hover { border-color: var(--pick); color: var(--signal); }
+}
+.rs-note a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
 
 /* ---------- inner pages ---------- */
 .page-hero { padding: var(--s-7) 0 var(--s-6); }
@@ -338,7 +347,9 @@ details.faq p { max-width: var(--measure); padding-bottom: var(--s-4); line-heig
   .explain { padding: var(--s-4); border-radius: var(--r-lg); }
 }
 @media (max-width: 560px) {
-  .gloss, .foot-grid { grid-template-columns: 1fr; }
+  .gloss { grid-template-columns: 1fr; }
+  .foot-grid { grid-template-columns: 1fr 1fr; gap: var(--s-5) var(--s-4); }
+  .foot-grid > :first-child { grid-column: 1 / -1; }
   .pool-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .pool-card { height: 140px; }
   .note-vis { grid-template-columns: 1fr; }

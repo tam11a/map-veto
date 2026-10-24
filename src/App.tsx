@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { Outlet, RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { AppProvider } from './AppProvider';
 import { Layout } from './components/layout/Layout';
 import { GuidePage } from './pages/GuidePage';
@@ -8,21 +8,26 @@ import { MapsPage } from './pages/MapsPage';
 import { NotFound } from './pages/NotFound';
 import { VetoPage } from './pages/VetoPage';
 
+// a data router, so pages can block navigation (the live veto's leave guard uses useBlocker)
+const router = createBrowserRouter([
+  {
+    element: <AppProvider><Outlet /></AppProvider>,
+    children: [
+      {
+        element: <Layout />,
+        children: [
+          { index: true, element: <Landing /> },
+          { path: 'veto', element: <VetoPage /> },
+          { path: 'maps', element: <MapsPage /> },
+          { path: 'maps/:id', element: <MapDetail /> },
+          { path: 'guide', element: <GuidePage /> },
+          { path: '*', element: <NotFound /> },
+        ],
+      },
+    ],
+  },
+]);
+
 export default function App() {
-  return (
-    <BrowserRouter>
-      <AppProvider>
-        <Routes>
-          <Route element={<Layout />}>
-            <Route index element={<Landing />} />
-            <Route path="veto" element={<VetoPage />} />
-            <Route path="maps" element={<MapsPage />} />
-            <Route path="maps/:id" element={<MapDetail />} />
-            <Route path="guide" element={<GuidePage />} />
-            <Route path="*" element={<NotFound />} />
-          </Route>
-        </Routes>
-      </AppProvider>
-    </BrowserRouter>
-  );
+  return <RouterProvider router={router} />;
 }

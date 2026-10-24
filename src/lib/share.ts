@@ -1,5 +1,5 @@
 import { FORMATS, defaultSetup } from '../data/maps';
-import type { Action, Format, MapInfo, Setup, Side, TeamIdx, VetoState } from '../types';
+import type { Action, Format, MapInfo, SeqStep, Setup, Side, TeamIdx, VetoState } from '../types';
 import { games, getMap, getSeq, sideFor } from './veto';
 
 /** Compact, URL-safe representation of a finished (or partial) plan. */
@@ -125,12 +125,29 @@ export async function copyText(t: string) {
 }
 
 const STORE = 'mapveto.setup';
+/** Reads the saved setup field by field; anything missing or malformed falls back to the default. */
 export function loadSetup(): Setup {
-  try {
-    const o = JSON.parse(localStorage.getItem(STORE) ?? 'null');
-    if (o && Array.isArray(o.pool)) return { ...defaultSetup(), ...o };
-  } catch { /* ignore */ }
-  return defaultSetup();
+  const d = defaultSetup();
+  let o: Record<string, unknown> | null = null;
+  try { o = JSON.parse(localStorage.getItem(STORE) ?? 'null'); } catch { /* corrupt JSON */ }
+  if (!o || typeof o !== 'object') return d;
+  const strs = (v: unknown) => Array.isArray(v) && v.every(x => typeof x === 'string');
+  const teams = o.teams as unknown[];
+  return {
+    title: typeof o.title === 'string' ? o.title : d.title,
+    teams: Array.isArray(teams) && teams.length === 2 && strs(teams) ? [teams[0] as string, teams[1] as string] : d.teams,
+    first: o.first === 'a' || o.first === 'b' || o.first === 'coin' ? o.first : d.first,
+    format: [1, 2, 3, 5].includes(o.format as number) ? (o.format as Format) : d.format,
+    pool: strs(o.pool) && (o.pool as string[]).length > 0 ? (o.pool as string[]) : d.pool,
+    customPool: strs(o.customPool) ? (o.customPool as string[]) : d.customPool,
+    custom: Array.isArray(o.custom) ? (o.custom as MapInfo[]).filter(m => m && typeof m.id === 'string' && typeof m.name === 'string' && Array.isArray(m.c)) : d.custom,
+    seq: Array.isArray(o.seq) && (o.seq as SeqStep[]).every(x => (x?.t === 'ban' || x?.t === 'pick') && (x.team === 0 || x.team === 1)) ? (o.seq as SeqStep[]) : null,
+    sidePick: typeof o.sidePick === 'boolean' ? o.sidePick : d.sidePick,
+    timer: [0, 20, 45, 60].includes(o.timer as number) ? (o.timer as number) : d.timer,
+    notes: o.notes && typeof o.notes === 'object' && !Array.isArray(o.notes)
+      ? Object.fromEntries(Object.entries(o.notes as Record<string, unknown>).filter(([, v]) => typeof v === 'string')) as Record<string, string>
+      : d.notes,
+  };
 }
 export function saveSetup(s: Setup) {
   try { localStorage.setItem(STORE, JSON.stringify(s)); } catch { /* ignore */ }

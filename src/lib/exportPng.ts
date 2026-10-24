@@ -9,7 +9,7 @@ type Ctx = CanvasRenderingContext2D;
 const spacing = (x: Ctx, v: string) => { (x as unknown as { letterSpacing?: string }).letterSpacing = v; };
 
 /** Draws the Map Veto mark (same paths as the SVG logo) into a size×size box. */
-function drawMark(x: Ctx, X: number, Y: number, size: number) {
+export function drawMark(x: Ctx, X: number, Y: number, size: number) {
   x.save();
   x.translate(X, Y);
   x.scale(size / 64, size / 64);

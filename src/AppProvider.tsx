@@ -34,7 +34,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   return (
     <AppContext.Provider value={ctx}>
       {children}
-      <Overlay open={!!info?.open} onClose={closeInfo}>
+      <Overlay open={!!info?.open} onClose={closeInfo} labelledBy="info-title">
         {info && <InfoSheet mapId={info.id} onClose={closeInfo} />}
       </Overlay>
       <div id="toast" className={toastMsg.show ? 'show' : ''} role="status">{toastMsg.text}</div>

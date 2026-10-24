@@ -172,13 +172,13 @@ export function VetoView({ veto, updateHist, replay, onFinish, onSkip, onExit }:
           <button className="btn ghost sm" onClick={onSkip}>Skip</button>
         </div>
       )}
-      <Overlay open={step?.k === 'side'}>
+      <Overlay open={step?.k === 'side'} labelledBy="side-title">
         {sideStep && sideStep.team != null && (
           <>
             <div className="hero-art"><MapArt map={getMap(S, sideStep.map)} kind="splash" watermark={false} /></div>
             <div className="body">
               <div className="kicker" style={{ color: TEAMC[sideStep.team] }}>{teams[sideStep.team]} chooses a starting side</div>
-              <h2>{getMap(S, sideStep.map).name}</h2>
+              <h2 id="side-title">{getMap(S, sideStep.map).name}</h2>
               <div className="hint">
                 Map {games(hist).findIndex(g => g.map === sideStep.map) + 1} in {getMap(S, sideStep.map).loc}, sites {getMap(S, sideStep.map).sites}
               </div>

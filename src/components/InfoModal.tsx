@@ -17,7 +17,7 @@ export function InfoSheet({ mapId, onClose }: { mapId: string; onClose: () => vo
       <div className="hero-art"><MapArt map={m} kind="splash" watermark={false} /></div>
       <div className="body">
         <div className="kicker">{m.loc}</div>
-        <h2>{m.name}</h2>
+        <h2 id="info-title">{m.name}</h2>
         <div className="facts">
           <div><small>Sites</small><b>{m.sites}</b></div>
           <div><small>Released</small><b>{m.year ?? '—'}</b></div>

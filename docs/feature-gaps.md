@@ -105,3 +105,9 @@ Every page and shared system reviewed against what captains, coaches, organisers
 2. **Coach value (≈1 week):** minimap and callouts (#4), rule presets and saved orders (#5), per-side notes and agent comps, editable plans, vertical export.
 3. **Broadcast & multiplayer (≈2–3 weeks):** stream overlay (#3), then two-device captain rooms with spectators (#2), which also unlocks a live overlay that follows the room.
 4. **Foundations alongside:** Vitest for the veto/share/rotation logic, CI, storage versioning.
+
+---
+
+## Status
+
+**Wave 1 shipped:** live veto saved after every step and restored on return, with a "Resume veto" header button and a leave dialog (#1); accessible dialogs portalled to `<body>` with focus trap, inert background and focus return, plus a skip link (#8); recent vetoes in the lobby (#6); 1200×630 social image with absolute `og:image` from Netlify's `URL` (#7); per-page error boundary; rotation-count hint. Also fixed while testing: corrupt saved setup no longer crashes the lobby (field-by-field validation in `loadSetup`).

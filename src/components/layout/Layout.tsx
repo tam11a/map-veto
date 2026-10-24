@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { BRAND, Logo } from '../../brand/Logo';
 import { cx } from '../../lib/fx';
+import { useHasLiveVeto } from '../../lib/session';
+import { ErrorBoundary } from '../ErrorBoundary';
 
 const FLUSH = [/^\/$/, /^\/maps\/[^/]+$/];
 
@@ -11,16 +13,20 @@ export function Layout() {
   useEffect(() => { if (!hash) window.scrollTo({ top: 0 }); }, [pathname]); // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <>
+      <a className="skip-link" href="#main">Skip to content</a>
       <div className="ambient" aria-hidden="true" />
       <Nav />
       {/* full-bleed heroes run underneath the floating header */}
-      <main className={cx(FLUSH.some(r => r.test(pathname)) && 'flush')}><Outlet /></main>
+      <main id="main" tabIndex={-1} className={cx(FLUSH.some(r => r.test(pathname)) && 'flush')}>
+        <ErrorBoundary key={pathname}><Outlet /></ErrorBoundary>
+      </main>
       <Footer />
     </>
   );
 }
 
 function Nav() {
+  const live = useHasLiveVeto();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const { pathname } = useLocation();
@@ -42,7 +48,9 @@ function Nav() {
           <NavLink to="/" end>Home</NavLink>
           <NavLink to="/maps">Maps</NavLink>
           <NavLink to="/guide">Veto guide</NavLink>
-          <Link to="/veto" className="btn primary nav-cta">Start a veto</Link>
+          {live
+            ? <Link to="/veto" className="btn primary nav-cta"><span className="live-dot" aria-hidden="true" />Resume veto</Link>
+            : <Link to="/veto" className="btn primary nav-cta">Start a veto</Link>}
         </nav>
       </div>
     </header>

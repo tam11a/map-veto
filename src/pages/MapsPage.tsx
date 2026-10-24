@@ -150,6 +150,8 @@ export function MapsPage() {
   );
 }
 
+const RANKED_POOL_SIZE = 7;
+
 const fmtDate = (iso: string | null) =>
   iso ? new Date(iso).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : '';
 
@@ -162,12 +164,19 @@ function RotationSource({ info }: { info: RotationInfo }) {
   const note = info.source === 'built-in' ? 'May be out of date'
     : info.origin === 'wiki' ? 'Community-edited, CC BY-SA'
     : 'Via HenrikDev';
+  // the ranked pool is 7 maps; a different count usually means the source is mid-update
+  const odd = info.source !== 'built-in' && COMPETITIVE_POOL.length !== RANKED_POOL_SIZE;
   // two text blocks only, so the pill never splits the sentence into columns
   return (
     <p className={`rot-source ${info.source}`}>
       <i aria-hidden="true" />
       <span className="rs-main"><b>{label}</b>{from}{info.updated && <span className="rs-date">{fmtDate(info.updated)}</span>}</span>
       <span className="rs-note">{note}</span>
+      {odd && (
+        <span className="rs-warn">
+          Lists {COMPETITIVE_POOL.length} maps; the ranked pool is usually {RANKED_POOL_SIZE}, so this may be mid-update.
+        </span>
+      )}
     </p>
   );
 }

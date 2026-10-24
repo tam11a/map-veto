@@ -120,3 +120,9 @@ details.faq { border-radius: var(--r-lg); }
   .filter-group .seg button { flex: 1; }
   .filter-toggle { width: 100%; justify-content: center; }
 }
+
+/* where the competitive rotation came from */
+.page-hero .rot-source { display: inline-flex; align-items: center; gap: var(--s-2); margin-top: var(--s-3); padding: 6px 14px 6px 12px; border-radius: var(--r-pill); border: 1px solid var(--frost-line); background: var(--frost); font-size: var(--fs-14); color: var(--mute); }
+.rot-source i { width: 8px; height: 8px; border-radius: 50%; background: var(--dim); }
+.rot-source.live i { background: var(--pick); box-shadow: 0 0 0 4px color-mix(in srgb, var(--pick) 20%, transparent); }
+.rot-source.snapshot i { background: var(--decider); }

@@ -3,3 +3,5 @@ dist
 *.local
 .netlify
 .DS_Store
+.env
+src/data/rotation.generated.json

@@ -36,6 +36,26 @@ npm run preview    # serve the production build locally
 npx netlify-cli deploy --build --prod
 ```
 
+## Live competitive rotation
+
+The competitive map pool comes from [HenrikDev's unofficial API](https://docs.henrikdev.xyz/) (`/valorant/v1/queue-status`), and new maps are discovered from [valorant-api.com](https://valorant-api.com). Three layers, so the site always has an answer:
+
+| Layer | Where | Refreshes |
+| --- | --- | --- |
+| Live | `netlify/functions/rotation.mjs` at `/api/rotation`, cached on Netlify's CDN for 24h (stale-while-revalidate 7 days) and in the browser for 24h | about once a day |
+| Snapshot | `scripts/fetch-rotation.mjs` runs before `dev` and `build`, writing `src/data/rotation.generated.json` (gitignored) | every deploy |
+| Built-in | `COMPETITIVE_POOL` and `MAPS` in `src/data/maps.ts` | when you edit it |
+
+Setup:
+
+1. Create a key at [api.henrikdev.xyz/dashboard](https://api.henrikdev.xyz/dashboard/).
+2. Copy `.env.example` to `.env.local` and set `HENRIK_API_KEY` (local dev uses a matching `/api/rotation` route in `vite.config.ts`).
+3. Add `HENRIK_API_KEY` (and optionally `HENRIK_REGION`) in Netlify → Site configuration → Environment variables.
+
+Without a key everything still works: the build logs a warning and the app uses the built-in rotation. The Maps page shows which layer is in use. `npm run rotation` refreshes the snapshot by hand.
+
+> Drag-and-drop deploys don't include functions; use Git or `netlify deploy --build` for the live layer.
+
 ## Brand
 
 - **Mark** — an angular V: the mint arm is the *pick*, the red arm the *ban*, the gold diamond the *decider*. Source: `public/favicon.svg`, `public/logo.svg`, `src/brand/Logo.tsx`.

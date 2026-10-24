@@ -1,7 +1,29 @@
-import { defineConfig } from 'vite';
+import { defineConfig, loadEnv, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
+// @ts-expect-error plain ESM shared with the Netlify function
+import { fetchRotation } from './scripts/rotation-core.mjs';
 
-export default defineConfig({
-  plugins: [react()],
+/** Serves /api/rotation during `npm run dev`, mirroring netlify/functions/rotation.mjs. */
+function devRotationApi(env: Record<string, string>): Plugin {
+  return {
+    name: 'dev-rotation-api',
+    configureServer(server) {
+      server.middlewares.use('/api/rotation', async (_req, res) => {
+        res.setHeader('Content-Type', 'application/json');
+        try {
+          const pool = await fetchRotation({ key: env.HENRIK_API_KEY, region: env.HENRIK_REGION || 'eu' });
+          res.end(JSON.stringify({ source: 'henrikdev', updated: new Date().toISOString(), pool }));
+        } catch (err) {
+          res.statusCode = 502;
+          res.end(JSON.stringify({ error: String((err as Error)?.message ?? err) }));
+        }
+      });
+    },
+  };
+}
+
+export default defineConfig(({ mode }) => ({
+  // load every variable (not only VITE_*) for the dev route; none of them reach the client bundle
+  plugins: [react(), devRotationApi(loadEnv(mode, process.cwd(), ''))],
   base: '/',
-});
+}));

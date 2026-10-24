@@ -5,6 +5,7 @@ import { COMPETITIVE_POOL, MAPS } from '../data/maps';
 import { cx, vars } from '../lib/fx';
 import { useTitle } from '../lib/useTitle';
 import { poolPreset, sortPool } from '../lib/veto';
+import type { RotationInfo } from '../lib/rotation';
 import { useApp } from '../state';
 
 type Rotation = 'all' | 'competitive';
@@ -37,7 +38,7 @@ function useFilters() {
 
 export function MapsPage() {
   useTitle('Map pool');
-  const { setup, patch, toast } = useApp();
+  const { setup, patch, toast, rotation } = useApp();
   const f = useFilters();
 
   const list = MAPS.filter(m => {
@@ -74,6 +75,7 @@ export function MapsPage() {
       <section className="page-hero">
         <h1>Map pool</h1>
         <p>Sites, the signature mechanic and how each map plays. Open a map to add notes for your team.</p>
+        <RotationSource info={rotation} />
       </section>
 
       <section className="filters frost" aria-label="Filter maps">
@@ -145,4 +147,16 @@ export function MapsPage() {
       )}
     </div>
   );
+}
+
+const fmtDate = (iso: string | null) =>
+  iso ? new Date(iso).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : '';
+
+/** Says where the competitive rotation came from, so a stale list is never mistaken for a live one. */
+function RotationSource({ info }: { info: RotationInfo }) {
+  const text =
+    info.source === 'live' ? `Competitive rotation is live, checked ${fmtDate(info.updated)}.`
+      : info.source === 'snapshot' ? `Competitive rotation as of ${fmtDate(info.updated)}.`
+      : 'Competitive rotation is the built-in list and may be out of date.';
+  return <p className={`rot-source ${info.source}`}><i />{text}</p>;
 }

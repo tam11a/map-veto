@@ -40,7 +40,7 @@ export function MapDetail() {
         <MapArt map={m} kind="splash" watermark={false} />
         <div className="container">
           <Link to="/maps" className="back">All maps</Link>
-          <div className="kicker">{m.loc}, released {m.year}</div>
+          <div className="kicker">{m.year ? `${m.loc}, released ${m.year}` : m.loc}</div>
           <h1>{m.name}</h1>
           <div className="tagline"><span>Sites {m.sites}</span><span>{m.tag}</span>{inPool && <span style={{ color: 'var(--pick)' }}><Icon.check /> In your pool</span>}</div>
         </div>
@@ -52,7 +52,7 @@ export function MapDetail() {
             <p>{m.desc}</p>
             <div className="facts">
               <div><small>Sites</small><b>{m.sites}</b></div>
-              <div><small>Released</small><b>{m.year}</b></div>
+              <div><small>Released</small><b>{m.year ?? '—'}</b></div>
               <div><small>Signature</small><b style={{ fontSize: 14 }}>{m.tag}</b></div>
             </div>
             <div className="label">Team notes <span style={{ color: 'var(--dim)' }}>(saved in this browser, shown on your plan and export)</span></div>

@@ -2,6 +2,7 @@ import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } fro
 import { InfoSheet } from './components/InfoModal';
 import { Overlay } from './components/Overlay';
 import { ensureMapArt } from './lib/images';
+import { initRotation, useCatalog, useCatalogVersion } from './lib/rotation';
 import { loadSetup, saveSetup } from './lib/share';
 import { type AppCtx, AppContext, type SetupPatch } from './state';
 import type { Setup } from './types';
@@ -14,7 +15,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const toastT = useRef<ReturnType<typeof setTimeout>>();
 
   useEffect(() => { saveSetup(setup); }, [setup]);
-  useEffect(() => { ensureMapArt(); }, []);
+  useEffect(() => { ensureMapArt(); initRotation(); }, []);
+  const rotation = useCatalog();
+  const catalogVersion = useCatalogVersion();
 
   const toast = useCallback((text: string) => {
     setToastMsg({ text, show: true });
@@ -24,7 +27,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const patch = useCallback((p: SetupPatch) => setSetup(s => ({ ...s, ...(typeof p === 'function' ? p(s) : p) })), []);
   const replaceSetup = useCallback((s: Setup) => setSetup(s), []);
   const openInfo = useCallback((id: string) => setInfo({ id, open: true }), []);
-  const ctx = useMemo<AppCtx>(() => ({ setup, patch, replaceSetup, toast, openInfo }), [setup, patch, replaceSetup, toast, openInfo]);
+  // catalogVersion changes when maps are added or the rotation updates, so every consumer re-renders
+  const ctx = useMemo<AppCtx>(() => ({ setup, patch, replaceSetup, toast, openInfo, rotation, catalogVersion }), [setup, patch, replaceSetup, toast, openInfo, rotation, catalogVersion]);
   const closeInfo = useCallback(() => setInfo(i => (i ? { ...i, open: false } : i)), []);
 
   return (

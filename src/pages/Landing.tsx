@@ -6,6 +6,7 @@ import { MapArt } from '../components/MapArt';
 import { COMPETITIVE_POOL, FORMATS, GOLD, MAPS, TEAMC } from '../data/maps';
 import { cx, vars } from '../lib/fx';
 import { useTitle } from '../lib/useTitle';
+import { useCatalog } from '../lib/rotation';
 import { genSeq, other } from '../lib/veto';
 import type { Action, Format, TeamIdx } from '../types';
 
@@ -294,6 +295,7 @@ function TeamVisual() {
 
 /* ================= map pool ================= */
 function PoolPreview() {
+  useCatalog();
   const [view, setView] = useState<'competitive' | 'all'>('competitive');
   return (
     <section className="section">

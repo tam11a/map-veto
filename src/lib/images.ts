@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from 'react';
 import { MAPS } from '../data/maps';
+import { addStandardMaps, notifyCatalog } from './rotation';
 import type { MapInfo } from '../types';
 
 export type ArtKind = 'tall' | 'wide' | 'splash';
@@ -16,7 +17,17 @@ export function ensureMapArt() {
   started = true;
   fetch('https://valorant-api.com/v1/maps')
     .then(r => r.json())
-    .then((j: { data?: { displayName?: string; listViewIconTall?: string; listViewIcon?: string; splash?: string }[] }) => {
+    .then((j: { data?: { displayName?: string; tacticalDescription?: string | null; narrativeDescription?: string | null; listViewIconTall?: string; listViewIcon?: string; splash?: string }[] }) => {
+      // standard (bomb-site) maps released after this build's snapshot
+      const added = addStandardMaps((j.data ?? [])
+        .filter(m => /sites?$/i.test(String(m.tacticalDescription ?? '').trim()))
+        .map(m => ({
+          id: (m.displayName ?? '').toLowerCase().replace(/[^a-z0-9]/g, ''),
+          name: m.displayName ?? '',
+          sites: String(m.tacticalDescription).replace(/\s*sites?$/i, '').split('/').map(s => s.trim()).join(', '),
+          desc: m.narrativeDescription ?? '',
+        })));
+      if (added) notifyCatalog();
       for (const m of j.data ?? []) {
         const id = (m.displayName ?? '').toLowerCase();
         if (MAPS.some(x => x.id === id)) IMG[id] = { tall: m.listViewIconTall, wide: m.listViewIcon, splash: m.splash };

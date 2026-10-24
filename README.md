@@ -2,7 +2,7 @@
 
 # Map Veto: Valorant Map Picker
 
-Run a pro-style map veto for **Bo1, Bo2, Bo3 and Bo5** — bans, picks, side selection, turn timers and map intel — then share the final plan as an image, link, text or JSON. Free, no sign-up, runs entirely in the browser.
+Run a pro-style map veto for **Bo1, Bo2, Bo3 and Bo5** — bans, picks, side selection, turn timers and map intel — then share the final plan as an image, story image, link, text or JSON. Captains can veto from their own devices in an online room, with a transparent stream overlay for OBS. Free, no sign-up.
 
 ## Pages
 
@@ -12,8 +12,11 @@ Run a pro-style map veto for **Bo1, Bo2, Bo3 and Bo5** — bans, picks, side sel
 | `/veto`      | The veto app: setup → live veto → match plan (`?format=1/2/3/5`) |
 | `/veto#plan=…` | Shared plan link — opens straight into the result             |
 | `/maps`      | Map pool with search & filters                                  |
-| `/maps/:id`  | Map detail with intel, team notes and pool controls             |
-| `/guide`     | How the veto works, formats, sides, glossary, FAQ               |
+| `/maps/:id`  | Map detail: minimap with callouts, team prep (notes per side, agent comp) |
+| `/guide`     | How the veto works, formats with example replays, sides, glossary, FAQ |
+| `/room/:id`  | Online captain room (`?t=` seat token from the invite links)    |
+| `/overlay/:id` | Transparent 1920×1080 broadcast view of a room (`?bg=1` to preview) |
+| `/p/:id`     | Short share link                                                |
 
 ## Develop
 
@@ -22,13 +25,22 @@ npm install
 npm run dev        # http://localhost:5173
 npm run build      # type-check + production build to dist/
 npm run preview    # serve the production build locally
+npm test           # Vitest: veto rules, share links, rooms, rotation parsers
+npm run check      # type-check + tests (what CI runs before the build)
 ```
+
+`npm run dev` also serves `/api/rooms`, `/api/links` and `/api/rotation`, so online rooms work locally (rooms live in memory until the dev server restarts).
 
 ## Deploy to Netlify
 
-**Git-connected (recommended):** push this repo and import it in Netlify. `netlify.toml` already sets the build command (`npm run build`), publish directory (`dist`), Node 20, SPA redirects and asset caching.
+**Git-connected (recommended):** push this repo and import it in Netlify. `netlify.toml` already sets the build command (`npm run build`), publish directory (`dist`), Node 20, the functions directory, SPA redirects and caching headers. Netlify sets `URL` during the build, which makes the social image, `robots.txt` and `sitemap.xml` use absolute links.
 
-**Drag & drop:** run `npm run build` and drop the `dist/` folder on [app.netlify.com/drop](https://app.netlify.com/drop). `public/_redirects` is copied into `dist/` so deep links like `/maps/ascent` still work.
+Two functions deploy with the site:
+
+- `netlify/functions/rotation.mjs` → `/api/rotation`, the CDN-cached competitive rotation
+- `netlify/functions/rooms.mts` → `/api/rooms` and `/api/links`, online rooms and short links stored in [Netlify Blobs](https://docs.netlify.com/blobs/overview/) (no setup needed, Blobs is on for every site)
+
+**Drag & drop:** run `npm run build` and drop the `dist/` folder on [app.netlify.com/drop](https://app.netlify.com/drop). This uploads static files only, so **functions are not deployed**: online rooms and short links are unavailable (share links fall back to the long self-contained form) and the rotation is read from the wiki in the browser. Use Git or the CLI for the full app.
 
 **CLI:**
 
@@ -78,16 +90,25 @@ src/
   components/          SetupView, VetoView, ResultView, MapArt, Overlay, CoinToss, InfoModal
   components/layout/   Nav, Footer
   styles/              tokens.css, app.css (veto app), site.css (chrome, landing, pages)
-  lib/veto.ts          pure veto logic — sequence generation, plan, current step, games
-  lib/share.ts         share links, JSON payload, text summary, local storage
-  lib/exportPng.ts     canvas renderer for the shareable plan image
-  lib/images.ts        official map art + CORS-safe loading for export
+  lib/veto.ts          pure veto logic: sequence generation, side rules, plan, current step, games
+  lib/share.ts         share links, JSON payload, text summary, setup validation
+  lib/room-core.ts     server rules for rooms and short links (used by the function and the dev server)
+  lib/rooms.ts         client for rooms: create, poll, send moves, invite links
+  lib/exportPng.ts     canvas renderers for the landscape and story plan images
+  lib/images.ts        official map art, minimaps and callouts, CORS-safe loading for export
+  lib/agents.ts        playable agents for comps (valorant-api.com, cached a week)
+  lib/sound.ts         synthesized WebAudio cues for the live veto
+  data/presets.ts      built-in rule sets
+netlify/functions/     rotation.mjs, rooms.mts
+public/sw.js           service worker for offline use
   AppProvider.tsx      global setup state, toasts, map info sheet
 ```
 
 ## Notes
 
 - Map artwork is loaded at runtime from [valorant-api.com](https://valorant-api.com); cards fall back to gradients if it is unavailable. The PNG export fetches art through the `wsrv.nl` image proxy because the media CDN sends no CORS headers.
-- Setup and map notes are stored in `localStorage`; share links carry the whole plan in the URL hash, so nothing is sent to a server.
+- Setup, notes and saved rule sets are stored in `localStorage`. Long share links carry the whole plan in the URL hash. Online rooms and short links are stored in Netlify Blobs; rooms close three days after the last move.
+- Room seats are random tokens in the invite links. Anyone with a captain link can act for that team, so share them privately.
+- Keyboard during a veto: `1`–`9`/`0` choose maps, `A`/`D` sides, `P` pause, `M` sound, `Ctrl+Z` undo.
 
 Map Veto is a fan-made tool and is not affiliated with or endorsed by Riot Games. VALORANT and all related names and artwork are trademarks of Riot Games, Inc.

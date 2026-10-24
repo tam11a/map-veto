@@ -1,0 +1,13 @@
+{
+  "name": "Map Veto: Valorant Map Picker",
+  "short_name": "Map Veto",
+  "description": "Run Valorant map vetoes for Bo1 to Bo5 and share the match plan.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0f1218",
+  "theme_color": "#0f1218",
+  "icons": [
+    { "src": "/logo.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

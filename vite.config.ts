@@ -3,6 +3,7 @@ import { defineConfig, loadEnv, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import { resolveRotation } from './scripts/rotation-core.mjs';
 import { handleApi, memoryStore } from './src/lib/room-core';
+import { MAPS } from './src/data/maps';
 
 /** Serves /api/rotation during `npm run dev`, mirroring netlify/functions/rotation.mjs. */
 function devRotationApi(env: Record<string, string>): Plugin {
@@ -70,6 +71,28 @@ function devSaveOgImage(): Plugin {
   };
 }
 
+/** robots.txt and sitemap.xml at build time; the sitemap needs the site's absolute URL (Netlify's URL). */
+function seoFiles(env: Record<string, string>): Plugin {
+  const url = (env.URL || env.SITE_URL || '').replace(/\/$/, '');
+  const pages = ['/', '/veto', '/maps', '/guide', ...MAPS.map(m => `/maps/${m.id}`)];
+  return {
+    name: 'seo-files',
+    apply: 'build',
+    generateBundle() {
+      const robots = ['User-agent: *', 'Allow: /', 'Disallow: /room/', 'Disallow: /overlay/', 'Disallow: /p/', ...(url ? ['', `Sitemap: ${url}/sitemap.xml`] : [])];
+      this.emitFile({ type: 'asset', fileName: 'robots.txt', source: robots.join('\n') + '\n' });
+      if (!url) return;
+      const today = new Date().toISOString().slice(0, 10);
+      const xml = pages.map(p => `  <url><loc>${url}${p}</loc><lastmod>${today}</lastmod></url>`).join('\n');
+      this.emitFile({
+        type: 'asset',
+        fileName: 'sitemap.xml',
+        source: `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${xml}\n</urlset>\n`,
+      });
+    },
+  };
+}
+
 /** Social tags need an absolute image URL: use Netlify's site URL at build time when available. */
 function siteUrl(env: Record<string, string>): Plugin {
   const url = (env.URL || env.SITE_URL || '').replace(/\/$/, '');
@@ -78,6 +101,6 @@ function siteUrl(env: Record<string, string>): Plugin {
 
 export default defineConfig(({ mode }) => ({
   // load every variable (not only VITE_*) for the dev route; none of them reach the client bundle
-  plugins: [react(), devRotationApi(loadEnv(mode, process.cwd(), '')), devRoomsApi(), devSaveOgImage(), siteUrl({ ...process.env, ...loadEnv(mode, process.cwd(), '') } as Record<string, string>)],
+  plugins: [react(), devRotationApi(loadEnv(mode, process.cwd(), '')), devRoomsApi(), devSaveOgImage(), siteUrl({ ...process.env, ...loadEnv(mode, process.cwd(), '') } as Record<string, string>), seoFiles({ ...process.env, ...loadEnv(mode, process.cwd(), '') } as Record<string, string>)],
   base: '/',
 }));

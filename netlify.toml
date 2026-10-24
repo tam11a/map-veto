@@ -5,6 +5,12 @@
 [build.environment]
   NODE_VERSION = "20"
 
+# rotation.mjs (CDN-cached competitive rotation) and rooms.mts (captain rooms + short links on Netlify Blobs).
+# Functions declare their own /api/* paths, which take precedence over the SPA redirect below.
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
 # Single-page app: every route serves index.html
 [[redirects]]
   from = "/*"
@@ -15,6 +21,11 @@
   for = "/assets/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"
 
 [[headers]]
   for = "/*"

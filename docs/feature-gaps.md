@@ -111,3 +111,13 @@ Every page and shared system reviewed against what captains, coaches, organisers
 ## Status
 
 **Wave 1 shipped:** live veto saved after every step and restored on return, with a "Resume veto" header button and a leave dialog (#1); accessible dialogs portalled to `<body>` with focus trap, inert background and focus return, plus a skip link (#8); recent vetoes in the lobby (#6); 1200×630 social image with absolute `og:image` from Netlify's `URL` (#7); per-page error boundary; rotation-count hint. Also fixed while testing: corrupt saved setup no longer crashes the lobby (field-by-field validation in `loadSetup`).
+
+**Waves 2–4 shipped:**
+- Lobby: built-in and saved rule sets (#5); side rule (opponent or picker) and decider side (last-ban rule, team A, team B, knife round); event, date and team logos; custom timer; edit custom maps; confirm before starting an order that doesn't fit.
+- Coach value: attack/defense notes and a five-agent comp per map; minimap with every callout on map pages (#4); plan editing (rename, swap sides, match details); 1080×1920 story export; Maps page sorting.
+- Live veto: timer pause, number/A/D/P/M shortcuts, sound cues, logos on the board.
+- Broadcast & multiplayer: online captain rooms with server-validated turns, spectators and host controls (#2); `/overlay/:id` stream overlay that follows a room (#3); short share links.
+- Landing & guide: try-it-yourself hero, pool shortcut, example replays per format, FAQ updated.
+- Foundations: Vitest suite (veto, share, rooms, rotation parsers), GitHub Actions CI, robots.txt and sitemap, service worker and web manifest, Netlify functions config.
+
+**Still open:** rotation history on map pages; per-plan social images; pre-rendered map pages; live updates are polling (about 1s), not push; a real Netlify deploy, screen-reader pass and service-worker check on a real browser are still to verify.

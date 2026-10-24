@@ -1,6 +1,7 @@
 version: 2
 updates:
-  # one weekly PR for minor and patch updates; majors arrive on their own so they can be reviewed
+  # one weekly PR with minor and patch updates; major versions are upgraded by hand,
+  # since they usually need code changes (Vite, TypeScript, React Router)
   - package-ecosystem: npm
     directory: /
     schedule:
@@ -8,7 +9,10 @@ updates:
     groups:
       minor-and-patch:
         update-types: [minor, patch]
-    open-pull-requests-limit: 5
+    ignore:
+      - dependency-name: "*"
+        update-types: [version-update:semver-major]
+    open-pull-requests-limit: 3
   - package-ecosystem: github-actions
     directory: /
     schedule:

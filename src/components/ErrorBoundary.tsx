@@ -44,7 +44,7 @@ export class ErrorBoundary extends Component<Props, State> {
               <AlertDescription className="font-mono text-xs break-words whitespace-pre-wrap text-ban/90">{error.message}</AlertDescription>
             </Alert>
           </CardContent>
-          <CardFooter className="flex-wrap gap-2 border-white/10 bg-black/20 px-7 pb-0 [.border-t]:pt-5">
+          <CardFooter className="flex-wrap gap-2 border-white/10 bg-black/20 px-7 py-5">
             <Button onClick={() => window.location.reload()}>Reload the page</Button>
             <Button asChild variant="secondary"><Link to="/" onClick={() => this.setState({ error: null })}>Go to the home page</Link></Button>
           </CardFooter>

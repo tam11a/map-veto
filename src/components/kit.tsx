@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react';
-import { CalendarIcon, ClockIcon, MinusIcon, PlusIcon } from 'lucide-react';
+import { CalendarIcon, ClockIcon, MinusIcon, PlusIcon, XIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -105,8 +105,8 @@ export function DateTimePicker({ id, value, onChange, placeholder = 'Optional', 
           <span className="truncate">{shown || placeholder}</span>
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-auto p-0" align="start">
-        <Calendar mode="single" selected={date} defaultMonth={date} onSelect={d => set(d)} autoFocus />
+      <PopoverContent className="w-[18.5rem] p-0" align="start">
+        <Calendar className="mx-auto" mode="single" selected={date} defaultMonth={date} onSelect={d => set(d)} />
         <div className="flex items-center gap-2 border-t border-white/10 p-3">
           <ClockIcon className="size-4 text-dim" aria-hidden="true" />
           <Select value={hh} onValueChange={h => set(date ?? new Date(), h, mm)}>
@@ -119,7 +119,7 @@ export function DateTimePicker({ id, value, onChange, placeholder = 'Optional', 
             <SelectContent className="max-h-60">{minutes.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}</SelectContent>
           </Select>
           <div className="ml-auto flex gap-1">
-            {value && <Button size="sm" variant="ghost" onClick={() => { onChange(''); setOpen(false); }}>Clear</Button>}
+            {value && <Button size="icon-sm" variant="ghost" aria-label="Clear date and time" onClick={() => { onChange(''); setOpen(false); }}><XIcon /></Button>}
             <Button size="sm" variant="secondary" onClick={() => setOpen(false)}>Done</Button>
           </div>
         </div>

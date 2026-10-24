@@ -4,7 +4,7 @@ import { MapFacts } from '../components/InfoModal';
 import { Panel } from '../components/kit';
 import { Badge } from '../components/ui/badge';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '../components/ui/breadcrumb';
-import { CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../components/ui/card';
+import { CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { cn } from '../lib/utils';
 import { MapArt } from '../components/MapArt';
@@ -60,7 +60,7 @@ export function MapDetail() {
           </div>
         </div>
       </section>
-      <div className="container">
+      <div className="container pb-16 sm:pb-24">
         <div className="grid items-start gap-4 py-4 lg:grid-cols-[1.45fr_1fr]">
           <Panel className="flex flex-col gap-4 py-5 sm:py-6">
             <CardHeader className="px-5 sm:px-6">
@@ -77,10 +77,10 @@ export function MapDetail() {
               <CardDescription className="font-semibold">Plan around {m.name}</CardDescription>
               <CardTitle className="text-base leading-relaxed font-normal tracking-normal">{inPool ? `${m.name} is in your veto pool.` : `${m.name} isn’t in your veto pool yet.`} Your pool currently has {setup.pool.length} maps.</CardTitle>
             </CardHeader>
-            <CardFooter className="mt-1 flex-wrap gap-2 border-0 bg-transparent px-5 py-0 sm:px-6">
+            <CardContent className="mt-1 flex flex-wrap gap-2 px-5 sm:px-6">
               <Button onClick={vetoWith}>Start a veto with {m.name}</Button>
               <Button variant="secondary" onClick={togglePool}>{inPool ? 'Remove from pool' : <><PlusIcon /> Add to pool</>}</Button>
-            </CardFooter>
+            </CardContent>
           </Panel>
         </div>
         <Minimap mapId={m.id} name={m.name} />

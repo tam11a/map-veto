@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { Panel, SectionTitle } from './kit';
 import { minimapFor, useMapArtVersion } from '../lib/images';
@@ -66,7 +67,8 @@ export function Minimap({ mapId, name }: { mapId: string; name: string }) {
             );
           })}
         </div>
-        <ul className="grid max-h-64 grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-0.5 overflow-auto pr-1 md:max-h-155 md:grid-cols-1" aria-label="Callout names">
+        <ScrollArea className="h-64 md:h-155">
+        <ul className="grid grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-0.5 pr-3 md:grid-cols-1" aria-label="Callout names">
           {shown.map(c => {
             const key = c.region + c.name;
             return (
@@ -76,6 +78,7 @@ export function Minimap({ mapId, name }: { mapId: string; name: string }) {
             );
           })}
         </ul>
+        </ScrollArea>
       </div>
       <p className="mt-3 text-xs text-dim">Minimap and callout names from valorant-api.com.</p>
     </Panel>

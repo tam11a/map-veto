@@ -5,7 +5,10 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Spinner } from '@/components/ui/spinner';
 import { Switch } from '@/components/ui/switch';
+import { Toggle } from '@/components/ui/toggle';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { ALL_MAP_IDS, COMPETITIVE_POOL, FORMATS, TEAMC } from '@/data/maps';
 import { BUILTIN_PRESETS, describePreset } from '@/data/presets';
@@ -14,7 +17,7 @@ import { cn } from '@/lib/utils';
 import { allMaps, deciderSider, getSeq, other, pickSider, poolPreset, simulate, sortPool } from '@/lib/veto';
 import { useApp } from '@/state';
 import type { DeciderRule, FirstTurn, Format, PoolPreset, RulePreset, SeqStep, Setup, SideRule, StepType, TeamIdx } from '@/types';
-import { ConfirmDialog, Field, Panel, SectionTitle, Segmented } from './kit';
+import { ConfirmDialog, DateTimePicker, Field, Panel, SectionTitle, Segmented, Stepper } from './kit';
 import { MapArt } from './MapArt';
 import { TeamMark } from './TeamMark';
 
@@ -47,7 +50,7 @@ export function SetupView({ onStart, onRoom, onImport }: { onStart: () => void; 
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button size="lg" variant="secondary" className="w-full" onClick={() => start('room')} disabled={!canStart || creating}>
-                  <UsersIcon /> {creating ? 'Creating room…' : 'Start an online room'}
+                  {creating ? <Spinner /> : <UsersIcon />} {creating ? 'Creating room…' : 'Start an online room'}
                 </Button>
               </TooltipTrigger>
               <TooltipContent>Each captain vetoes from their own device</TooltipContent>
@@ -95,16 +98,20 @@ function Versus() {
       )}
       style={vars({ '--tc': TEAMC[i] })}
     >
-      <button
-        className="grid size-13 shrink-0 place-items-center overflow-hidden rounded-lg bg-(--tc) text-2xl font-extrabold text-ink transition hover:ring-3 hover:ring-(--tc)/40 active:scale-95 has-[img]:bg-black/40"
-        onClick={() => setLogoFor(i)}
-        aria-label={`${S.teams[i]} logo${S.logos[i] ? '' : ', none set'}. Change`}
-        title="Set a team logo"
-      >
-        <TeamMark i={i} url={S.logos[i]} />
-      </button>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            className="size-13 rounded-lg bg-(--tc) bg-none p-0 text-2xl font-extrabold text-ink shadow-none hover:ring-3 hover:ring-(--tc)/40 hover:brightness-110 active:scale-95 has-[img]:bg-black/40 [&>*]:size-full"
+            onClick={() => setLogoFor(i)}
+            aria-label={`${S.teams[i]} logo${S.logos[i] ? '' : ', none set'}. Change`}
+          >
+            <TeamMark i={i} url={S.logos[i]} />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>Set a team logo</TooltipContent>
+      </Tooltip>
       <div className="min-w-0 flex-1">
-        <input
+        <Input
           value={S.teams[i]}
           onChange={e => setTeam(i, e.target.value)}
           onBlur={fixTeams}
@@ -112,7 +119,7 @@ function Versus() {
           aria-label={`Team ${i ? 'B' : 'A'} name`}
           spellCheck={false}
           className={cn(
-            'w-full truncate border-b-2 border-transparent bg-transparent py-0.5 text-3xl font-extrabold tracking-[-0.03em] text-foreground outline-none transition-colors hover:border-white/15 focus-visible:border-(--tc) sm:text-4xl',
+            'h-auto truncate rounded-none border-0 border-b-2 border-transparent bg-transparent px-0 py-0.5 text-3xl! font-extrabold tracking-[-0.03em] text-foreground shadow-none hover:border-white/15 focus-visible:border-(--tc) focus-visible:ring-0 sm:text-4xl! dark:bg-transparent',
             i === 1 && 'md:text-right',
           )}
         />
@@ -150,7 +157,7 @@ function Versus() {
             <Input id="m-event" value={S.event} onChange={e => patch({ event: e.target.value })} placeholder="Optional, e.g. Spring Cup" maxLength={40} />
           </Field>
           <Field label="Date and time" htmlFor="m-date">
-            <Input id="m-date" type="datetime-local" value={S.date} onChange={e => patch({ date: e.target.value })} className="scheme-dark" />
+            <DateTimePicker id="m-date" value={S.date} onChange={date => patch({ date })} />
           </Field>
         </div>
       </div>
@@ -204,23 +211,27 @@ function Rules() {
   return (
     <section className="grid gap-4" aria-label="Format and rules">
       <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-4 border-b border-white/10">
-        <div className="flex w-full gap-1 sm:w-auto" role="group" aria-label="Format">
+        <ToggleGroup
+          type="single"
+          value={String(S.format)}
+          onValueChange={v => { if (v) patch({ format: Number(v) as Format, seq: null }); }}
+          aria-label="Format"
+          className="flex w-full gap-1 sm:w-auto"
+        >
           {(Object.keys(FORMATS).map(Number) as Format[]).map(k => (
-            <button
+            <ToggleGroupItem
               key={k}
-              aria-pressed={S.format === k}
-              onClick={() => patch({ format: k, seq: null })}
+              value={String(k)}
               className={cn(
-                'relative flex-1 px-3 pt-1 pb-3 text-left text-muted-foreground transition-colors hover:text-foreground sm:flex-none sm:px-4',
-                'after:absolute after:inset-x-3 after:-bottom-px after:h-[3px] after:rounded-t after:bg-ban after:opacity-0 after:transition-opacity sm:after:inset-x-4',
-                S.format === k && 'text-foreground after:opacity-100',
+                'relative h-auto flex-1 flex-col items-start gap-0 rounded-none! bg-transparent px-3 pt-1 pb-3 text-left text-muted-foreground hover:bg-transparent hover:text-foreground data-[state=on]:bg-transparent data-[state=on]:text-foreground sm:flex-none sm:px-4',
+                'after:absolute after:inset-x-3 after:-bottom-px after:h-[3px] after:rounded-t after:bg-ban after:opacity-0 after:transition-opacity data-[state=on]:after:opacity-100 sm:after:inset-x-4',
               )}
             >
               <b className="block text-2xl font-extrabold tracking-[-0.03em] sm:text-3xl">{FORMATS[k].label}</b>
-              <small className="text-xs">{FORMATS[k].name}</small>
-            </button>
+              <small className="text-xs font-normal">{FORMATS[k].name}</small>
+            </ToggleGroupItem>
           ))}
-        </div>
+        </ToggleGroup>
         <div className="flex w-full flex-wrap items-center gap-x-6 gap-y-3 pb-3 sm:w-auto">
           <div className="flex items-center gap-3">
             <Label htmlFor="side-pick" className="text-sm text-muted-foreground">Side selection</Label>
@@ -254,11 +265,7 @@ function TimerRule() {
       />
       {editing && (
         <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-          <Input
-            type="number" min={5} max={600} step={5} value={S.timer || ''} aria-label="Seconds per turn"
-            onChange={e => patch({ timer: Math.max(0, Math.min(600, Math.round(Number(e.target.value) || 0))) })}
-            className="h-9 w-20 text-center tabular-nums"
-          />
+          <Stepper label="Seconds per turn" value={S.timer || 30} min={5} max={600} step={5} onChange={timer => patch({ timer })} />
           s
         </div>
       )}
@@ -469,7 +476,12 @@ function MapPool() {
               <span className={cn('pointer-events-none absolute top-2 right-2 z-[2] grid size-5.5 place-items-center rounded-full border-2 transition-colors', on ? 'border-pick bg-pick text-ink' : 'border-white/50')}>
                 {on && <CheckIcon className="size-3.5" strokeWidth={3} />}
               </span>
-              <button className="absolute inset-0 z-[3] rounded-[inherit] focus-visible:outline-2 focus-visible:-outline-offset-3 focus-visible:outline-ring" aria-pressed={on} aria-label={`${m.name}, ${on ? 'in pool' : 'not in pool'}`} onClick={() => toggle(m.id)} />
+              <Toggle
+                pressed={on}
+                onPressedChange={() => toggle(m.id)}
+                aria-label={`${m.name}, ${on ? 'in pool' : 'not in pool'}`}
+                className="absolute inset-0 z-[3] h-auto rounded-[inherit] bg-transparent hover:bg-transparent focus-visible:ring-0 focus-visible:outline-2 focus-visible:-outline-offset-3 focus-visible:outline-ring data-[state=on]:bg-transparent"
+              />
               <div className="absolute top-1.5 left-1.5 z-[4] flex gap-1 opacity-100 transition-opacity [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-focus-within:opacity-100 [@media(hover:hover)]:group-hover:opacity-100">
                 <Button size="icon-sm" variant="glass" className="size-7 rounded-full" aria-label={`${m.name} details and notes`} onClick={() => openInfo(m.id)}>
                   <span className="text-xs font-bold">i</span>
@@ -481,12 +493,13 @@ function MapPool() {
           );
         })}
         {!adding && (
-          <button
-            className="grid h-26 place-items-center rounded-lg border border-dashed border-white/20 text-sm font-semibold text-muted-foreground transition-colors hover:border-white/40 hover:text-foreground"
+          <Button
+            variant="outline"
+            className="h-26 rounded-lg border-dashed border-white/20 bg-transparent text-muted-foreground hover:border-white/40 dark:bg-transparent"
             onClick={() => setAdding(true)}
           >
-            <span className="flex items-center gap-1.5"><PlusIcon className="size-4" /> Custom map</span>
-          </button>
+            <PlusIcon /> Custom map
+          </Button>
         )}
       </div>
       {adding && (
@@ -531,29 +544,27 @@ function VetoOrder() {
               <span className={cn('relative z-[1] grid size-8 place-items-center rounded-full border-2 bg-[#1b1424] text-xs font-bold tabular-nums', s.t === 'ban' ? 'border-ban text-ban' : 'border-decider text-decider')}>
                 {String(i + 1).padStart(2, '0')}
               </span>
-              <button
-                className="flex min-w-0 items-center gap-2 rounded-md border border-white/10 bg-black/25 px-2.5 py-1.5 text-left text-sm font-semibold transition-colors hover:border-(--tc)"
+              <Button
+                variant="outline"
+                size="sm"
+                className="min-w-0 justify-start border-white/10 bg-black/25 px-2.5 hover:border-(--tc) dark:bg-black/25"
                 style={vars({ '--tc': TEAMC[s.team] })}
                 onClick={() => edit(q => { q[i].team = other(q[i].team); })}
                 aria-label={`Step ${i + 1}: ${short(s.team)}. Switch to ${short(other(s.team))}`}
               >
                 <i className="size-2.5 shrink-0 rounded-[3px] bg-(--tc)" /><span className="truncate">{short(s.team)}</span>
-              </button>
-              <div className="flex gap-0.5 rounded-md border border-white/10 bg-black/25 p-0.5" role="group" aria-label={`Step ${i + 1} action`}>
-                {(['ban', 'pick'] as const).map(t => (
-                  <button
-                    key={t}
-                    aria-pressed={s.t === t}
-                    onClick={() => edit(q => { q[i].t = t; })}
-                    className={cn(
-                      'rounded-[5px] px-2.5 py-1 text-sm font-semibold text-dim transition-colors hover:text-foreground',
-                      s.t === t && (t === 'ban' ? 'bg-ban/20 text-ban hover:text-ban' : 'bg-decider/20 text-decider hover:text-decider'),
-                    )}
-                  >
-                    {t === 'ban' ? 'Ban' : 'Pick'}
-                  </button>
-                ))}
-              </div>
+              </Button>
+              <ToggleGroup
+                type="single"
+                size="sm"
+                value={s.t}
+                onValueChange={v => { if (v) edit(q => { q[i].t = v as StepType; }); }}
+                aria-label={`Step ${i + 1} action`}
+                className="gap-0.5 rounded-md border border-white/10 bg-black/25 p-0.5"
+              >
+                <ToggleGroupItem value="ban" className="rounded-[5px]! px-2.5 font-semibold text-dim hover:bg-transparent hover:text-foreground data-[state=on]:bg-ban/20 data-[state=on]:text-ban">Ban</ToggleGroupItem>
+                <ToggleGroupItem value="pick" className="rounded-[5px]! px-2.5 font-semibold text-dim hover:bg-transparent hover:text-foreground data-[state=on]:bg-decider/20 data-[state=on]:text-decider">Pick</ToggleGroupItem>
+              </ToggleGroup>
               <Button size="icon-sm" variant="ghost" className="text-dim hover:text-foreground" aria-label={`Remove step ${i + 1}`} onClick={() => edit(q => { q.splice(i, 1); })}>
                 <XIcon />
               </Button>

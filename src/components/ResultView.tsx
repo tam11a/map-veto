@@ -18,7 +18,7 @@ import { cn } from '@/lib/utils';
 import { flip, games, getMap, sideFor } from '@/lib/veto';
 import { useApp } from '@/state';
 import type { TeamIdx, VetoState } from '@/types';
-import { Field, Panel } from './kit';
+import { DateTimePicker, Field, Panel } from './kit';
 import { MapArt } from './MapArt';
 import { CompRow } from './MapNotes';
 import { TeamMark } from './TeamMark';
@@ -107,7 +107,7 @@ export function ResultView({ veto, onEdit, onReplay, onNew }: Props) {
         {editing && (
           <div className="mt-2 flex flex-wrap justify-center gap-3 text-left">
             <Field label="Event" htmlFor="p-event" className="w-60"><Input id="p-event" value={S.event} onChange={e => patch({ event: e.target.value })} maxLength={40} placeholder="Optional" /></Field>
-            <Field label="Date and time" htmlFor="p-date" className="w-60"><Input id="p-date" type="datetime-local" value={S.date} onChange={e => patch({ date: e.target.value })} className="scheme-dark" /></Field>
+            <Field label="Date and time" htmlFor="p-date" className="w-60"><DateTimePicker id="p-date" value={S.date} onChange={date => patch({ date })} /></Field>
           </div>
         )}
       </header>

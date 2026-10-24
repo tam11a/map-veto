@@ -2,7 +2,10 @@ import { useState } from 'react';
 import { CheckIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { Spinner } from '@/components/ui/spinner';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Textarea } from '@/components/ui/textarea';
+import { Toggle } from '@/components/ui/toggle';
 import { ROLES, agentIcon, useAgents } from '@/lib/agents';
 import { cn } from '@/lib/utils';
 import { useApp } from '@/state';
@@ -69,10 +72,15 @@ function CompPicker({ mapId }: { mapId: string }) {
           return (
             <li key={i} className={cn('relative aspect-square overflow-hidden rounded-lg border bg-black/25', name ? 'border-white/10' : 'border-dashed border-white/15')}>
               {name && (
-                <button className="absolute inset-0 grid place-items-center" onClick={() => save(comp.filter(n => n !== name))} aria-label={`Remove ${name}`} title={`Remove ${name}`}>
-                  {agentIcon(agents, name) ? <img src={agentIcon(agents, name)} alt="" className="absolute inset-0 size-full object-cover" /> : <b className="text-lg">{name.slice(0, 2)}</b>}
-                  <small className="absolute inset-x-0 bottom-0 truncate bg-black/65 px-1 py-0.5 text-center text-[11px] font-semibold">{name}</small>
-                </button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" className="absolute inset-0 grid h-auto place-items-center rounded-none p-0 hover:bg-transparent hover:brightness-110 dark:hover:bg-transparent" onClick={() => save(comp.filter(n => n !== name))} aria-label={`Remove ${name}`}>
+                      {agentIcon(agents, name) ? <img src={agentIcon(agents, name)} alt="" className="absolute inset-0 size-full object-cover" /> : <b className="text-lg">{name.slice(0, 2)}</b>}
+                      <small className="absolute inset-x-0 bottom-0 truncate bg-black/65 px-1 py-0.5 text-center text-[11px] font-semibold">{name}</small>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Remove {name}</TooltipContent>
+                </Tooltip>
               )}
             </li>
           );
@@ -80,7 +88,7 @@ function CompPicker({ mapId }: { mapId: string }) {
       </ol>
       {open && (
         <div className="grid gap-3 rounded-lg border border-white/10 bg-black/25 p-3">
-          {!agents.length && <p className="text-sm text-muted-foreground">Loading agents…</p>}
+          {!agents.length && <p className="flex items-center gap-2 text-sm text-muted-foreground"><Spinner /> Loading agents…</p>}
           {ROLES.map(role => {
             const list = agents.filter(a => a.role === role);
             if (!list.length) return null;
@@ -91,21 +99,21 @@ function CompPicker({ mapId }: { mapId: string }) {
                   {list.map(a => {
                     const on = comp.includes(a.name);
                     return (
-                      <button
+                      <Toggle
                         key={a.name}
-                        className={cn(
-                          'relative grid justify-items-center gap-0.5 rounded-md border px-0.5 py-1.5 text-[11px] font-semibold transition-colors active:scale-95 disabled:cursor-default disabled:opacity-35',
-                          on ? 'border-pick bg-pick/10 text-foreground' : 'border-transparent text-muted-foreground enabled:hover:border-white/15 enabled:hover:text-foreground',
-                        )}
-                        aria-pressed={on}
+                        pressed={on}
                         disabled={!on && comp.length >= COMP_SIZE}
-                        onClick={() => toggle(a.name)}
-                        title={a.name}
+                        onPressedChange={() => toggle(a.name)}
+                        aria-label={a.name}
+                        className={cn(
+                          'relative grid h-auto justify-items-center gap-0.5 rounded-md border px-0.5 py-1.5 text-[11px] font-semibold active:scale-95 disabled:opacity-35',
+                          'border-transparent text-muted-foreground hover:border-white/15 hover:bg-transparent hover:text-foreground data-[state=on]:border-pick data-[state=on]:bg-pick/10 data-[state=on]:text-foreground',
+                        )}
                       >
                         <img src={a.icon} alt="" loading="lazy" className="size-10 rounded-full bg-white/10" />
                         <span className="max-w-full truncate">{a.name}</span>
                         {on && <CheckIcon className="absolute top-1 right-1 size-3 text-pick" />}
-                      </button>
+                      </Toggle>
                     );
                   })}
                 </div>
@@ -125,9 +133,14 @@ export function CompRow({ names }: { names: string[] }) {
   return (
     <div className="flex gap-1" aria-label={`Comp: ${names.join(', ')}`}>
       {names.map(n => (
-        <span key={n} title={n} className="grid size-7 place-items-center overflow-hidden rounded-full border border-white/15 bg-black/30 text-[10px] font-bold">
-          {agentIcon(agents, n) ? <img src={agentIcon(agents, n)} alt="" className="size-full object-cover" /> : n.slice(0, 2)}
-        </span>
+        <Tooltip key={n}>
+          <TooltipTrigger asChild>
+            <span className="grid size-7 place-items-center overflow-hidden rounded-full border border-white/15 bg-black/30 text-[10px] font-bold">
+              {agentIcon(agents, n) ? <img src={agentIcon(agents, n)} alt="" className="size-full object-cover" /> : n.slice(0, 2)}
+            </span>
+          </TooltipTrigger>
+          <TooltipContent>{n}</TooltipContent>
+        </Tooltip>
       ))}
     </div>
   );

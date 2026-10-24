@@ -69,7 +69,7 @@ export function GuidePage() {
         <nav className="hidden lg:sticky lg:top-24 lg:block" aria-label="On this page">
           <Panel className="grid gap-0.5 p-2">
             {SECTIONS.map(([id, label]) => (
-              <a key={id} href={`#${id}`} className={cn('rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground', active === id && 'bg-white/10 font-semibold text-foreground')}>{label}</a>
+              <Button key={id} asChild variant="ghost" size="sm" className={cn('justify-start font-normal text-muted-foreground', active === id && 'bg-white/10 font-semibold text-foreground')}><a href={`#${id}`} aria-current={active === id ? 'location' : undefined}>{label}</a></Button>
             ))}
           </Panel>
         </nav>

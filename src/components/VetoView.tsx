@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Kbd } from '@/components/ui/kbd';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { DECIDER, TEAMC } from '@/data/maps';
 import { vars } from '@/lib/fx';
@@ -318,19 +319,20 @@ export function SideDialog({ step, setup, teams, mapNo, disabled, onChoose }: {
               <p className="text-sm text-muted-foreground">{mapNo > 0 ? `Map ${mapNo} in ` : ''}{m.loc}, sites {m.sites}</p>
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
                 {(['atk', 'def'] as const).map(sd => (
-                  <button
+                  <Button
                     key={sd}
+                    variant="outline"
                     disabled={disabled}
                     onClick={() => onChoose(sd)}
                     className={cn(
-                      'relative rounded-xl border border-white/15 bg-black/30 px-4 py-5 text-left transition-[border-color,background-color,scale] active:scale-[0.98] disabled:opacity-50',
-                      sd === 'atk' ? 'hover:border-atk hover:bg-atk/10 focus-visible:border-atk' : 'hover:border-def hover:bg-def/10 focus-visible:border-def',
+                      'relative block h-auto rounded-xl border-white/15 bg-black/30 px-4 py-5 text-left whitespace-normal active:scale-[0.98] dark:bg-black/30',
+                      sd === 'atk' ? 'hover:border-atk hover:bg-atk/10 focus-visible:border-atk dark:hover:bg-atk/10' : 'hover:border-def hover:bg-def/10 focus-visible:border-def dark:hover:bg-def/10',
                     )}
                   >
                     <b className={cn('block text-2xl font-extrabold tracking-[0.04em]', sd === 'atk' ? 'text-atk' : 'text-def')}>{sd === 'atk' ? 'ATTACK' : 'DEFENSE'}</b>
                     <small className="text-sm text-muted-foreground">{sd === 'atk' ? 'Start on offense and plant the spike' : 'Start holding the sites'}</small>
                     <Kbd className="absolute top-3 right-3 bg-white/10 text-muted-foreground [@media(hover:none)]:hidden">{sd === 'atk' ? 'A' : 'D'}</Kbd>
-                  </button>
+                  </Button>
                 ))}
               </div>
             </div>
@@ -416,8 +418,9 @@ export function MapCard({ map: m, rec: r, live, done, fresh, teams, hasNotes, ho
       </div>
       {live && hotkey && <Kbd aria-hidden="true" className="absolute top-2 left-2 z-[4] border border-white/20 bg-black/60 text-foreground [@media(hover:none)]:hidden">{hotkey}</Kbd>}
       {onAct && (
-        <button
-          className="absolute inset-0 z-[3] rounded-[inherit] disabled:cursor-default focus-visible:outline-2 focus-visible:-outline-offset-3 focus-visible:outline-(--tc,var(--pick))"
+        <Button
+          variant="ghost"
+          className="absolute inset-0 z-[3] h-auto rounded-[inherit] p-0 hover:bg-transparent focus-visible:ring-0 focus-visible:outline-2 focus-visible:-outline-offset-3 focus-visible:outline-(--tc,var(--pick)) disabled:pointer-events-auto disabled:cursor-default disabled:opacity-100 dark:hover:bg-transparent"
           disabled={!live}
           onClick={onAct}
           aria-label={live ? `${action} ${m.name}` : `${m.name}, ${status}`}
@@ -514,13 +517,14 @@ export function Timeline({ teams, hist, setup: given }: { teams: [string, string
   const p = plan(setup), n = hist.length;
 
   useEffect(() => {
-    const tl = ref.current;
-    const el = (tl?.querySelector('[data-now]') ?? tl?.lastElementChild) as HTMLElement | null;
+    const tl = ref.current?.querySelector<HTMLElement>('[data-slot=scroll-area-viewport]');
+    const el = (tl?.querySelector('[data-now]') ?? tl?.querySelector('[data-step]:last-child')) as HTMLElement | null;
     if (tl && el) tl.scrollTo({ left: el.offsetLeft - tl.clientWidth / 2 + el.clientWidth / 2, behavior: 'smooth' });
   }, [n]);
 
   return (
-    <div className="my-3 flex gap-1.5 overflow-x-auto overscroll-x-contain px-0.5 pt-1 pb-3 [scrollbar-color:var(--line)_transparent] [scrollbar-width:thin]" ref={ref}>
+    <ScrollArea className="my-3" ref={ref}>
+      <div className="flex w-max gap-1.5 px-0.5 pt-1 pb-3">
       {p.map((st, i) => {
         const h = hist[i];
         const name = h ? getMap(setup, h.map).name : '';
@@ -529,6 +533,7 @@ export function Timeline({ teams, hist, setup: given }: { teams: [string, string
         return (
           <div
             key={i}
+            data-step
             data-now={now || undefined}
             data-done={i < n || undefined}
             className={cn(
@@ -545,6 +550,8 @@ export function Timeline({ teams, hist, setup: given }: { teams: [string, string
           </div>
         );
       })}
-    </div>
+      </div>
+      <ScrollBar orientation="horizontal" />
+    </ScrollArea>
   );
 }

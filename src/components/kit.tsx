@@ -1,8 +1,16 @@
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
+import { CalendarIcon, ClockIcon, MinusIcon, PlusIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
+import { ButtonGroup } from '@/components/ui/button-group';
+import { Calendar } from '@/components/ui/calendar';
+import { Field as UiField, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
+import { Input } from '@/components/ui/input';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 
 /**
@@ -52,16 +60,92 @@ export function Segmented<T extends string>({
   );
 }
 
-/** A labelled form control with an optional hint underneath. */
+/** A labelled form control with an optional hint (or error) underneath. */
 export function Field({ label, htmlFor, hint, error, className, children }: {
   label: ReactNode; htmlFor?: string; hint?: ReactNode; error?: ReactNode; className?: string; children: ReactNode;
 }) {
   return (
-    <div className={cn('grid gap-1.5', className)}>
-      <Label htmlFor={htmlFor} className="text-xs font-medium text-muted-foreground">{label}</Label>
+    <UiField className={cn('gap-1.5', className)} data-invalid={error ? true : undefined}>
+      <FieldLabel htmlFor={htmlFor} className="text-xs font-medium text-muted-foreground">{label}</FieldLabel>
       {children}
-      {(error || hint) && <p className={cn('text-xs', error ? 'text-ban' : 'text-dim')}>{error || hint}</p>}
-    </div>
+      {error ? <FieldError className="text-xs text-ban">{error}</FieldError> : hint && <FieldDescription className="text-xs text-dim">{hint}</FieldDescription>}
+    </UiField>
+  );
+}
+
+const pad = (n: number) => String(n).padStart(2, '0');
+const HOURS = Array.from({ length: 24 }, (_, h) => pad(h));
+const MINUTES = Array.from({ length: 12 }, (_, i) => pad(i * 5));
+
+/** Date and time in one control. The value is a local "YYYY-MM-DDTHH:mm" string, or '' for none. */
+export function DateTimePicker({ id, value, onChange, placeholder = 'Optional', className }: {
+  id?: string; value: string; onChange: (v: string) => void; placeholder?: string; className?: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const [day, time = ''] = value.split('T');
+  const date = day ? new Date(`${day}T00:00`) : undefined;
+  const [hh, mm] = time ? time.split(':') : ['19', '00'];
+  const ymd = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const set = (d: Date | undefined, h = hh, m = mm) => onChange(d ? `${ymd(d)}T${h}:${m}` : '');
+  const shown = value && !Number.isNaN(new Date(value).getTime())
+    ? new Date(value).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })
+    : '';
+  // keep an odd saved minute (from an older version) selectable
+  const minutes = MINUTES.includes(mm) ? MINUTES : [...MINUTES, mm].sort();
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          id={id}
+          variant="outline"
+          className={cn('h-10 w-full justify-start border-input bg-black/25 px-3 font-normal dark:bg-black/25', !shown && 'text-muted-foreground', className)}
+        >
+          <CalendarIcon className="text-dim" />
+          <span className="truncate">{shown || placeholder}</span>
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto p-0" align="start">
+        <Calendar mode="single" selected={date} defaultMonth={date} onSelect={d => set(d)} autoFocus />
+        <div className="flex items-center gap-2 border-t border-white/10 p-3">
+          <ClockIcon className="size-4 text-dim" aria-hidden="true" />
+          <Select value={hh} onValueChange={h => set(date ?? new Date(), h, mm)}>
+            <SelectTrigger size="sm" className="w-16" aria-label="Hour"><SelectValue /></SelectTrigger>
+            <SelectContent className="max-h-60">{HOURS.map(h => <SelectItem key={h} value={h}>{h}</SelectItem>)}</SelectContent>
+          </Select>
+          <span className="text-muted-foreground">:</span>
+          <Select value={mm} onValueChange={m => set(date ?? new Date(), hh, m)}>
+            <SelectTrigger size="sm" className="w-16" aria-label="Minute"><SelectValue /></SelectTrigger>
+            <SelectContent className="max-h-60">{minutes.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}</SelectContent>
+          </Select>
+          <div className="ml-auto flex gap-1">
+            {value && <Button size="sm" variant="ghost" onClick={() => { onChange(''); setOpen(false); }}>Clear</Button>}
+            <Button size="sm" variant="secondary" onClick={() => setOpen(false)}>Done</Button>
+          </div>
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+/** A number with − and + buttons, for small bounded values (seconds per turn…). */
+export function Stepper({ value, onChange, min, max, step = 1, label, className }: {
+  value: number; onChange: (v: number) => void; min: number; max: number; step?: number; label: string; className?: string;
+}) {
+  const clamp = (n: number) => Math.max(min, Math.min(max, Math.round(n)));
+  const [draft, setDraft] = useState<string | null>(null);
+  return (
+    <ButtonGroup aria-label={label} className={className}>
+      <Button variant="outline" size="icon-sm" aria-label={`Decrease ${label.toLowerCase()}`} disabled={value <= min} onClick={() => onChange(clamp(value - step))}><MinusIcon /></Button>
+      <Input
+        inputMode="numeric"
+        aria-label={label}
+        value={draft ?? String(value)}
+        onChange={e => { const v = e.target.value.replace(/\D/g, '').slice(0, 4); setDraft(v); if (v) onChange(Math.min(max, Number(v))); }}
+        onBlur={() => { setDraft(null); onChange(clamp(value)); }}
+        className="h-8 w-14 text-center tabular-nums"
+      />
+      <Button variant="outline" size="icon-sm" aria-label={`Increase ${label.toLowerCase()}`} disabled={value >= max} onClick={() => onChange(clamp(value + step))}><PlusIcon /></Button>
+    </ButtonGroup>
   );
 }
 
@@ -114,17 +198,17 @@ export function ConfirmDialog({
   focusConfirm?: boolean;
 }) {
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent showCloseButton={false} onOpenAutoFocus={focusConfirm ? undefined : e => { e.preventDefault(); (e.currentTarget as HTMLElement).querySelector<HTMLElement>('[data-cancel]')?.focus(); }}>
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-extrabold tracking-tight">{title}</DialogTitle>
-          {children && <DialogDescription className="text-sm leading-relaxed text-muted-foreground">{children}</DialogDescription>}
-        </DialogHeader>
-        <DialogFooter>
-          <Button variant="ghost" data-cancel onClick={() => (onCancel ? onCancel() : onOpenChange(false))}>{cancelLabel}</Button>
-          <Button onClick={() => { onOpenChange(false); onConfirm(); }}>{confirmLabel}</Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogContent onOpenAutoFocus={focusConfirm ? undefined : e => { e.preventDefault(); (e.currentTarget as HTMLElement).querySelector<HTMLElement>('[data-cancel]')?.focus(); }}>
+        <AlertDialogHeader>
+          <AlertDialogTitle>{title}</AlertDialogTitle>
+          {children && <AlertDialogDescription className="leading-relaxed">{children}</AlertDialogDescription>}
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel variant="ghost" data-cancel onClick={e => { if (onCancel) { e.preventDefault(); onCancel(); } }}>{cancelLabel}</AlertDialogCancel>
+          <AlertDialogAction onClick={onConfirm}>{confirmLabel}</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }

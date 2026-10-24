@@ -133,13 +133,16 @@ The UI is built with **Tailwind CSS v4** and **shadcn/ui** (Radix primitives). T
 
 - **Reach for the shared pieces first.** Buttons, inputs, selects, dialogs, menus, badges, switches, checkboxes, tooltips and toasts come from `src/components/ui/`. App-level patterns live in `src/components/kit.tsx`:
   - `Segmented`: one choice out of a few (format, timer, filters);
-  - `Field`: label, control and hint;
+  - `Field`: label, control and hint (built on shadcn `Field`);
+  - `DateTimePicker`: date and time (Calendar in a Popover, hour and minute Selects);
+  - `Stepper`: a small bounded number with − and + buttons;
   - `Panel`: a frosted surface;
   - `PageHeader`, `SectionTitle`;
-  - `ConfirmDialog`: any yes/no question. Never use `window.confirm`.
+  - `ConfirmDialog`: any yes/no question, on shadcn `AlertDialog`. Never use `window.confirm`.
 
   If two screens need the same thing, add it to the kit rather than styling it twice.
-- **Adding a shadcn component:** `npx shadcn@latest add <name>`, then align it with the others: square-ish corners (`rounded-md`), `h-10` controls, `bg-black/25` fields, frosted popovers. Variants that carry meaning already exist: `Button` has `default` (strike-red gradient), `secondary` (frosted), `ghost`, `pick`, `glass`; `Badge` has `pick`, `ban`, `decider`, `atk`, `def`, `glass`.
+- **No native controls.** Every shadcn component is already in `ui/`, so don't render a raw `<button>`, `<input>`, `<select>`, date/number input or `title` tooltip: use `Button`, `Toggle`/`ToggleGroup`, `Input`, `Select`, `DateTimePicker`, `Stepper`, `Tooltip` and `ScrollArea`. A whole card that acts as one control puts a `Button` or `Toggle` over it (`absolute inset-0`).
+- **Updating a shadcn component:** re-adding one (`npx shadcn@latest add <name> --overwrite`) replaces the brand tweaks in `button`, `badge`, `card`, `input`, `select`, `switch`, `dialog`, `alert-dialog`, `popover` and `sonner`; check the diff and keep them. Align any new component with the others: square-ish corners (`rounded-md`), `h-10` controls, `bg-black/25` fields, frosted popovers. Variants that carry meaning already exist: `Button` has `default` (strike-red gradient), `secondary` (frosted), `ghost`, `pick`, `glass`; `Badge` has `pick`, `ban`, `decider`, `atk`, `def`, `glass`.
 - **Colour carries meaning.** Use the brand utilities, not raw hex:
   - `pick` (teal): picks and Team A;
   - `ban` (strike red): bans and Team B;

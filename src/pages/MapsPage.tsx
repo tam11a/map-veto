@@ -5,6 +5,7 @@ import { MapArt } from '../components/MapArt';
 import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
 import { Checkbox } from '../components/ui/checkbox';
+import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '../components/ui/empty';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
@@ -127,7 +128,7 @@ export function MapsPage() {
           </Select>
           {f.active && <Button size="sm" variant="ghost" onClick={f.clear}>Clear filters</Button>}
           {list.length >= 2 && (
-            <Button size="sm" variant="secondary" onClick={usePool} disabled={isCurrentPool} title={isCurrentPool ? 'These maps are already your veto pool' : undefined}>
+            <Button size="sm" variant="secondary" onClick={usePool} disabled={isCurrentPool}>
               {isCurrentPool ? <><CheckIcon /> Your veto pool</> : 'Use as veto pool'}
             </Button>
           )}
@@ -164,10 +165,15 @@ export function MapsPage() {
           })}
         </div>
       ) : (
-        <Panel className="grid justify-items-center gap-3 px-6 py-16 text-center">
-          <h2 className="text-2xl font-extrabold tracking-tight">No maps match these filters</h2>
-          <p className="text-muted-foreground">Active filters: {quals.join(', ')}. Turn one off, or clear them all.</p>
-          <Button onClick={f.clear}>Clear filters</Button>
+        <Panel>
+          <Empty className="py-16">
+            <EmptyHeader>
+              <EmptyMedia variant="icon"><SearchIcon /></EmptyMedia>
+              <EmptyTitle className="text-2xl font-extrabold tracking-tight">No maps match these filters</EmptyTitle>
+              <EmptyDescription>Active filters: {quals.join(', ')}. Turn one off, or clear them all.</EmptyDescription>
+            </EmptyHeader>
+            <EmptyContent><Button onClick={f.clear}>Clear filters</Button></EmptyContent>
+          </Empty>
         </Panel>
       )}
     </div>

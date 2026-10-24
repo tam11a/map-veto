@@ -5,6 +5,7 @@ import { LogoMark } from '@/brand/Logo';
 import { Panel, Segmented } from '@/components/kit';
 import { MapArt } from '@/components/MapArt';
 import { Button } from '@/components/ui/button';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { COMPETITIVE_POOL, FORMATS, DECIDER, MAPS, TEAMC } from '@/data/maps';
 import { vars } from '@/lib/fx';
 import { useCatalog } from '@/lib/rotation';
@@ -142,7 +143,7 @@ function VetoWall() {
                   {tag}
                 </span>
               )}
-              {open && <button className="absolute inset-0 z-[3] cursor-pointer focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-ring" onClick={() => choose(id)} aria-label={`${next.k === 'ban' ? 'Ban' : 'Pick'} ${m.name} for ${TEAMS[next.team!]}`} />}
+              {open && <Button variant="ghost" className="absolute inset-0 z-[3] h-auto rounded-none p-0 hover:bg-transparent focus-visible:ring-0 focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-ring dark:hover:bg-transparent" onClick={() => choose(id)} aria-label={`${next.k === 'ban' ? 'Ban' : 'Pick'} ${m.name} for ${TEAMS[next.team!]}`} />}
             </div>
           );
         })}
@@ -249,7 +250,8 @@ function FormatExplainer() {
           lead="The default order for a seven-map pool. In the lobby you can change any step to match your league’s rules."
           aside={<Segmented<string> label="Format" value={String(f)} onChange={v => setF(Number(v) as Format)} options={([1, 2, 3, 5] as Format[]).map(k => ({ value: String(k), label: FORMATS[k].label }))} />}
         />
-        <ol key={f} className="flex gap-2 overflow-x-auto pb-2" aria-label={`${FORMATS[f].name} veto order`}>
+        <ScrollArea>
+        <ol key={f} className="flex w-max gap-2 pb-3" aria-label={`${FORMATS[f].name} veto order`}>
           {seq.map((s, i) => (
             <Fragment key={i}>
               {step(`s${i}`, s.t, String(i + 1).padStart(2, '0'), s.t === 'ban' ? 'Ban' : 'Pick', team(s.team), TEAMC[s.team])}
@@ -263,6 +265,8 @@ function FormatExplainer() {
             </>
           )}
         </ol>
+        <ScrollBar orientation="horizontal" />
+        </ScrollArea>
         <div className="mt-6 flex flex-wrap items-center justify-between gap-4 border-t border-white/10 pt-5">
           <p className="max-w-2xl leading-relaxed text-muted-foreground"><b className="text-foreground">{FORMATS[f].name}.</b> {FORMAT_RULE[f]}</p>
           <Button asChild variant="secondary"><Link to={`/veto?format=${f}`}>Plan a {FORMATS[f].label}</Link></Button>

@@ -112,7 +112,12 @@ export default defineConfig(({ mode }) => ({
     chunkSizeWarningLimit: 600,
     rollupOptions: {
       output: {
-        manualChunks: id => (id.includes('node_modules') ? 'vendor' : undefined),
+        manualChunks: id => {
+          if (!id.includes('node_modules')) return;
+          // the date picker only imports from vendor (never the other way round), so it can't form a cycle
+          if (/[\/](react-day-picker|date-fns|@date-fns)[\/]/.test(id)) return 'calendar';
+          return 'vendor';
+        },
       },
     },
   },

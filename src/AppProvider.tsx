@@ -2,6 +2,7 @@ import { type ReactNode, useCallback, useEffect, useMemo, useState } from 'react
 import { toast as notify } from 'sonner';
 import { InfoSheet } from './components/InfoModal';
 import { Dialog, DialogContent } from './components/ui/dialog';
+import { ScrollArea } from './components/ui/scroll-area';
 import { Toaster } from './components/ui/sonner';
 import { TooltipProvider } from './components/ui/tooltip';
 import { ensureMapArt } from './lib/images';
@@ -33,8 +34,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
       <TooltipProvider delayDuration={300}>
         {children}
         <Dialog open={!!info?.open} onOpenChange={o => { if (!o) setInfo(i => (i ? { ...i, open: false } : i)); }}>
-          <DialogContent className="max-h-[calc(100dvh-2rem)] gap-0 overflow-y-auto p-0 sm:max-w-2xl" aria-describedby={undefined}>
-            {info && <InfoSheet mapId={info.id} />}
+          <DialogContent className="gap-0 overflow-hidden p-0 sm:max-w-2xl" aria-describedby={undefined}>
+            <ScrollArea className="[&>[data-slot=scroll-area-viewport]]:max-h-[calc(100dvh-2rem)]">
+              {info && <InfoSheet mapId={info.id} />}
+            </ScrollArea>
           </DialogContent>
         </Dialog>
         <Toaster position="bottom-center" />

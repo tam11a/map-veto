@@ -2,6 +2,13 @@
   "name": "map-veto",
   "private": true,
   "version": "1.0.0",
+  "license": "MIT",
+  "author": "tam11a",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tam11a/map-veto.git"
+  },
+  "homepage": "https://map-veto.netlify.app",
   "type": "module",
   "scripts": {
     "predev": "node scripts/fetch-rotation.mjs",

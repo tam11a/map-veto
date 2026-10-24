@@ -17,6 +17,7 @@
 <p align="center">
   <a href="https://github.com/tam11a/map-veto/actions/workflows/ci.yml"><img src="https://github.com/tam11a/map-veto/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <a href="https://app.netlify.com/projects/map-veto/deploys"><img src="https://api.netlify.com/api/v1/badges/7f0568e6-605e-4205-9c32-9460e0bfd226/deploy-status" alt="Netlify status"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-2ee6c5" alt="MIT license"></a>
 </p>
 
 <p align="center"><img src="docs/media/demo-veto.gif" alt="A Bo3 veto played with keyboard shortcuts: two bans, a pick with side selection, and the decider" width="720"></p>
@@ -162,6 +163,12 @@ The key is only read on the server: by the Netlify function, the build-time snap
 ## Contributing
 
 Bug reports, ideas and pull requests are welcome. [CONTRIBUTING.md](CONTRIBUTING.md) covers the architecture, code style, testing and how to add maps, rule sets and features.
+
+## License
+
+[MIT](LICENSE) © tam11a. You can use, change and share the code, including commercially, as long as the copyright and license notice stay with it.
+
+The license covers this repository's code and its own assets (the Map Veto logo and design). Map art, minimaps, callouts and agent portraits are Riot Games' property, loaded at runtime from valorant-api.com; they are not part of this repository and the license doesn't apply to them.
 
 ## Credits
 

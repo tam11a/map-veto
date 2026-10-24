@@ -173,4 +173,6 @@ Code style: TypeScript strict mode with no unused locals or parameters, function
 
 When reporting a bug, include the URL (share links reproduce a plan exactly), your browser and device, and the steps to get there.
 
+By contributing, you agree that your contributions are licensed under the project's [MIT License](LICENSE).
+
 Map Veto is a fan project and is not affiliated with Riot Games. Don't add Riot assets to the repo; load them at runtime from valorant-api.com like the existing art.

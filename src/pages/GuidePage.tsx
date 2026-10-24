@@ -37,7 +37,6 @@ const FAQ: [string, string][] = [
   ['How do I show the veto on stream?', 'Start an online room and add the stream overlay link as a browser source in OBS at 1920×1080. Its background is transparent and it follows the room live. In the room’s invite panel you can choose the layout before copying the link: bottom or top, full or one row, and with or without the maps and the title.'],
   ['Are there keyboard shortcuts?', 'During a veto, 1 to 9 (and 0) choose the available maps in order, A and D choose attack or defense, P pauses the timer, M turns sound on or off, and Ctrl+Z undoes the last step.'],
   ['What happens if the turn timer runs out?', 'A random valid choice is made for that step: a random remaining map for bans and picks, or a random side for side selection.'],
-  ['Can I use it for other games or custom maps?', 'Yes. Add custom maps in the setup with a name and an optional image URL. The veto logic works for any map pool.'],
   ['Why does a share link open the plan only on this site?', 'The link stores the plan after a # in the URL, so it needs Map Veto to read it. Anyone who opens it sees the same plan and can replay it.'],
 ];
 

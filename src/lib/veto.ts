@@ -2,9 +2,9 @@ import { ALL_MAP_IDS, COMPETITIVE_POOL, MAPS } from '../data/maps';
 import type { Action, ActionKind, Format, Game, MapInfo, PoolPreset, SeqStep, Setup, Side, TeamIdx } from '../types';
 
 export const other = (t: TeamIdx) => (1 - t) as TeamIdx;
-export const allMaps = (s: Setup) => MAPS.concat(s.custom);
-export const getMap = (s: Setup, id: string): MapInfo =>
-  allMaps(s).find(m => m.id === id) ?? { id, name: id, loc: '—', sites: '—', tag: '', desc: '', c: ['#333', '#111'] };
+// older plans could include maps teams added themselves (ids starting "c_"); they still render, by a generic name
+export const getMap = (_s: Setup, id: string): MapInfo =>
+  MAPS.find(m => m.id === id) ?? { id, name: id.startsWith('c_') ? 'Custom map' : id, loc: '—', sites: '—', tag: '', desc: '', c: ['#333', '#111'] };
 
 const sameSet = (a: string[], b: string[]) => a.length === b.length && a.every(x => b.includes(x));
 
@@ -16,8 +16,8 @@ export function poolPreset(pool: string[]): PoolPreset {
 }
 
 /** Keeps a pool in the order maps appear in the picker. */
-export function sortPool(s: Setup, pool: string[]) {
-  const order = allMaps(s).map(m => m.id);
+export function sortPool(_s: Setup, pool: string[]) {
+  const order = ALL_MAP_IDS;
   return [...pool].sort((a, b) => order.indexOf(a) - order.indexOf(b));
 }
 

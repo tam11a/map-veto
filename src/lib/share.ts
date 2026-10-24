@@ -1,5 +1,5 @@
-import { FORMATS, defaultSetup } from '../data/maps';
-import type { Action, DeciderRule, Format, MapInfo, RulePreset, SeqStep, Setup, Side, SideRule, TeamIdx, VetoState } from '../types';
+import { ALL_MAP_IDS, FORMATS, defaultSetup } from '../data/maps';
+import type { Action, DeciderRule, Format, RulePreset, SeqStep, Setup, Side, SideRule, TeamIdx, VetoState } from '../types';
 import { games, getMap, getSeq, sideFor } from './veto';
 
 /** Compact, URL-safe representation of a finished (or partial) plan. */
@@ -10,7 +10,6 @@ export interface Payload {
   teams: [string, string];
   format: Format;
   pool: string[];
-  custom: MapInfo[];
   seq: string;
   side: 0 | 1;
   hist: [string, number, string, Side | 0][];
@@ -40,7 +39,6 @@ export function payload(s: Setup, v: VetoState): Payload {
   for (const id of s.pool) if (s.notes[id]) notes[id] = s.notes[id];
   return {
     app: 'mapveto', v: 1, title: s.title, teams: v.teams, format: s.format, pool: s.pool,
-    custom: s.custom.filter(m => s.pool.includes(m.id)),
     seq: getSeq(s).map(x => (x.t === 'ban' ? 'b' : 'p') + x.team).join(''),
     side: s.sidePick ? 1 : 0,
     hist: v.hist.map(h => [h.k[0], h.team ?? -1, h.map, h.side ?? 0]),
@@ -59,15 +57,12 @@ const KIND: Record<string, Action['k']> = { b: 'ban', p: 'pick', s: 'side', d: '
 
 export function loadPayload(o: Payload, base: Setup): { setup: Setup; veto: VetoState } {
   if (!o || !Array.isArray(o.pool) || !Array.isArray(o.hist) || !Array.isArray(o.teams)) throw new Error('Not a Map Veto plan');
-  const custom = [...base.custom];
-  for (const m of o.custom ?? []) if (!custom.some(x => x.id === m.id)) custom.push(m);
   const teams: [string, string] = [String(o.teams[0]), String(o.teams[1])];
   const setup: Setup = {
     ...base,
     title: o.title ?? '',
     format: ([1, 2, 3, 5].includes(+o.format) ? +o.format : 3) as Format,
     pool: o.pool,
-    custom,
     sidePick: !!o.side,
     seq: (o.seq.match(/[bp][01]/g) ?? []).map(x => ({ t: x[0] === 'b' ? 'ban' : 'pick', team: +x[1] as TeamIdx })),
     notes: { ...base.notes, ...(o.notes ?? {}) },
@@ -171,15 +166,16 @@ export function normalizeSetup(raw: unknown): Setup {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return d;
   const o = raw as Record<string, unknown>;
   const strs = (v: unknown) => Array.isArray(v) && v.every(x => typeof x === 'string');
+  const official = (ids: string[]) => ids.filter(id => ALL_MAP_IDS.includes(id));
   const teams = o.teams as unknown[];
   return {
     title: typeof o.title === 'string' ? o.title : d.title,
     teams: Array.isArray(teams) && teams.length === 2 && strs(teams) ? [teams[0] as string, teams[1] as string] : d.teams,
     first: o.first === 'a' || o.first === 'b' || o.first === 'coin' ? o.first : d.first,
     format: [1, 2, 3, 5].includes(o.format as number) ? (o.format as Format) : d.format,
-    pool: strs(o.pool) && (o.pool as string[]).length > 0 ? (o.pool as string[]) : d.pool,
-    customPool: strs(o.customPool) ? (o.customPool as string[]) : d.customPool,
-    custom: Array.isArray(o.custom) ? (o.custom as MapInfo[]).filter(m => m && typeof m.id === 'string' && typeof m.name === 'string' && Array.isArray(m.c)) : d.custom,
+    // only official maps: drops maps a team added themselves in older versions
+    pool: strs(o.pool) && official(o.pool as string[]).length > 0 ? official(o.pool as string[]) : d.pool,
+    customPool: strs(o.customPool) ? official(o.customPool as string[]) : d.customPool,
     seq: Array.isArray(o.seq) && (o.seq as SeqStep[]).every(x => (x?.t === 'ban' || x?.t === 'pick') && (x.team === 0 || x.team === 1)) ? (o.seq as SeqStep[]) : null,
     sidePick: typeof o.sidePick === 'boolean' ? o.sidePick : d.sidePick,
     timer: typeof o.timer === 'number' && o.timer >= 0 && o.timer <= 600 ? Math.round(o.timer) : d.timer,

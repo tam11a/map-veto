@@ -1,5 +1,5 @@
 import { Fragment, useRef, useState } from 'react';
-import { CheckIcon, DiamondIcon, PencilIcon, PlusIcon, UploadIcon, UsersIcon, XIcon } from 'lucide-react';
+import { CheckIcon, DiamondIcon, PlusIcon, UploadIcon, UsersIcon, XIcon } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -11,11 +11,11 @@ import { Switch } from '@/components/ui/switch';
 import { Toggle } from '@/components/ui/toggle';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { ALL_MAP_IDS, COMPETITIVE_POOL, FORMATS, TEAMC } from '@/data/maps';
+import { ALL_MAP_IDS, COMPETITIVE_POOL, FORMATS, MAPS, TEAMC } from '@/data/maps';
 import { BUILTIN_PRESETS, describePreset } from '@/data/presets';
 import { vars } from '@/lib/fx';
 import { cn } from '@/lib/utils';
-import { allMaps, deciderSider, getSeq, other, pickSider, poolPreset, simulate, sortPool } from '@/lib/veto';
+import { deciderSider, getSeq, other, pickSider, poolPreset, simulate, sortPool } from '@/lib/veto';
 import { useApp } from '@/state';
 import type { DeciderRule, FirstTurn, Format, PoolPreset, RulePreset, SeqStep, Setup, SideRule, StepType, TeamIdx } from '@/types';
 import { ConfirmDialog, DateTimePicker, Field, Panel, SectionTitle, Segmented, Stepper } from './kit';
@@ -370,11 +370,7 @@ function RuleSet() {
 /* ---------------- map pool ---------------- */
 function MapPool() {
   const { setup: S, patch, toast, openInfo } = useApp();
-  const [adding, setAdding] = useState(false);
-  const [editId, setEditId] = useState<string | null>(null);
-  const [name, setName] = useState('');
-  const [img, setImg] = useState('');
-  const maps = allMaps(S);
+  const maps = MAPS;
 
   const preset = poolPreset(S.pool);
   // the custom list on hand: the live pool when it's custom, otherwise the one we remembered
@@ -399,41 +395,6 @@ function MapPool() {
       return { pool: sortPool(s, pool), customPool: saved, seq: null };
     });
   };
-  const startEdit = (id: string) => {
-    const m = S.custom.find(x => x.id === id);
-    if (!m) return;
-    setEditId(id); setName(m.name); setImg(m.img ?? ''); setAdding(true);
-  };
-  const close = () => { setAdding(false); setEditId(null); setName(''); setImg(''); };
-  const add = () => {
-    const n = name.trim();
-    if (!n) return toast('Give the map a name');
-    if (editId) {
-      const url = img.trim();
-      patch(s => ({ custom: s.custom.map(m => (m.id === editId ? { ...m, name: n, img: /^https?:\/\//.test(url) ? url : '' } : m)) }));
-      toast(`${n} updated`);
-      return close();
-    }
-    const hue = Math.floor(Math.random() * 360), id = 'c_' + Date.now().toString(36);
-    patch(s => {
-      const custom = [...s.custom, {
-        id, name: n, loc: 'Custom map', sites: '—', tag: 'Custom', desc: '', custom: true,
-        img: /^https?:\/\//.test(img.trim()) ? img.trim() : '', c: [`hsl(${hue} 40% 32%)`, `hsl(${hue} 40% 9%)`] as [string, string],
-      }];
-      return { custom, ...commit({ ...s, custom }, [...s.pool, id]) };
-    });
-    setName('');
-    setImg('');
-    setAdding(false);
-    toast(`${n} added to the pool`);
-  };
-  const remove = (id: string) => patch(s => ({
-    custom: s.custom.filter(m => m.id !== id),
-    pool: s.pool.filter(x => x !== id),
-    customPool: s.customPool.filter(x => x !== id),
-    seq: null,
-  }));
-
   const presetHint = {
     competitive: 'The current competitive rotation.',
     all: 'Every official map.',
@@ -486,30 +447,11 @@ function MapPool() {
                 <Button size="icon-sm" variant="glass" className="size-7 rounded-full" aria-label={`${m.name} details and notes`} onClick={() => openInfo(m.id)}>
                   <span className="text-xs font-bold">i</span>
                 </Button>
-                {m.custom && <Button size="icon-sm" variant="glass" className="size-7 rounded-full" aria-label={`Edit ${m.name}`} onClick={() => startEdit(m.id)}><PencilIcon className="size-3.5" /></Button>}
-                {m.custom && <Button size="icon-sm" variant="glass" className="size-7 rounded-full" aria-label={`Delete ${m.name}`} onClick={() => remove(m.id)}><XIcon className="size-3.5" /></Button>}
               </div>
             </div>
           );
         })}
-        {!adding && (
-          <Button
-            variant="outline"
-            className="h-26 rounded-lg border-dashed border-white/20 bg-transparent text-muted-foreground hover:border-white/40 dark:bg-transparent"
-            onClick={() => setAdding(true)}
-          >
-            <PlusIcon /> Custom map
-          </Button>
-        )}
       </div>
-      {adding && (
-        <form className="grid gap-2 sm:grid-cols-[1fr_1.4fr_auto_auto]" onSubmit={e => { e.preventDefault(); add(); }}>
-          <Input autoFocus value={name} onChange={e => setName(e.target.value)} placeholder="Map name" maxLength={20} aria-label="Custom map name" />
-          <Input value={img} onChange={e => setImg(e.target.value)} placeholder="Image URL (optional)" aria-label="Custom map image URL" />
-          <Button type="submit" variant="secondary">{editId ? 'Save map' : 'Add map'}</Button>
-          <Button type="button" variant="ghost" onClick={close}>Cancel</Button>
-        </form>
-      )}
     </section>
   );
 }

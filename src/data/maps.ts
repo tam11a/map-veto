@@ -51,7 +51,6 @@ export const defaultSetup = (): Setup => ({
   format: 3,
   pool: [...COMPETITIVE_POOL],
   customPool: [],
-  custom: [],
   seq: null,
   sidePick: true,
   sideRule: 'opponent',

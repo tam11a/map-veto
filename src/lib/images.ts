@@ -78,7 +78,6 @@ export function useMapArtVersion() {
 export const minimapFor = (id: string): Minimap | null => MINI[id] ?? null;
 
 export function imgFor(m: MapInfo, kind: ArtKind = 'tall'): string | null {
-  if (m.img) return m.img;
   const i = IMG[m.id];
   return i ? i[kind] ?? i.splash ?? null : null;
 }

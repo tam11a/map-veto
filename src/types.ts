@@ -33,8 +33,6 @@ export interface MapInfo {
   desc: string;
   /** gradient used as fallback art: [from, to] */
   c: [string, string];
-  custom?: boolean;
-  img?: string;
 }
 
 /** One configured step of the veto order. */
@@ -59,7 +57,6 @@ export interface Setup {
   pool: string[];
   /** the team's own pool, remembered while a preset is active */
   customPool: string[];
-  custom: MapInfo[];
   /** null = auto-generated from format + pool size */
   seq: SeqStep[] | null;
   sidePick: boolean;

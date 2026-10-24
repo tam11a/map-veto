@@ -77,7 +77,7 @@ function Nav() {
           scrolled ? 'bg-[rgb(20_14_26/0.8)]' : 'bg-[rgb(22_16_30/0.6)]',
         )}
       >
-        <Link to="/" aria-label={`${BRAND.name} home`} className="rounded-md"><Logo size={32} /></Link>
+        <Link to="/" aria-label={`${BRAND.name} home`} className="flex items-center rounded-md"><Logo size={34} /></Link>
         <NavigationMenu viewport={false} className="ml-auto hidden max-w-none flex-none md:flex" aria-label="Main">
           <NavigationMenuList className="gap-0.5">
             {LINKS.map(l => (

@@ -147,7 +147,13 @@ export function VetoPage() {
       )}
       {phase === 'result' && veto && <ResultView veto={veto} onEdit={setVeto} onReplay={startReplay} onNew={toSetup} />}
       <Dialog open={coin}>
-        <DialogContent showCloseButton={false} onEscapeKeyDown={e => e.preventDefault()} onPointerDownOutside={e => e.preventDefault()} aria-describedby={undefined}>
+        <DialogContent
+          showCloseButton={false}
+          onEscapeKeyDown={e => e.preventDefault()}
+          onPointerDownOutside={e => e.preventDefault()}
+          className="overflow-visible bg-transparent p-0 shadow-none ring-0 backdrop-blur-none sm:max-w-lg"
+          overlayClassName="bg-black/55 backdrop-blur-xl"
+        >
           {coin && <CoinToss teams={setup.teams} onDone={bWon => { setCoin(false); begin(bWon); }} />}
         </DialogContent>
       </Dialog>

@@ -40,8 +40,8 @@ export function Logo({ size = 36, tagline = true }: { size?: number; tagline?: b
     <span className="inline-flex items-center gap-2.5">
       <LogoMark size={size} className="shrink-0" />
       <span className="flex flex-col leading-none">
-        <b className="text-[1.375rem] font-extrabold tracking-[-0.01em] leading-[0.95]">MAP <em className="text-ban not-italic">VETO</em></b>
-        {tagline && <small className="mt-1 text-[9px] font-semibold tracking-[0.24em] text-muted-foreground uppercase">{BRAND.tagline}</small>}
+        <b className="text-[1.5rem] leading-[0.9] font-extrabold tracking-[-0.01em]">MAP <em className="text-ban not-italic">VETO</em></b>
+        {tagline && <small className="mt-[5px] text-[9px] font-semibold tracking-[0.115em] text-muted-foreground uppercase">{BRAND.tagline}</small>}
       </span>
     </span>
   );

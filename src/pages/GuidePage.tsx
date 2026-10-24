@@ -2,10 +2,13 @@ import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { BRAND } from '../brand/Logo';
 import { FORMATS, GOLD, TEAMC } from '../data/maps';
+import { Icon } from '../components/Icons';
 import { cx } from '../lib/fx';
 import { useTitle } from '../lib/useTitle';
 import type { Format } from '../types';
 import { SeqChips } from './Landing';
+import { examplePlan } from '../data/examples';
+import { planPath } from '../lib/share';
 
 const SECTIONS = [
   ['basics', 'Veto basics'],
@@ -25,8 +28,10 @@ const FORMAT_RULES: Record<Format, string> = {
 
 const FAQ: [string, string][] = [
   ['Is Map Veto free?', 'Yes. There are no accounts, no ads and nothing to install. Everything runs in your browser.'],
-  ['Where is my data stored?', 'Your setup and map notes are saved in your browser’s local storage. Share links carry the whole plan inside the URL itself, so nothing is uploaded to a server.'],
-  ['Can two captains veto from different devices?', 'Not live yet. One person runs the veto (on stream or in a call) and shares the result. Real-time multi-device vetoes are on the roadmap.'],
+  ['Where is my data stored?', 'Your setup, notes and rule sets are saved in your browser’s local storage. Online rooms and short share links are stored on the server; rooms close three days after the last move. Long share links carry the whole plan inside the URL.'],
+  ['Can two captains veto from different devices?', 'Yes. In the lobby choose Start an online room. You get a link for each captain, a watch-only link for spectators and a stream overlay link. Each captain can only act on their own turns; the host can act for both, undo and restart.'],
+  ['How do I show the veto on stream?', 'Start an online room and add the stream overlay link as a browser source in OBS at 1920×1080. Its background is transparent and it follows the room live.'],
+  ['Are there keyboard shortcuts?', 'During a veto, 1 to 9 (and 0) choose the available maps in order, A and D choose attack or defense, P pauses the timer, M turns sound on or off, and Ctrl+Z undoes the last step.'],
   ['What happens if the turn timer runs out?', 'A random valid choice is made for that step: a random remaining map for bans and picks, or a random side for side selection.'],
   ['Can I use it for other games or custom maps?', 'Yes. Add custom maps in the setup with a name and an optional image URL. The veto logic works for any map pool.'],
   ['Why does a share link open the plan only on this site?', 'The link stores the plan after a # in the URL, so it needs Map Veto to read it. Anyone who opens it sees the same plan and can replay it.'],
@@ -74,7 +79,10 @@ export function GuidePage() {
                   <h3>{FORMATS[f].label} <span>{FORMATS[f].name}</span></h3>
                   <p>{FORMAT_RULES[f]}</p>
                   <SeqChips fmt={f} />
-                  <Link to={`/veto?format=${f}`} className="btn sm">Plan a {FORMATS[f].label}</Link>
+                  <div className="gfmt-actions">
+                    <Link to={`/veto?format=${f}`} className="btn sm">Plan a {FORMATS[f].label}</Link>
+                    <Link to={planPath(examplePlan(f))} className="btn ghost sm"><Icon.play /> See an example</Link>
+                  </div>
                 </div>
               ))}
             </div>

@@ -93,7 +93,18 @@ main.flush { padding-top: 0; }
 .wall-hud .match b { font-weight: 600; }
 .wall-status { display: flex; flex-direction: column; gap: 4px; margin-top: var(--s-3); padding-top: var(--s-3); border-top: 1px solid var(--frost-line); color: var(--signal); font-size: var(--fs-16); font-weight: 500; animation: fade-in var(--dur-base) var(--ease-out) both; }
 .wall-status em { font-style: normal; font-family: var(--fd); font-size: var(--fs-14); font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim); font-variant-numeric: tabular-nums; }
-.wall-hud .btn { margin-top: var(--s-3); }
+.wall-btns { display: flex; flex-wrap: wrap; gap: var(--s-2); margin-top: var(--s-3); }
+.wall-btns:empty { display: none; }
+
+/* try mode: the visitor bans and picks by clicking the wall */
+.slice-hit { position: absolute; inset: 0; z-index: 3; cursor: pointer; }
+.slice-hit:focus-visible { outline-offset: -4px; }
+.slice.open::before { background: var(--tc); }
+@media (hover: hover) {
+  .slice.open:hover .art { filter: brightness(1.1); }
+  .slice.open:hover::before { opacity: 1; }
+}
+.slice.open:has(.slice-hit:focus-visible)::before { opacity: 1; }
 .wall-steps { display: flex; gap: 4px; margin-top: var(--s-3); }
 .wall-steps i { flex: 1; height: 4px; border-radius: 2px; background: rgb(255 255 255 / 0.12); transition: background-color var(--dur-base) var(--ease-out); }
 .wall-steps i.done { background: var(--tc); }
@@ -165,6 +176,7 @@ main.flush { padding-top: 0; }
 
 /* ---------- map pool: frosted labels over the art ---------- */
 .pool-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: var(--s-3); }
+.pool-use { display: flex; justify-content: flex-end; margin: calc(-1 * var(--s-2)) 0 var(--s-3); }
 /* outer 20 = label 12 + padding 8 */
 .pool-card { position: relative; overflow: hidden; height: 170px; display: flex; flex-direction: column; justify-content: flex-end; padding: 8px; border-radius: var(--r-lg); border: 1px solid var(--frost-line); transition-property: opacity, border-color; transition-duration: var(--dur-fast); transition-timing-function: ease-out; }
 .pool-card .art { position: absolute; inset: 0; transition: filter var(--dur-base) var(--ease-out); }

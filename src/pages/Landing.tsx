@@ -1,13 +1,14 @@
 import { Fragment, type ReactNode, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { LogoMark } from '../brand/Logo';
 import { Icon } from '../components/Icons';
 import { MapArt } from '../components/MapArt';
 import { COMPETITIVE_POOL, FORMATS, GOLD, MAPS, TEAMC } from '../data/maps';
 import { cx, vars } from '../lib/fx';
 import { useTitle } from '../lib/useTitle';
+import { useApp } from '../state';
 import { useCatalog } from '../lib/rotation';
-import { genSeq, other } from '../lib/veto';
+import { genSeq, other, sortPool } from '../lib/veto';
 import type { Action, Format, TeamIdx } from '../types';
 
 const mapById = (id: string) => MAPS.find(m => m.id === id)!;
@@ -46,35 +47,54 @@ const PLAY: Action[] = [
 function VetoWall() {
   const [n, setN] = useState(0);
   const [run, setRun] = useState(0);
+  // null = the scripted demo plays; an array = the visitor is running the veto by clicking the wall
+  const [mine, setMine] = useState<Action[] | null>(null);
 
   // plays once on load; Replay runs it again
   useEffect(() => {
-    if (n >= PLAY.length) return;
+    if (mine || n >= PLAY.length) return;
     const t = setTimeout(() => setN(x => x + 1), n === 0 ? 900 : 1100);
     return () => clearTimeout(t);
-  }, [n, run]);
+  }, [n, run, mine]);
 
-  const done = n >= PLAY.length, next = PLAY[n];
+  const hist = mine ?? PLAY.slice(0, n);
+  const done = hist.length >= PLAY.length, next = PLAY[hist.length];
+  const left = WALL.filter(id => !hist.some(h => h.map === id));
+  // in try mode the decider falls into place on its own
+  useEffect(() => {
+    if (!mine || next?.k !== 'decider') return;
+    const t = setTimeout(() => setMine(h => (h ? [...h, { k: 'decider', team: null, map: left[0] }] : h)), 700);
+    return () => clearTimeout(t);
+  }, [mine, next?.k]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const rec: Record<string, { k: Action['k']; team: TeamIdx | null; g?: number }> = {};
   let g = 0;
-  PLAY.slice(0, n).forEach(a => { rec[a.map] = { k: a.k, team: a.team, g: a.k === 'ban' ? undefined : ++g }; });
+  hist.forEach(a => { rec[a.map] = { k: a.k, team: a.team, g: a.k === 'ban' ? undefined : ++g }; });
+  const name = (id: string) => mapById(id).name;
+  const played = hist.filter(a => a.k !== 'ban').map(a => name(a.map));
 
   const status = done
-    ? 'Ascent, Haven, then Sunset as the decider'
-    : next.team == null ? 'Sunset is the last map standing' : `${TEAMS[next.team]} to ${next.k}`;
+    ? `${played.slice(0, -1).join(', ')}, then ${played[played.length - 1]} as the decider`
+    : next.team == null ? `${name(left[0])} is the last map standing` : mine ? `${TEAMS[next.team]}: click a map to ${next.k}` : `${TEAMS[next.team]} to ${next.k}`;
+  const choose = (id: string) => {
+    if (!mine || !next || next.team == null || rec[id]) return;
+    setMine([...mine, { k: next.k, team: next.team, map: id }]);
+  };
 
   return (
-    <section className="wall-hero">
-      <div className="wall" aria-hidden="true">
+    <section className={cx('wall-hero', mine && 'trying')}>
+      <div className="wall" aria-hidden={!mine}>
         {WALL.map(id => {
           const m = mapById(id), r = rec[id];
           const mc = r?.team != null ? TEAMC[r.team] : GOLD;
           const tag = !r ? '' : r.k === 'ban' ? `${TEAMS[r.team!]} ban` : r.k === 'pick' ? `Map ${r.g}  ${TEAMS[r.team!]}` : `Map ${r.g}  Decider`;
+          const open = !!mine && !r && !!next && next.team != null;
           return (
-            <div key={id} className={cx('slice', r?.k)} style={vars({ '--mc': mc })}>
+            <div key={id} className={cx('slice', r?.k, open && 'open')} style={vars({ '--mc': mc, '--tc': next?.team != null ? TEAMC[next.team] : GOLD })}>
               <MapArt map={m} kind="tall" watermark={false} />
               <span className="slice-name">{m.name}</span>
               <span className="slice-tag">{tag}</span>
+              {open && <button className="slice-hit" onClick={() => choose(id)} aria-label={`${next.k === 'ban' ? 'Ban' : 'Pick'} ${m.name} for ${TEAMS[next.team!]}`} />}
             </div>
           );
         })}
@@ -92,12 +112,16 @@ function VetoWall() {
         <aside className="wall-hud frost" aria-label="Example veto status">
           <div className="match"><b style={{ color: TEAMC[0] }}>{TEAMS[0]}</b> vs <b style={{ color: TEAMC[1] }}>{TEAMS[1]}</b>, best of 3</div>
           <div className="wall-steps" aria-hidden="true">
-            {PLAY.map((a, i) => <i key={i} className={cx(i < n && 'done')} style={vars({ '--tc': a.team != null ? TEAMC[a.team] : GOLD })} />)}
+            {PLAY.map((a, i) => <i key={i} className={cx(i < hist.length && 'done')} style={vars({ '--tc': a.team != null ? TEAMC[a.team] : GOLD })} />)}
           </div>
-          <div className="wall-status" role="status" key={n}>
-            <em>{done ? 'Veto complete' : `Step ${n + 1} of ${PLAY.length}`}</em>{status}
+          <div className="wall-status" role="status" key={hist.length}>
+            <em>{done ? 'Veto complete' : `Step ${hist.length + 1} of ${PLAY.length}`}</em>{status}
           </div>
-          {done && <button className="btn glassy sm" onClick={() => { setN(0); setRun(r => r + 1); }}><Icon.play /> Replay</button>}
+          <div className="wall-btns">
+            {done && !mine && <button className="btn glassy sm" onClick={() => { setN(0); setRun(r => r + 1); }}><Icon.play /> Replay</button>}
+            {(!mine || done) && <button className="btn glassy sm" onClick={() => { setMine([]); setN(PLAY.length); }}>{mine ? 'Try again' : 'Try it yourself'}</button>}
+            {mine && !done && <button className="btn ghost sm" onClick={() => { setMine(null); setN(0); setRun(r => r + 1); }}>Watch the demo</button>}
+          </div>
         </aside>
       </div>
     </section>
@@ -297,18 +321,28 @@ function TeamVisual() {
 function PoolPreview() {
   useCatalog();
   const [view, setView] = useState<'competitive' | 'all'>('competitive');
+  const { patch, toast } = useApp();
+  const navigate = useNavigate();
+  const usePool = () => {
+    patch(s => ({ pool: sortPool(s, view === 'all' ? MAPS.map(m => m.id) : COMPETITIVE_POOL), seq: null }));
+    toast(view === 'all' ? 'Veto pool set to every map' : 'Veto pool set to the competitive rotation');
+    navigate('/veto');
+  };
   return (
     <section className="section">
       <div className="container">
         <div className="sec-title">
           <div>
-            <h2>Twelve maps, your pool</h2>
+            <h2>Every map, your pool</h2>
             <p>Start from the competitive rotation, every map, or your own list. Each map page has the essentials and room for your notes.</p>
           </div>
           <div className="seg fmt-switch" role="group" aria-label="Highlight">
             <button className={cx(view === 'competitive' && 'on')} aria-pressed={view === 'competitive'} onClick={() => setView('competitive')}>Competitive</button>
             <button className={cx(view === 'all' && 'on')} aria-pressed={view === 'all'} onClick={() => setView('all')}>All maps</button>
           </div>
+        </div>
+        <div className="pool-use">
+          <button className="btn glassy sm" onClick={usePool}>Veto with {view === 'all' ? `all ${MAPS.length} maps` : `these ${COMPETITIVE_POOL.length} maps`}</button>
         </div>
         <div className="pool-grid">
           {MAPS.map(m => {

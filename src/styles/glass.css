@@ -83,7 +83,7 @@ details.faq { border-radius: var(--r-lg); }
 /* filters need room for pill padding */
 .toolbar .seg { min-width: 380px; }
 @media (max-width: 560px) { .toolbar .seg { min-width: 0; } }
-.gfmt .card .btn { margin-top: var(--s-3); }
+.gfmt-actions { display: flex; flex-wrap: wrap; gap: var(--s-2); margin-top: var(--s-3); }
 
 /* ---------- maps: filter bar (outer 28 = pill controls inside 10px padding) ---------- */
 .filters { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-3) var(--s-5); padding: 10px; border-radius: var(--r-xl); }

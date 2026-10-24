@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { MapArt } from '@/components/MapArt';
-import { TeamMark } from '@/components/TeamMark';
+import { TeamAvatar } from '@/components/TeamMark';
 import { DECIDER, TEAMC } from '@/data/maps';
 import { vars } from '@/lib/fx';
 import { ensureMapArt } from '@/lib/images';
@@ -61,9 +61,7 @@ export function OverlayPage() {
       )}
       style={vars({ '--tc': TEAMC[i], order: i ? 3 : 1 })}
     >
-      <span className={cn('grid shrink-0 place-items-center overflow-hidden bg-(--tc) font-extrabold text-ink has-[img]:bg-black/40', c ? 'size-10 rounded-[10px] text-xl' : 'size-14 rounded-[14px] text-[28px]')}>
-        <TeamMark i={i} url={logoOf(i)} />
-      </span>
+      <TeamAvatar i={i} url={logoOf(i)} className={c ? 'size-10 rounded-[10px] text-xl' : 'size-14 rounded-[14px] text-[28px]'} />
       <b className={cn('truncate leading-none font-extrabold tracking-[-0.02em] text-(--tc)', c ? 'max-w-85 text-[28px]' : 'text-[40px]')}>{t[i]}</b>
     </div>
   );

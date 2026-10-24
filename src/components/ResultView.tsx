@@ -5,8 +5,10 @@ import {
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
+import { Item, ItemActions, ItemContent, ItemGroup, ItemTitle } from '@/components/ui/item';
 import { Separator } from '@/components/ui/separator';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { FORMATS, DECIDER, TEAMC } from '@/data/maps';
@@ -21,7 +23,7 @@ import type { TeamIdx, VetoState } from '@/types';
 import { DateTimePicker, Field, Panel } from './kit';
 import { MapArt } from './MapArt';
 import { CompRow } from './MapNotes';
-import { TeamMark } from './TeamMark';
+import { TeamAvatar } from './TeamMark';
 
 interface Props {
   veto: VetoState;
@@ -96,7 +98,7 @@ export function ResultView({ veto, onEdit, onReplay, onNew }: Props) {
             <Fragment key={i}>
               {i === 1 && <span className="text-sm font-semibold tracking-[0.2em] text-dim">VS</span>}
               <span className="inline-flex items-center gap-2 text-(--tc)" style={vars({ '--tc': TEAMC[i] })}>
-                {logo(i) && <span className="grid size-8 place-items-center overflow-hidden rounded-md border border-(--tc) bg-black/40 text-sm"><TeamMark i={i} url={logo(i)} /></span>}
+                {logo(i) && <TeamAvatar i={i} url={logo(i)} className="size-8 text-sm ring-1 ring-(--tc)" />}
                 {editing
                   ? <Input value={t[i]} onChange={e => rename(i, e.target.value)} onBlur={e => { if (!e.target.value.trim()) rename(i, i ? 'Team Omega' : 'Team Alpha'); }} maxLength={24} aria-label={`Team ${i ? 'B' : 'A'} name`} className="w-44 text-center text-lg! font-bold text-(--tc)" />
                   : t[i]}
@@ -118,15 +120,15 @@ export function ResultView({ veto, onEdit, onReplay, onNew }: Props) {
           const knife = !gm.side && gm.decider && S.sidePick && S.deciderRule === 'knife';
           const atk = S.notesAtk[gm.map], def = S.notesDef[gm.map], comp = S.comps[gm.map] ?? [];
           return (
-            <article
+            <Card
               key={gm.map}
               data-game
-              className="relative flex min-h-100 flex-col justify-end overflow-hidden rounded-xl border border-(--mc) shadow-[0_24px_60px_-28px_var(--mc)] motion-safe:animate-rise"
+              className="relative min-h-100 justify-end gap-0 py-0 text-base shadow-[0_24px_60px_-28px_var(--mc)] ring-(--mc) motion-safe:animate-rise"
               style={vars({ '--mc': color, animationDelay: `${120 + i * 90}ms` })}
             >
               <MapArt map={m} kind={g.length >= 4 ? 'tall' : 'splash'} watermark={false} className="absolute inset-0" />
               <div className="absolute inset-0 bg-linear-to-t from-[rgb(9_6_13/0.97)] from-35% via-[rgb(9_6_13/0.55)] via-60% to-[rgb(9_6_13/0.1)]" />
-              <span className="absolute top-3 left-3 z-[2] rounded-md bg-(--mc) px-2.5 py-1 text-xs font-bold tracking-[0.08em] text-ink">MAP {i + 1}{gm.decider ? ' DECIDER' : ''}</span>
+              <Badge className="absolute top-3 left-3 z-[2] h-6 rounded-md bg-(--mc) px-2.5 font-bold tracking-[0.08em] text-ink">MAP {i + 1}{gm.decider ? ' DECIDER' : ''}</Badge>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button size="icon-sm" variant="glass" className="absolute top-3 right-3 z-[2] rounded-full" aria-label={`${m.name} details and team prep`} onClick={() => openInfo(gm.map)}>
@@ -139,17 +141,21 @@ export function ResultView({ veto, onEdit, onReplay, onNew }: Props) {
                 <p className="flex gap-3 text-xs text-white/70"><span>{m.loc}</span><span>Sites {m.sites}</span></p>
                 <h3 className="text-3xl leading-none font-extrabold tracking-[-0.03em]">{m.name}</h3>
                 <p className="text-sm text-muted-foreground">{gm.by == null ? 'Decider, the last map standing' : <>Picked by <b className="font-semibold text-(--mc)">{t[gm.by]}</b></>}</p>
-                <div className="grid gap-1.5">
+                <ItemGroup className="gap-1.5">
                   {([0, 1] as const).map(team => {
                     const sd = sideFor(gm, team);
                     return (
-                      <div key={team} data-side-row className="flex items-center justify-between gap-2 rounded-md bg-white/6 px-2.5 py-1.5 text-sm font-semibold">
-                        <span className="flex min-w-0 items-center gap-2"><i className="size-2 shrink-0 rounded-[2px]" style={{ background: TEAMC[team] }} /><span className="truncate">{t[team]}</span></span>
-                        {sd ? <Badge variant={sd} className="tracking-[0.08em]">{sd === 'atk' ? 'ATTACK' : 'DEFENSE'}</Badge> : <Badge variant="outline" className="text-dim">{knife ? 'KNIFE' : 'TBD'}</Badge>}
-                      </div>
+                      <Item key={team} role="listitem" data-side-row variant="muted" size="xs" className="flex-nowrap rounded-md bg-white/6 px-2.5 py-1.5">
+                        <ItemContent className="min-w-0">
+                          <ItemTitle className="w-full gap-2 font-semibold"><i className="size-2 shrink-0 rounded-[2px]" style={{ background: TEAMC[team] }} /><span className="truncate">{t[team]}</span></ItemTitle>
+                        </ItemContent>
+                        <ItemActions>
+                          {sd ? <Badge variant={sd} className="tracking-[0.08em]">{sd === 'atk' ? 'ATTACK' : 'DEFENSE'}</Badge> : <Badge variant="outline" className="text-dim">{knife ? 'KNIFE' : 'TBD'}</Badge>}
+                        </ItemActions>
+                      </Item>
                     );
                   })}
-                </div>
+                </ItemGroup>
                 {editing && gm.side && <Button size="sm" variant="secondary" className="justify-self-start" onClick={() => flipSide(gm.map)}><ArrowLeftRightIcon /> Swap starting sides</Button>}
                 <CompRow names={comp} />
                 {(S.notes[gm.map] || atk || def) && (
@@ -160,7 +166,7 @@ export function ResultView({ veto, onEdit, onReplay, onNew }: Props) {
                   </div>
                 )}
               </div>
-            </article>
+            </Card>
           );
         })}
       </div>
@@ -172,7 +178,7 @@ export function ResultView({ veto, onEdit, onReplay, onNew }: Props) {
             const who = h.team != null ? t[h.team] : 'Auto';
             return (
               <li key={i} className="flex items-center gap-2.5 rounded-full border border-white/10 bg-card py-1 pr-3.5 pl-1 text-sm backdrop-blur-xl motion-safe:animate-rise" style={{ animationDelay: `${300 + i * 40}ms` }}>
-                <b className="rounded-full px-2 py-0.5 text-xs font-bold text-ink" style={{ background: h.team != null ? TEAMC[h.team] : DECIDER }}>{h.k.toUpperCase()}</b>
+                <Badge className="font-bold text-ink" style={{ background: h.team != null ? TEAMC[h.team] : DECIDER }}>{h.k.toUpperCase()}</Badge>
                 <span className={cn(h.k === 'ban' && 'text-muted-foreground')}>
                   {h.k === 'ban' ? <>{who} banned <s>{name(h.map)}</s></>
                     : h.k === 'pick' ? <>{who} picked <strong>{name(h.map)}</strong></>
@@ -184,7 +190,7 @@ export function ResultView({ veto, onEdit, onReplay, onNew }: Props) {
           })}
           {unplayed.map(id => (
             <li key={id} className="flex items-center gap-2.5 rounded-full border border-white/10 bg-card py-1 pr-3.5 pl-1 text-sm opacity-60">
-              <b className="rounded-full bg-dim px-2 py-0.5 text-xs font-bold text-ink">UNPLAYED</b>{name(id)}
+              <Badge className="bg-dim font-bold text-ink">UNPLAYED</Badge>{name(id)}
             </li>
           ))}
         </ol>

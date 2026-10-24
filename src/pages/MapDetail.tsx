@@ -1,8 +1,10 @@
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { CheckIcon, ChevronLeftIcon, PlusIcon } from 'lucide-react';
+import { CheckIcon, PlusIcon } from 'lucide-react';
 import { MapFacts } from '../components/InfoModal';
 import { Panel } from '../components/kit';
 import { Badge } from '../components/ui/badge';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '../components/ui/breadcrumb';
+import { CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { cn } from '../lib/utils';
 import { MapArt } from '../components/MapArt';
@@ -42,7 +44,13 @@ export function MapDetail() {
         <MapArt map={m} kind="splash" watermark={false} className="absolute inset-0 -z-10" />
         <div className="absolute inset-0 -z-10 bg-linear-to-t from-background via-background/40 to-background/20" />
         <div className="container pb-10">
-          <Link to="/maps" className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"><ChevronLeftIcon className="size-4" /> All maps</Link>
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem><BreadcrumbLink asChild><Link to="/maps">Maps</Link></BreadcrumbLink></BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem><BreadcrumbPage>{m.name}</BreadcrumbPage></BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
           <p className="mt-4 text-sm text-[#ddd6e3]">{m.year ? `${m.loc}, released ${m.year}` : m.loc}</p>
           <h1 className="text-6xl font-extrabold tracking-[-0.04em] sm:text-7xl lg:text-8xl motion-safe:animate-rise">{m.name}</h1>
           <div className="mt-3 flex flex-wrap gap-2">
@@ -54,21 +62,25 @@ export function MapDetail() {
       </section>
       <div className="container">
         <div className="grid items-start gap-4 py-4 lg:grid-cols-[1.45fr_1fr]">
-          <Panel className="grid gap-4 p-5 sm:p-6">
-            <div>
-              <p className="text-sm font-semibold text-muted-foreground">How it plays</p>
-              <p className="mt-1.5 leading-relaxed">{m.desc}</p>
-            </div>
-            <MapFacts map={m} />
-            <MapNotes mapId={m.id} hint="saved in this browser, shown on your plan and export" />
+          <Panel className="flex flex-col gap-4 py-5 sm:py-6">
+            <CardHeader className="px-5 sm:px-6">
+              <CardDescription className="font-semibold">How it plays</CardDescription>
+              <CardTitle className="text-base leading-relaxed font-normal tracking-normal">{m.desc}</CardTitle>
+            </CardHeader>
+            <CardContent className="grid gap-4 px-5 sm:px-6">
+              <MapFacts map={m} />
+              <MapNotes mapId={m.id} hint="saved in this browser, shown on your plan and export" />
+            </CardContent>
           </Panel>
-          <Panel className="grid gap-3 p-5 sm:p-6 lg:sticky lg:top-24">
-            <p className="text-sm font-semibold text-muted-foreground">Plan around {m.name}</p>
-            <p className="leading-relaxed">{inPool ? `${m.name} is in your veto pool.` : `${m.name} isn’t in your veto pool yet.`} Your pool currently has {setup.pool.length} maps.</p>
-            <div className="mt-1 flex flex-wrap gap-2">
+          <Panel className="flex flex-col gap-3 py-5 sm:py-6 lg:sticky lg:top-24">
+            <CardHeader className="px-5 sm:px-6">
+              <CardDescription className="font-semibold">Plan around {m.name}</CardDescription>
+              <CardTitle className="text-base leading-relaxed font-normal tracking-normal">{inPool ? `${m.name} is in your veto pool.` : `${m.name} isn’t in your veto pool yet.`} Your pool currently has {setup.pool.length} maps.</CardTitle>
+            </CardHeader>
+            <CardFooter className="mt-1 flex-wrap gap-2 border-0 bg-transparent px-5 py-0 sm:px-6">
               <Button onClick={vetoWith}>Start a veto with {m.name}</Button>
               <Button variant="secondary" onClick={togglePool}>{inPool ? 'Remove from pool' : <><PlusIcon /> Add to pool</>}</Button>
-            </div>
+            </CardFooter>
           </Panel>
         </div>
         <Minimap mapId={m.id} name={m.name} />

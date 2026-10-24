@@ -3,6 +3,7 @@ import { Link, NavLink, Outlet, useLocation } from 'react-router-dom';
 import { MenuIcon } from 'lucide-react';
 import { BRAND, Logo } from '@/brand/Logo';
 import { Button } from '@/components/ui/button';
+import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, navigationMenuTriggerStyle } from '@/components/ui/navigation-menu';
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { useHasLiveVeto } from '@/lib/session';
 import { cn } from '@/lib/utils';
@@ -64,10 +65,8 @@ function Nav() {
     return () => window.removeEventListener('scroll', on);
   }, []);
 
-  const linkClass = ({ isActive }: { isActive: boolean }) => cn(
-    'rounded-md px-3.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground',
-    isActive && 'bg-white/10 text-foreground shadow-[inset_0_1px_0_rgb(255_255_255/0.08)]',
-  );
+  // NavLink marks the current page with aria-current, which styles the active link
+  const linkClass = 'rounded-md text-muted-foreground hover:bg-white/5 hover:text-foreground focus:bg-white/5 aria-[current=page]:bg-white/10 aria-[current=page]:text-foreground aria-[current=page]:shadow-[inset_0_1px_0_rgb(255_255_255/0.08)]';
 
   return (
     <header className="pointer-events-none fixed inset-x-0 top-3 z-40 px-4">
@@ -79,10 +78,18 @@ function Nav() {
         )}
       >
         <Link to="/" aria-label={`${BRAND.name} home`} className="rounded-md"><Logo size={32} /></Link>
-        <nav className="ml-auto hidden items-center gap-0.5 md:flex" aria-label="Main">
-          {LINKS.map(l => <NavLink key={l.to} to={l.to} end={l.end} className={linkClass}>{l.label}</NavLink>)}
-          <CallToAction className="ml-2" />
-        </nav>
+        <NavigationMenu viewport={false} className="ml-auto hidden max-w-none flex-none md:flex" aria-label="Main">
+          <NavigationMenuList className="gap-0.5">
+            {LINKS.map(l => (
+              <NavigationMenuItem key={l.to}>
+                <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), linkClass, 'h-9 px-3.5')}>
+                  <NavLink to={l.to} end={l.end}>{l.label}</NavLink>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+            ))}
+            <NavigationMenuItem><CallToAction className="ml-2" /></NavigationMenuItem>
+          </NavigationMenuList>
+        </NavigationMenu>
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild>
             <Button variant="ghost" size="icon" className="ml-auto md:hidden" aria-label="Menu"><MenuIcon className="size-5" /></Button>
@@ -91,7 +98,11 @@ function Nav() {
             <SheetTitle className="sr-only">Menu</SheetTitle>
             <Logo size={32} />
             <nav className="mt-4 grid gap-1" aria-label="Main">
-              {LINKS.map(l => <NavLink key={l.to} to={l.to} end={l.end} className={p => cn(linkClass(p), 'py-3 text-base')}>{l.label}</NavLink>)}
+              {LINKS.map(l => (
+                <Button key={l.to} asChild variant="ghost" className={cn(linkClass, 'h-12 justify-start px-3.5 text-base font-medium')}>
+                  <NavLink to={l.to} end={l.end}>{l.label}</NavLink>
+                </Button>
+              ))}
               <CallToAction className="mt-2 h-12 w-full text-base" />
             </nav>
           </SheetContent>

@@ -4,7 +4,9 @@ import { CheckIcon, DiamondIcon, NotebookPenIcon, PlayIcon } from 'lucide-react'
 import { LogoMark } from '@/brand/Logo';
 import { Panel, Segmented } from '@/components/kit';
 import { MapArt } from '@/components/MapArt';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { COMPETITIVE_POOL, FORMATS, DECIDER, MAPS, TEAMC } from '@/data/maps';
 import { vars } from '@/lib/fx';
@@ -139,9 +141,9 @@ function VetoWall() {
                 {m.name}
               </span>
               {tag && (
-                <span className="absolute top-22 left-2 z-[2] max-w-[calc(100%-16px)] truncate rounded-full border border-white/12 bg-[rgb(12_9_18/0.55)] px-2.5 py-1 text-xs font-bold tracking-[0.06em] whitespace-pre text-(--mc) uppercase backdrop-blur-md motion-safe:animate-rise">
+                <Badge variant="glass" className="absolute top-22 left-2 z-[2] h-6 max-w-[calc(100%-16px)] justify-start truncate bg-[rgb(12_9_18/0.55)] px-2.5 font-bold tracking-[0.06em] whitespace-pre text-(--mc) uppercase motion-safe:animate-rise">
                   {tag}
-                </span>
+                </Badge>
               )}
               {open && <Button variant="ghost" className="absolute inset-0 z-[3] h-auto rounded-none p-0 hover:bg-transparent focus-visible:ring-0 focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-ring dark:hover:bg-transparent" onClick={() => choose(id)} aria-label={`${next.k === 'ban' ? 'Ban' : 'Pick'} ${m.name} for ${TEAMS[next.team!]}`} />}
             </div>
@@ -207,16 +209,16 @@ const FORMAT_RULE: Record<Format, string> = {
 export function SeqChips({ fmt, n = 7 }: { fmt: Format; n?: number }) {
   const seq = genSeq(fmt, n), picks = seq.filter(s => s.t === 'pick').length, left = n - seq.length;
   const decider = left === 1 && picks < fmt;
-  const chip = 'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold tracking-[0.04em]';
+  const chip = 'h-6 gap-1.5 px-2.5 font-bold tracking-[0.04em]';
   return (
     <div className="flex flex-wrap gap-1.5">
       {seq.map((s, i) => (
-        <span key={i} className={cn(chip, s.t === 'ban' ? 'bg-ban/15 text-ban' : 'bg-decider/18 text-decider')}>
+        <Badge key={i} variant={s.t === 'ban' ? 'ban' : 'decider'} className={chip}>
           <i className="size-1.5 rounded-full" style={{ background: TEAMC[s.team] }} />{s.t === 'ban' ? 'BAN' : 'PICK'}
-        </span>
+        </Badge>
       ))}
-      {decider && <span className={cn(chip, 'bg-decider text-ink')}>DECIDER</span>}
-      {!decider && left > 0 && <span className={cn(chip, 'bg-white/8 text-dim')}>{left} UNPLAYED</span>}
+      {decider && <Badge className={cn(chip, 'bg-decider text-ink')}>DECIDER</Badge>}
+      {!decider && left > 0 && <Badge variant="secondary" className={cn(chip, 'bg-white/8 text-dim')}>{left} UNPLAYED</Badge>}
     </div>
   );
 }
@@ -318,7 +320,7 @@ function Roles() {
 
 function CaptainVisual() {
   return (
-    <div className="relative flex items-center gap-3 overflow-hidden rounded-xl border border-white/15 bg-white/8 py-3 pr-4 pl-5 before:absolute before:inset-y-0 before:left-0 before:w-1 before:bg-(--tc)" style={vars({ '--tc': TEAMC[1] })}>
+    <Card className="relative flex-row items-center gap-3 bg-white/8 py-3 pr-4 pl-5 text-base ring-white/15 before:absolute before:inset-y-0 before:left-0 before:w-1 before:bg-(--tc)" style={vars({ '--tc': TEAMC[1] })}>
       <div className="relative size-11 shrink-0">
         <svg viewBox="0 0 44 44" className="size-11 -rotate-90">
           <circle cx="22" cy="22" r="18" fill="none" strokeWidth="4" className="stroke-white/10" />
@@ -328,7 +330,7 @@ function CaptainVisual() {
       </div>
       <div className="min-w-0"><div className="text-xl font-bold tracking-[-0.02em] text-(--tc)">Team Omega</div><div className="text-sm text-muted-foreground">Ban a map</div></div>
       <div className="ml-auto text-xs tracking-[0.12em] text-dim">STEP 2/7</div>
-    </div>
+    </Card>
   );
 }
 
@@ -367,7 +369,7 @@ function TeamVisual() {
           <div key={m.map} className="relative h-28 overflow-hidden rounded-lg border-2 border-(--mc)" style={vars({ '--mc': m.mc })}>
             <MapArt map={mapById(m.map)} kind="tall" watermark={false} className="absolute inset-0" />
             <div className="absolute inset-0 bg-linear-to-t from-black/85 to-transparent" />
-            <span className="absolute top-1.5 left-1.5 rounded bg-(--mc) px-1.5 py-0.5 text-[10px] font-bold text-ink">{m.badge}</span>
+            <Badge className="absolute top-1.5 left-1.5 h-4.5 rounded bg-(--mc) px-1.5 text-[10px] font-bold text-ink">{m.badge}</Badge>
             <h5 className="absolute bottom-1.5 left-2 font-extrabold">{mapById(m.map).name}</h5>
           </div>
         ))}

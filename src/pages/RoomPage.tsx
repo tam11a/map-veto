@@ -4,7 +4,9 @@ import { ExternalLinkIcon, LinkIcon, Undo2Icon } from 'lucide-react';
 import { ConfirmDialog, Panel, Segmented } from '../components/kit';
 import { Board, MapCard, type Rec, SideDialog, SoundButton, TeamCard, Timeline, TurnBanner } from '../components/VetoView';
 import { Button } from '../components/ui/button';
+import { CardAction, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Checkbox } from '../components/ui/checkbox';
+import { Item, ItemActions, ItemContent, ItemDescription, ItemGroup, ItemMedia, ItemTitle } from '../components/ui/item';
 import { Label } from '../components/ui/label';
 import { DECIDER, TEAMC } from '../data/maps';
 import { confetti, vars } from '../lib/fx';
@@ -209,25 +211,28 @@ function Invite({ id, teams }: { id: string; teams: [string, string] }) {
     </div>
   );
   return (
-    <Panel data-invite className="mb-4 grid gap-3 p-5" aria-label="Invite links">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h2 className="text-xl font-bold tracking-tight">Invite the captains</h2>
-          <p className="mt-0.5 text-sm text-muted-foreground">Send each captain their own link. Anyone with a captain link can act for that team, so share them privately.</p>
-        </div>
-        <Button size="sm" variant="ghost" onClick={() => setOpen(o => !o)} aria-expanded={open}>{open ? 'Hide' : 'Show links'}</Button>
-      </div>
+    <Panel data-invite className="mb-4 grid gap-4 py-5" aria-label="Invite links">
+      <CardHeader className="px-5">
+        <CardTitle className="text-xl">Invite the captains</CardTitle>
+        <CardDescription>Send each captain their own link. Anyone with a captain link can act for that team, so share them privately.</CardDescription>
+        <CardAction><Button size="sm" variant="ghost" onClick={() => setOpen(o => !o)} aria-expanded={open}>{open ? 'Hide' : 'Show links'}</Button></CardAction>
+      </CardHeader>
       {open && (
-        <ul className="grid gap-1.5">
+        <CardContent className="px-5">
+        <ItemGroup className="gap-1.5">
           {rows.map(([label, url, col]) => (
-            <li key={label} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-lg border border-white/10 bg-black/25 py-1.5 pr-1.5 pl-3 md:grid-cols-[220px_minmax(0,1fr)_auto]" style={vars({ '--tc': col })}>
-              <span className="flex min-w-0 items-center gap-2 text-sm font-semibold"><i className="size-2 shrink-0 rounded-[2px] bg-(--tc)" /><span className="truncate">{label}</span></span>
-              <code className="hidden truncate text-xs text-muted-foreground md:block">{url.replace(/\?t=.+$/, '?t=…')}</code>
-              <Button size="sm" variant="secondary" onClick={() => copy(label + ' link', url)}><LinkIcon /> Copy</Button>
-            </li>
+            <Item key={label} role="listitem" variant="outline" size="sm" className="flex-nowrap border-white/10 bg-black/25 py-1.5 pr-1.5 pl-3" style={vars({ '--tc': col })}>
+              <ItemMedia><i className="size-2 shrink-0 rounded-[2px] bg-(--tc)" /></ItemMedia>
+              <ItemContent className="min-w-0 gap-0 md:flex-row md:items-center md:gap-3">
+                <ItemTitle className="font-semibold md:w-52 md:shrink-0"><span className="truncate">{label}</span></ItemTitle>
+                <ItemDescription className="hidden min-w-0 md:block"><code className="block truncate text-xs">{url.replace(/\?t=.+$/, '?t=…')}</code></ItemDescription>
+              </ItemContent>
+              <ItemActions><Button size="sm" variant="secondary" onClick={() => copy(label + ' link', url)}><LinkIcon /> Copy</Button></ItemActions>
+            </Item>
           ))}
-          <li className="grid items-center gap-3 rounded-lg border border-white/10 bg-black/25 px-3 py-2.5 md:grid-cols-[220px_minmax(0,1fr)]" aria-label="Overlay layout">
-            <span className="text-sm font-semibold">Overlay layout</span>
+          <Item role="listitem" variant="outline" size="sm" className="border-white/10 bg-black/25 px-3 py-2.5" aria-label="Overlay layout">
+            <ItemContent className="gap-2 md:flex-row md:items-center md:gap-3">
+            <ItemTitle className="font-semibold md:w-52 md:shrink-0">Overlay layout</ItemTitle>
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
               <Segmented<'bottom' | 'top'> label="Position" size="sm" value={ov.pos} onChange={pos => set({ pos })} options={[{ value: 'bottom', label: 'Bottom' }, { value: 'top', label: 'Top' }]} />
               <Segmented<'full' | 'row'> label="Style" size="sm" value={ov.compact ? 'row' : 'full'} onChange={v => set({ compact: v === 'row' })} options={[{ value: 'full', label: 'Full' }, { value: 'row', label: 'One row' }]} />
@@ -235,8 +240,10 @@ function Invite({ id, teams }: { id: string; teams: [string, string] }) {
               {check('title', 'Title')}
               <Button asChild size="sm" variant="ghost"><a href={preview} target="_blank" rel="noreferrer"><ExternalLinkIcon /> Preview</a></Button>
             </div>
-          </li>
-        </ul>
+            </ItemContent>
+          </Item>
+        </ItemGroup>
+        </CardContent>
       )}
     </Panel>
   );

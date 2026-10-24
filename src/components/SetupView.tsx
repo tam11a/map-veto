@@ -1,5 +1,6 @@
 import { Fragment, useRef, useState } from 'react';
 import { CheckIcon, DiamondIcon, PencilIcon, PlusIcon, UploadIcon, UsersIcon, XIcon } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -19,7 +20,7 @@ import { useApp } from '@/state';
 import type { DeciderRule, FirstTurn, Format, PoolPreset, RulePreset, SeqStep, Setup, SideRule, StepType, TeamIdx } from '@/types';
 import { ConfirmDialog, DateTimePicker, Field, Panel, SectionTitle, Segmented, Stepper } from './kit';
 import { MapArt } from './MapArt';
-import { TeamMark } from './TeamMark';
+import { TeamAvatar } from './TeamMark';
 
 const TIMERS = [0, 20, 45, 60];
 export const IMPORT_ERROR = 'This file isn’t a Map Veto plan. Export one from a finished veto and try again.';
@@ -101,11 +102,12 @@ function Versus() {
       <Tooltip>
         <TooltipTrigger asChild>
           <Button
-            className="size-13 rounded-lg bg-(--tc) bg-none p-0 text-2xl font-extrabold text-ink shadow-none hover:ring-3 hover:ring-(--tc)/40 hover:brightness-110 active:scale-95 has-[img]:bg-black/40 [&>*]:size-full"
+            variant="ghost"
+            className="size-13 rounded-lg p-0 hover:bg-transparent hover:ring-3 hover:ring-(--tc)/40 hover:brightness-110 active:scale-95 dark:hover:bg-transparent"
             onClick={() => setLogoFor(i)}
             aria-label={`${S.teams[i]} logo${S.logos[i] ? '' : ', none set'}. Change`}
           >
-            <TeamMark i={i} url={S.logos[i]} />
+            <TeamAvatar i={i} url={S.logos[i]} className="size-full rounded-lg text-2xl" />
           </Button>
         </TooltipTrigger>
         <TooltipContent>Set a team logo</TooltipContent>
@@ -183,9 +185,7 @@ function LogoDialog({ i, onClose }: { i: TeamIdx | null; onClose: () => void }) 
         <form className="grid gap-4" onSubmit={e => { e.preventDefault(); if (ok) save(url.trim()); }}>
           <DialogHeader><DialogTitle className="text-2xl font-extrabold tracking-tight">{i != null ? S.teams[i] : ''} logo</DialogTitle></DialogHeader>
           <div className="grid gap-4 sm:grid-cols-[88px_1fr] sm:items-start">
-            <div className="grid size-22 place-items-center overflow-hidden rounded-xl border border-white/15 bg-black/30 text-4xl font-extrabold text-dim">
-              {i != null && <TeamMark i={i} url={ok ? url.trim() : ''} />}
-            </div>
+            {i != null && <TeamAvatar i={i} url={ok ? url.trim() : ''} className="size-22 rounded-xl text-4xl ring-1 ring-white/15" />}
             <Field
               label="Image URL"
               htmlFor="logo-url"
@@ -604,16 +604,18 @@ function OrderResult() {
         : { ok: false, text: `${F.label} needs ${S.format} maps. Change a pick to a ban.` };
 
   return (
-    <div className={cn('rounded-lg border px-4 py-3', status.ok ? 'border-pick/40 bg-pick/6' : 'border-decider/45 bg-decider/6')} role="status">
-      <div className="flex items-baseline gap-2">
+    <Alert role="status" className={cn('block px-4 py-3 text-base', status.ok ? 'border-pick/40 bg-pick/6' : 'border-decider/45 bg-decider/6')}>
+      <AlertTitle className="flex items-baseline gap-2 font-normal">
         <b className="text-3xl leading-none font-extrabold tabular-nums">{sim.games}</b>
         <span className="text-muted-foreground">map{sim.games === 1 ? '' : 's'} from {S.pool.length}</span>
-      </div>
-      <p className={cn('mt-2 flex items-start gap-1.5 leading-snug font-semibold', status.ok ? 'text-pick' : 'text-decider')}>
-        {status.ok && <CheckIcon className="mt-0.5 size-4 shrink-0" />}{status.text}
-      </p>
-      <small className="mt-1 block text-sm text-muted-foreground">{sim.bans} ban{sim.bans === 1 ? '' : 's'}, {sim.picks} pick{sim.picks === 1 ? '' : 's'}{sim.decider ? ', 1 decider' : ''}</small>
-    </div>
+      </AlertTitle>
+      <AlertDescription className="text-base">
+        <p className={cn('mt-2 flex items-start gap-1.5 leading-snug font-semibold', status.ok ? 'text-pick' : 'text-decider')}>
+          {status.ok && <CheckIcon className="mt-0.5 size-4 shrink-0" />}{status.text}
+        </p>
+        <small className="mt-1 block text-sm text-muted-foreground">{sim.bans} ban{sim.bans === 1 ? '' : 's'}, {sim.picks} pick{sim.picks === 1 ? '' : 's'}{sim.decider ? ', 1 decider' : ''}</small>
+      </AlertDescription>
+    </Alert>
   );
 }
 

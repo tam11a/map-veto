@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Item, ItemContent, ItemDescription, ItemGroup, ItemTitle } from '@/components/ui/item';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { Panel, SectionTitle } from './kit';
@@ -68,16 +69,19 @@ export function Minimap({ mapId, name }: { mapId: string; name: string }) {
           })}
         </div>
         <ScrollArea className="h-64 md:h-155">
-        <ul className="grid grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-0.5 pr-3 md:grid-cols-1" aria-label="Callout names">
+        <ItemGroup className="grid grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-0.5 pr-3 md:grid-cols-1" aria-label="Callout names">
           {shown.map(c => {
             const key = c.region + c.name;
             return (
-              <li key={key} className={cn('grid cursor-default rounded-md px-2.5 py-1.5 text-sm font-semibold transition-colors', hot === key && 'bg-white/8 text-pick')} onMouseEnter={() => setHot(key)} onMouseLeave={() => setHot(null)}>
-                <small className="text-[11px] font-medium text-dim">{c.region}</small>{label(c)}
-              </li>
+              <Item key={key} role="listitem" size="xs" className={cn('cursor-default rounded-md px-2.5 py-1.5', hot === key && 'bg-white/8')} onMouseEnter={() => setHot(key)} onMouseLeave={() => setHot(null)}>
+                <ItemContent className="gap-0">
+                  <ItemDescription className="text-[11px] font-medium text-dim">{c.region}</ItemDescription>
+                  <ItemTitle className={cn('font-semibold', hot === key && 'text-pick')}>{label(c)}</ItemTitle>
+                </ItemContent>
+              </Item>
             );
           })}
-        </ul>
+        </ItemGroup>
         </ScrollArea>
       </div>
       <p className="mt-3 text-xs text-dim">Minimap and callout names from valorant-api.com.</p>

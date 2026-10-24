@@ -1,4 +1,5 @@
 import { DialogTitle } from '@/components/ui/dialog';
+import { Item, ItemContent, ItemDescription, ItemGroup, ItemTitle } from '@/components/ui/item';
 import { getMap } from '@/lib/veto';
 import { useApp } from '@/state';
 import type { MapInfo } from '@/types';
@@ -9,14 +10,16 @@ import { MapNotes } from './MapNotes';
 export function MapFacts({ map: m }: { map: MapInfo }) {
   const facts: [string, string][] = [['Sites', m.sites], ['Released', m.year ? String(m.year) : '—'], ['Signature', m.tag || '—']];
   return (
-    <dl className="grid grid-cols-3 gap-2">
+    <ItemGroup className="grid grid-cols-3 gap-2">
       {facts.map(([k, v]) => (
-        <div key={k} className="rounded-lg border border-white/10 bg-black/25 px-3 py-2.5">
-          <dt className="text-xs text-muted-foreground">{k}</dt>
-          <dd className="mt-0.5 text-sm font-bold leading-snug">{v}</dd>
-        </div>
+        <Item key={k} role="listitem" variant="outline" size="sm" className="items-start border-white/10 bg-black/25 px-3 py-2.5">
+          <ItemContent className="gap-0.5">
+            <ItemDescription className="text-xs">{k}</ItemDescription>
+            <ItemTitle className="line-clamp-2 font-bold">{v}</ItemTitle>
+          </ItemContent>
+        </Item>
       ))}
-    </dl>
+    </ItemGroup>
   );
 }
 

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { CheckIcon } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
@@ -75,7 +76,10 @@ function CompPicker({ mapId }: { mapId: string }) {
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button variant="ghost" className="absolute inset-0 grid h-auto place-items-center rounded-none p-0 hover:bg-transparent hover:brightness-110 dark:hover:bg-transparent" onClick={() => save(comp.filter(n => n !== name))} aria-label={`Remove ${name}`}>
-                      {agentIcon(agents, name) ? <img src={agentIcon(agents, name)} alt="" className="absolute inset-0 size-full object-cover" /> : <b className="text-lg">{name.slice(0, 2)}</b>}
+                      <Avatar className="absolute inset-0 size-full rounded-none after:hidden">
+                        <AvatarImage src={agentIcon(agents, name)} alt="" className="rounded-none" />
+                        <AvatarFallback className="rounded-none bg-transparent text-lg font-bold text-foreground">{name.slice(0, 2)}</AvatarFallback>
+                      </Avatar>
                       <small className="absolute inset-x-0 bottom-0 truncate bg-black/65 px-1 py-0.5 text-center text-[11px] font-semibold">{name}</small>
                     </Button>
                   </TooltipTrigger>
@@ -110,7 +114,7 @@ function CompPicker({ mapId }: { mapId: string }) {
                           'border-transparent text-muted-foreground hover:border-white/15 hover:bg-transparent hover:text-foreground data-[state=on]:border-pick data-[state=on]:bg-pick/10 data-[state=on]:text-foreground',
                         )}
                       >
-                        <img src={a.icon} alt="" loading="lazy" className="size-10 rounded-full bg-white/10" />
+                        <Avatar className="size-10 bg-white/10 after:hidden"><AvatarImage src={a.icon} alt="" loading="lazy" /><AvatarFallback className="bg-white/10 text-xs font-bold">{a.name.slice(0, 2)}</AvatarFallback></Avatar>
                         <span className="max-w-full truncate">{a.name}</span>
                         {on && <CheckIcon className="absolute top-1 right-1 size-3 text-pick" />}
                       </Toggle>
@@ -135,9 +139,10 @@ export function CompRow({ names }: { names: string[] }) {
       {names.map(n => (
         <Tooltip key={n}>
           <TooltipTrigger asChild>
-            <span className="grid size-7 place-items-center overflow-hidden rounded-full border border-white/15 bg-black/30 text-[10px] font-bold">
-              {agentIcon(agents, n) ? <img src={agentIcon(agents, n)} alt="" className="size-full object-cover" /> : n.slice(0, 2)}
-            </span>
+            <Avatar className="size-7 ring-1 ring-white/15 after:hidden">
+              <AvatarImage src={agentIcon(agents, n)} alt="" />
+              <AvatarFallback className="bg-black/30 text-[10px] font-bold text-foreground">{n.slice(0, 2)}</AvatarFallback>
+            </Avatar>
           </TooltipTrigger>
           <TooltipContent>{n}</TooltipContent>
         </Tooltip>

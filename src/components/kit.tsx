@@ -7,6 +7,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { ButtonGroup } from '@/components/ui/button-group';
 import { Calendar } from '@/components/ui/calendar';
+import { Card } from '@/components/ui/card';
 import { Field as UiField, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -159,16 +160,10 @@ export function PageHeader({ title, children, className }: { title: ReactNode; c
   );
 }
 
-/** A frosted surface for grouping content (lighter weight than a Card, no header slots). */
-export function Panel({ className, children, ...props }: React.ComponentProps<'div'>) {
-  return (
-    <div
-      className={cn('rounded-xl bg-card shadow-[inset_0_1px_0_rgb(255_255_255/0.08),0_24px_60px_-24px_rgb(0_0_0/0.75)] ring-1 ring-white/10 backdrop-blur-xl', className)}
-      {...props}
-    >
-      {children}
-    </div>
-  );
+/** A frosted surface for grouping content: a shadcn Card without its header/footer spacing, laid out by the caller. */
+export function Panel({ className, ...props }: React.ComponentProps<typeof Card>) {
+  // Card is a padded column; reset that so a Panel's own grid/flex classes decide the layout
+  return <Card className={cn('block flex-row gap-0 overflow-visible py-0 text-base', className)} {...props} />;
 }
 
 /** Small section heading used inside screens ("Map pool", "Veto order"…). */

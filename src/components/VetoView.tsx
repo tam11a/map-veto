@@ -1,8 +1,11 @@
 import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { KeyboardIcon, NotebookPenIcon, PauseIcon, PlayIcon, Undo2Icon, Volume2Icon, VolumeXIcon } from 'lucide-react';
+import { Alert, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
+import { Item, ItemContent, ItemDescription, ItemTitle } from '@/components/ui/item';
 import { Kbd } from '@/components/ui/kbd';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -15,7 +18,7 @@ import { useApp } from '@/state';
 import type { Action, ActionKind, MapInfo, Setup, Side, TeamIdx, VetoState } from '@/types';
 import { ConfirmDialog } from './kit';
 import { MapArt } from './MapArt';
-import { TeamMark } from './TeamMark';
+import { TeamAvatar } from './TeamMark';
 
 type HistUpdate = (fn: (h: Action[]) => Action[]) => void;
 export interface Rec { k: ActionKind; team: TeamIdx | null; g?: number }
@@ -232,10 +235,10 @@ export function VetoView({ veto, updateHist, replay, onFinish, onSkip, onExit }:
         <KeyHints timer={S.timer > 0} />
       </div>
       {replay && (
-        <div className="fixed bottom-5 left-1/2 z-30 flex -translate-x-1/2 items-center gap-3 rounded-lg border border-white/15 bg-popover/90 py-1.5 pr-1.5 pl-4 text-xs font-bold tracking-[0.12em] backdrop-blur-xl" role="status">
-          <i className="size-2 rounded-full bg-ban motion-safe:animate-blink" />REPLAYING VETO
+        <Alert role="status" className="fixed bottom-5 left-1/2 z-30 flex w-auto -translate-x-1/2 items-center gap-3 border-white/15 bg-popover/90 py-1.5 pr-1.5 pl-4 backdrop-blur-xl">
+          <AlertTitle className="flex items-center gap-3 text-xs font-bold tracking-[0.12em]"><i className="size-2 rounded-full bg-ban motion-safe:animate-blink" />REPLAYING VETO</AlertTitle>
           <Button size="sm" variant="ghost" onClick={onSkip}>Skip</Button>
-        </div>
+        </Alert>
       )}
       <ConfirmDialog open={restart} onOpenChange={setRestart} title="Restart the veto?" confirmLabel="Restart" onConfirm={() => updateHist(() => [])}>
         Every step so far is cleared and the veto starts again from the first ban.
@@ -446,22 +449,20 @@ export function TeamCard({ team, name, hist, active, logo = '' }: { team: TeamId
   const bans = hist.filter(h => h.k === 'ban' && h.team === team).length;
   const picks = hist.filter(h => h.k === 'pick' && h.team === team).length;
   return (
-    <div
+    <Card
       className={cn(
-        'flex min-w-0 items-center gap-2 rounded-xl border border-white/10 bg-card px-2 py-2.5 min-[400px]:px-2.5 backdrop-blur-xl transition-[border-color,box-shadow,background-color] duration-300 sm:gap-3 sm:px-4 sm:py-3',
+        'min-w-0 flex-row items-center gap-2 px-2 py-2.5 transition-[box-shadow,background-color] duration-300 min-[400px]:px-2.5 sm:gap-3 sm:px-4 sm:py-3',
         team === 1 && 'flex-row-reverse text-right lg:order-3',
-        active && 'border-(--tc) bg-(--tc)/10 shadow-[0_0_0_1px_var(--tc),0_10px_36px_-12px_var(--tc)]',
+        active && 'bg-(--tc)/10 shadow-[0_0_0_1px_var(--tc),0_10px_36px_-12px_var(--tc)] ring-(--tc)',
       )}
       style={vars({ '--tc': TEAMC[team] })}
     >
-      <span className={cn('grid size-7 shrink-0 place-items-center overflow-hidden rounded-md text-sm font-extrabold text-ink min-[400px]:size-8 sm:size-9 sm:text-base', logo ? 'bg-black/40' : 'bg-(--tc)')}>
-        <TeamMark i={team} url={logo} />
-      </span>
+      <TeamAvatar i={team} url={logo} className="size-7 text-sm min-[400px]:size-8 sm:size-9 sm:text-base" />
       <div className="min-w-0">
         <b className="block truncate text-[0.9375rem] font-bold min-[400px]:text-base tracking-[-0.02em] sm:text-xl">{name}</b>
         <small className="text-xs text-muted-foreground tabular-nums">{bans} ban{bans === 1 ? '' : 's'}, {picks} pick{picks === 1 ? '' : 's'}</small>
       </div>
-    </div>
+    </Card>
   );
 }
 
@@ -480,9 +481,9 @@ export function TurnBanner({ step, teams, timer, deadline, now, paused, setup: g
   const low = deadline > 0 && left < 5000;
   return (
     <div className="col-span-2 lg:order-2 lg:col-span-1">
-      <div
+      <Card
         key={`${step?.i ?? 'done'}:${step?.k}`}
-        className="relative flex h-full items-center gap-3 overflow-hidden rounded-xl border border-white/15 bg-white/8 py-3 pr-4 pl-5 backdrop-blur-xl before:absolute before:inset-y-0 before:left-0 before:w-1 before:bg-(--tc) motion-safe:animate-rise"
+        className="relative h-full flex-row items-center gap-3 bg-white/8 py-3 pr-4 pl-5 ring-white/15 before:absolute before:inset-y-0 before:left-0 before:w-1 before:bg-(--tc) motion-safe:animate-rise"
         style={vars({ '--tc': color })}
       >
         {timer > 0 && (
@@ -505,7 +506,7 @@ export function TurnBanner({ step, teams, timer, deadline, now, paused, setup: g
           <div data-turn className="mt-0.5 text-sm text-muted-foreground">{paused != null ? 'Timer paused' : waiting && step?.team != null ? `Waiting for ${teams[step.team]}: ${what.toLowerCase()}` : what}</div>
         </div>
         <div className="ml-auto pl-2 text-xs tracking-[0.12em] whitespace-nowrap text-dim tabular-nums">{step ? `STEP ${step.i + 1}/${step.total}` : 'DONE'}</div>
-      </div>
+      </Card>
     </div>
   );
 }
@@ -531,23 +532,27 @@ export function Timeline({ teams, hist, setup: given }: { teams: [string, string
         const sub = h ? (h.k === 'side' && h.side ? `${sideLabel(h.side)} on ${name}` : name) : st.team != null ? teams[st.team].slice(0, 10) : 'Auto';
         const now = i === n;
         return (
-          <div
+          <Item
             key={i}
+            variant="outline"
+            size="xs"
             data-step
             data-now={now || undefined}
             data-done={i < n || undefined}
             className={cn(
-              'relative min-w-23 shrink-0 rounded-md border border-white/10 bg-card px-2.5 py-1.5 transition-[opacity,border-color,box-shadow]',
+              'relative w-auto min-w-23 shrink-0 rounded-md border-white/10 bg-card px-2.5 py-1.5 transition-[opacity,border-color,box-shadow]',
               i < n || now ? 'opacity-100' : 'opacity-60',
               now && 'border-(--tc) shadow-[0_0_0_1px_var(--tc)] after:absolute after:inset-x-2.5 after:-bottom-px after:h-0.5 after:bg-(--tc) motion-safe:after:animate-pulse-line',
             )}
             style={vars({ '--tc': st.team != null ? TEAMC[st.team] : DECIDER })}
           >
-            <span className={cn('flex items-center gap-1.5 text-xs font-bold tracking-[0.1em]', st.k === 'ban' ? 'text-ban' : st.k === 'side' ? 'text-def' : 'text-decider')}>
-              <i className="size-2 rounded-[2px] bg-(--tc)" />{st.k.toUpperCase()}
-            </span>
-            <em key={sub} className="mt-0.5 block min-h-4.5 max-w-28 truncate text-sm not-italic">{sub}</em>
-          </div>
+            <ItemContent className="gap-0.5">
+              <ItemTitle className={cn('gap-1.5 text-xs font-bold tracking-[0.1em]', st.k === 'ban' ? 'text-ban' : st.k === 'side' ? 'text-def' : 'text-decider')}>
+                <i className="size-2 rounded-[2px] bg-(--tc)" />{st.k.toUpperCase()}
+              </ItemTitle>
+              <ItemDescription className="text-sm text-foreground"><em key={sub} className="block min-h-4.5 max-w-28 truncate not-italic">{sub}</em></ItemDescription>
+            </ItemContent>
+          </Item>
         );
       })}
       </div>

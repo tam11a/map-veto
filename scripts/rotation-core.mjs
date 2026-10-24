@@ -44,6 +44,9 @@ export async function fetchRotation({ key, region = 'eu', fetchImpl } = {}) {
 
 /* ---------------- key-free source: the Valorant Fandom wiki (CC BY-SA) ---------------- */
 
+/** Maps in the ranked rotation. */
+export const ROTATION_SIZE = 7;
+
 export const WIKI_PAGE = 'https://valorant.fandom.com/wiki/Maps#Map_rotations';
 // origin=* makes the MediaWiki API answer cross-origin requests, so browsers can call it too
 const WIKI_API = 'https://valorant.fandom.com/api.php?action=parse&page=Maps&prop=wikitext&format=json&formatversion=2&origin=*';
@@ -63,8 +66,9 @@ export function pickWikiRotation(wikitext, knownMaps) {
   const pool = knownMaps
     .filter(m => new RegExp(`\\b${m.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i').test(block))
     .map(m => m.id);
-  // the rotation is 7 maps; allow some slack for mid-act edits, reject anything implausible
-  if (pool.length < 5 || pool.length > 9) throw new Error(`wiki rotation lists ${pool.length} maps`);
+  // the ranked rotation is exactly 7 maps. The page is community-edited and is often half-updated
+  // around a new act (e.g. listing both outgoing and incoming maps), so anything else is rejected.
+  if (pool.length !== ROTATION_SIZE) throw new Error(`wiki rotation lists ${pool.length} maps, expected ${ROTATION_SIZE}`);
   return pool;
 }
 

@@ -26,12 +26,14 @@ export const MAPS: MapInfo[] = [
     desc: 'An underwater city with no gimmicks — long mid, wide sites and lots of corners. Pure aim, spacing and coordination.' },
   { id: 'split', name: 'Split', loc: 'Tokyo, Japan', year: 2020, sites: 'A, B', tag: 'Ropes & high ground', c: ['#86405a', '#1e0d14'],
     desc: 'Vertical map with ropes connecting levels. Mid control is huge; heaven positions make sites strong for defenders.' },
+  { id: 'summit', name: 'Summit', loc: 'Mountain outpost', year: 2026, sites: 'A, B', tag: 'Newest map', c: ['#5a6f8c', '#111821'],
+    desc: 'The newest map in the pool. A two-site layout with little stored knowledge yet, so prepared strats and fast reads pay off.' },
   { id: 'sunset', name: 'Sunset', loc: 'Los Angeles, USA', year: 2023, sites: 'A, B', tag: 'Tight mid fights', c: ['#b2643a', '#28140b'],
     desc: 'A compact two-site map with a contested mid. Quick rotations and close-quarters fights around market and courtyard.' },
 ];
 
-/** The competitive map rotation. Update this list when Riot rotates the pool. */
-export const COMPETITIVE_POOL = ['abyss', 'ascent', 'bind', 'corrode', 'haven', 'lotus', 'sunset'];
+/** The competitive map rotation (checked October 2026). Update this list when Riot rotates the pool. */
+export const COMPETITIVE_POOL = ['abyss', 'bind', 'corrode', 'haven', 'lotus', 'summit', 'sunset'];
 /** Every official map (custom maps are not included). */
 export const ALL_MAP_IDS = MAPS.map(m => m.id);
 

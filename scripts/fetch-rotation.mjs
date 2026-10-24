@@ -3,7 +3,7 @@
 // otherwise the key-free Valorant wiki) and every standard map (valorant-api.com, no key). The app bundles it as the offline fallback.
 // It never fails the build: if a source is unreachable, the previous snapshot or the built-in list is kept.
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
-import { fetchStandardMaps, resolveRotation } from './rotation-core.mjs';
+import { ROTATION_SIZE, fetchStandardMaps, resolveRotation } from './rotation-core.mjs';
 
 // minimal .env loader (no dependency); real environment variables win
 for (const file of ['.env.local', '.env']) {
@@ -18,7 +18,9 @@ const OUT = 'src/data/rotation.generated.json';
 let prev = null;
 try { prev = JSON.parse(readFileSync(OUT, 'utf8')); } catch { /* first run */ }
 
-const out = { generated: new Date().toISOString(), rotation: prev?.rotation ?? null, standardMaps: prev?.standardMaps ?? null };
+// an older snapshot is only reused if it would still pass today's checks (HenrikDev, or exactly 7 wiki maps)
+const prevOk = prev?.rotation && (prev.rotation.source === 'henrikdev' || prev.rotation.pool?.length === ROTATION_SIZE);
+const out = { generated: new Date().toISOString(), rotation: prevOk ? prev.rotation : null, standardMaps: prev?.standardMaps ?? null };
 
 try {
   const { source, pool, note } = await resolveRotation({ key: process.env.HENRIK_API_KEY, region: process.env.HENRIK_REGION || 'eu' });

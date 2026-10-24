@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from 'react';
 import snapshot from '../data/rotation.generated.json';
 import { ALL_MAP_IDS, COMPETITIVE_POOL, MAPS } from '../data/maps';
-import { fetchWikiRotation } from '../../scripts/rotation-core.mjs';
+import { ROTATION_SIZE, fetchWikiRotation } from '../../scripts/rotation-core.mjs';
 
 /**
  * Keeps the map catalogue and the competitive rotation current, in three layers:
@@ -51,6 +51,8 @@ function applyPool(pool: unknown, source: RotationInfo['source'], origin: unknow
   const order = MAPS.map(m => m.id);
   const valid = [...new Set(pool.filter((id): id is string => typeof id === 'string' && order.includes(id)))];
   if (valid.length < 5) return false; // a broken response must never empty the rotation
+  // the community wiki must list exactly the ranked pool size (it is often half-edited around a new act)
+  if (asOrigin(origin) === 'wiki' && valid.length !== ROTATION_SIZE) return false;
   valid.sort((a, b) => order.indexOf(a) - order.indexOf(b));
   COMPETITIVE_POOL.splice(0, COMPETITIVE_POOL.length, ...valid);
   info = { source, origin: asOrigin(origin), updated };

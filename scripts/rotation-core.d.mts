@@ -4,6 +4,7 @@ export type RotationSource = 'henrikdev' | 'wiki';
 type FetchLike = typeof fetch;
 
 export const WIKI_PAGE: string;
+export const ROTATION_SIZE: number;
 export function toId(name: unknown): string;
 export function pickCompetitive(json: unknown): string[];
 export function fetchRotation(opts: { key?: string; region?: string; fetchImpl?: FetchLike }): Promise<string[]>;

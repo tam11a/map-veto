@@ -3,10 +3,10 @@ import { type Payload, payload } from '../lib/share';
 import { curStep, remaining } from '../lib/veto';
 import type { Action, Format } from '../types';
 
-const POOL = ['abyss', 'ascent', 'bind', 'haven', 'lotus', 'split', 'sunset'];
+const POOL = ['abyss', 'bind', 'corrode', 'haven', 'lotus', 'summit', 'sunset'];
 // the order the example teams reach for maps: bans take from the front, picks from the back
-const BAN_ORDER = ['bind', 'abyss', 'split', 'lotus', 'haven', 'ascent', 'sunset'];
-const PICK_ORDER = ['ascent', 'haven', 'sunset', 'lotus', 'split', 'abyss', 'bind'];
+const BAN_ORDER = ['bind', 'abyss', 'corrode', 'lotus', 'haven', 'summit', 'sunset'];
+const PICK_ORDER = ['haven', 'summit', 'sunset', 'lotus', 'corrode', 'abyss', 'bind'];
 
 /** A finished example veto for a format, built with the default order, for the guide's replays. */
 export function examplePlan(format: Format): Payload {

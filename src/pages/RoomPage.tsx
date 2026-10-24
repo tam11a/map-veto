@@ -191,7 +191,7 @@ function Invite({ id, teams }: { id: string; teams: [string, string] }) {
     [`${teams[0]} captain`, links.a, TEAMC[0]],
     [`${teams[1]} captain`, links.b, TEAMC[1]],
     ['Spectators', links.watch, 'var(--mute)'],
-    ['Stream overlay (OBS browser source)', links.overlay, GOLD],
+    ['Stream overlay for OBS', links.overlay, GOLD],
   ];
   return (
     <section className={cx('invite', !open && 'closed')} aria-label="Invite links">

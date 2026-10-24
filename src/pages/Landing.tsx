@@ -33,13 +33,13 @@ export function Landing() {
 
 /* ================= hero: the broadcast veto wall ================= */
 const TEAMS = ['Phantoms', 'Vandals'] as const;
-const WALL = ['abyss', 'ascent', 'bind', 'haven', 'lotus', 'split', 'sunset'];
+const WALL = ['abyss', 'bind', 'corrode', 'haven', 'lotus', 'summit', 'sunset'];
 const PLAY: Action[] = [
   { k: 'ban', team: 0, map: 'bind' },
   { k: 'ban', team: 1, map: 'abyss' },
-  { k: 'pick', team: 0, map: 'ascent' },
-  { k: 'pick', team: 1, map: 'haven' },
-  { k: 'ban', team: 0, map: 'split' },
+  { k: 'pick', team: 0, map: 'haven' },
+  { k: 'pick', team: 1, map: 'summit' },
+  { k: 'ban', team: 0, map: 'corrode' },
   { k: 'ban', team: 1, map: 'lotus' },
   { k: 'decider', team: null, map: 'sunset' },
 ];

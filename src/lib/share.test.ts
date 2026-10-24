@@ -10,16 +10,16 @@ describe('share payload', () => {
     setup.event = 'Spring Cup';
     setup.date = '2026-11-12T18:00';
     setup.deciderRule = 'knife';
-    setup.notesAtk = { ascent: 'Fast A' };
-    setup.comps = { ascent: ['Jett', 'Sova'] };
+    setup.notesAtk = { haven: 'Fast A' };
+    setup.comps = { haven: ['Jett', 'Sova'] };
     setup.logos = ['https://example.com/a.png', ''];
 
     const back = loadPayload(JSON.parse(JSON.stringify(payload(setup, veto))), defaultSetup());
     expect(back.veto).toEqual(veto);
     expect(back.setup.event).toBe('Spring Cup');
     expect(back.setup.deciderRule).toBe('knife');
-    expect(back.setup.notesAtk.ascent).toBe('Fast A');
-    expect(back.setup.comps.ascent).toEqual(['Jett', 'Sova']);
+    expect(back.setup.notesAtk.haven).toBe('Fast A');
+    expect(back.setup.comps.haven).toEqual(['Jett', 'Sova']);
     expect(back.setup.logos[0]).toBe('https://example.com/a.png');
   });
 

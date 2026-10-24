@@ -1,5 +1,5 @@
 import { FORMATS, defaultSetup } from '../data/maps';
-import type { Action, Format, MapInfo, SeqStep, Setup, Side, TeamIdx, VetoState } from '../types';
+import type { Action, DeciderRule, Format, MapInfo, RulePreset, SeqStep, Setup, Side, SideRule, TeamIdx, VetoState } from '../types';
 import { games, getMap, getSeq, sideFor } from './veto';
 
 /** Compact, URL-safe representation of a finished (or partial) plan. */
@@ -15,10 +15,25 @@ export interface Payload {
   side: 0 | 1;
   hist: [string, number, string, Side | 0][];
   notes: Record<string, string>;
+  // optional additions (older links simply don't have them)
+  rules?: { side: SideRule; decider: DeciderRule };
+  event?: string;
+  date?: string;
+  logos?: [string, string];
+  notesAtk?: Record<string, string>;
+  notesDef?: Record<string, string>;
+  comps?: Record<string, string[]>;
 }
 
 const b64e = (s: string) => btoa(unescape(encodeURIComponent(s))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 const b64d = (s: string) => decodeURIComponent(escape(atob(s.replace(/-/g, '+').replace(/_/g, '/'))));
+
+/** Only the entries for maps in the pool, and none when empty, to keep links short. */
+function pick<T>(rec: Record<string, T>, pool: string[], keep: (v: T) => boolean) {
+  const out: Record<string, T> = {};
+  for (const id of pool) if (rec[id] !== undefined && keep(rec[id])) out[id] = rec[id];
+  return Object.keys(out).length ? out : undefined;
+}
 
 export function payload(s: Setup, v: VetoState): Payload {
   const notes: Record<string, string> = {};
@@ -30,6 +45,13 @@ export function payload(s: Setup, v: VetoState): Payload {
     side: s.sidePick ? 1 : 0,
     hist: v.hist.map(h => [h.k[0], h.team ?? -1, h.map, h.side ?? 0]),
     notes,
+    ...(s.sideRule !== 'opponent' || s.deciderRule !== 'lastban' ? { rules: { side: s.sideRule, decider: s.deciderRule } } : {}),
+    ...(s.event ? { event: s.event } : {}),
+    ...(s.date ? { date: s.date } : {}),
+    ...(s.logos[0] || s.logos[1] ? { logos: s.logos } : {}),
+    ...(pick(s.notesAtk, s.pool, Boolean) ? { notesAtk: pick(s.notesAtk, s.pool, Boolean) } : {}),
+    ...(pick(s.notesDef, s.pool, Boolean) ? { notesDef: pick(s.notesDef, s.pool, Boolean) } : {}),
+    ...(pick(s.comps, s.pool, c => c.length > 0) ? { comps: pick(s.comps, s.pool, c => c.length > 0) } : {}),
   };
 }
 
@@ -49,6 +71,14 @@ export function loadPayload(o: Payload, base: Setup): { setup: Setup; veto: Veto
     sidePick: !!o.side,
     seq: (o.seq.match(/[bp][01]/g) ?? []).map(x => ({ t: x[0] === 'b' ? 'ban' : 'pick', team: +x[1] as TeamIdx })),
     notes: { ...base.notes, ...(o.notes ?? {}) },
+    notesAtk: { ...base.notesAtk, ...(o.notesAtk ?? {}) },
+    notesDef: { ...base.notesDef, ...(o.notesDef ?? {}) },
+    comps: { ...base.comps, ...(o.comps ?? {}) },
+    sideRule: o.rules?.side === 'picker' ? 'picker' : 'opponent',
+    deciderRule: (['lastban', 'teamA', 'teamB', 'knife'] as DeciderRule[]).includes(o.rules?.decider as DeciderRule) ? (o.rules!.decider as DeciderRule) : 'lastban',
+    event: typeof o.event === 'string' ? o.event : '',
+    date: typeof o.date === 'string' ? o.date : '',
+    logos: Array.isArray(o.logos) && o.logos.length === 2 ? [String(o.logos[0] ?? ''), String(o.logos[1] ?? '')] : ['', ''],
     teams,
     first: 'a',
   };
@@ -143,11 +173,26 @@ export function loadSetup(): Setup {
     custom: Array.isArray(o.custom) ? (o.custom as MapInfo[]).filter(m => m && typeof m.id === 'string' && typeof m.name === 'string' && Array.isArray(m.c)) : d.custom,
     seq: Array.isArray(o.seq) && (o.seq as SeqStep[]).every(x => (x?.t === 'ban' || x?.t === 'pick') && (x.team === 0 || x.team === 1)) ? (o.seq as SeqStep[]) : null,
     sidePick: typeof o.sidePick === 'boolean' ? o.sidePick : d.sidePick,
-    timer: [0, 20, 45, 60].includes(o.timer as number) ? (o.timer as number) : d.timer,
-    notes: o.notes && typeof o.notes === 'object' && !Array.isArray(o.notes)
-      ? Object.fromEntries(Object.entries(o.notes as Record<string, unknown>).filter(([, v]) => typeof v === 'string')) as Record<string, string>
-      : d.notes,
+    timer: typeof o.timer === 'number' && o.timer >= 0 && o.timer <= 600 ? Math.round(o.timer) : d.timer,
+    notes: strRecord(o.notes),
+    notesAtk: strRecord(o.notesAtk),
+    notesDef: strRecord(o.notesDef),
+    comps: o.comps && typeof o.comps === 'object' && !Array.isArray(o.comps)
+      ? Object.fromEntries(Object.entries(o.comps as Record<string, unknown>).filter(([, v]) => strs(v)).map(([k, v]) => [k, (v as string[]).slice(0, 5)]))
+      : d.comps,
+    sideRule: o.sideRule === 'picker' ? 'picker' : d.sideRule,
+    deciderRule: (['lastban', 'teamA', 'teamB', 'knife'] as unknown[]).includes(o.deciderRule) ? (o.deciderRule as DeciderRule) : d.deciderRule,
+    event: typeof o.event === 'string' ? o.event : d.event,
+    date: typeof o.date === 'string' ? o.date : d.date,
+    logos: Array.isArray(o.logos) && o.logos.length === 2 && strs(o.logos) ? [o.logos[0] as string, o.logos[1] as string] : d.logos,
+    presets: Array.isArray(o.presets) ? (o.presets as RulePreset[]).filter(p => p && typeof p.id === 'string' && typeof p.name === 'string' && Array.isArray(p.seq)) : d.presets,
   };
+}
+
+function strRecord(v: unknown): Record<string, string> {
+  return v && typeof v === 'object' && !Array.isArray(v)
+    ? Object.fromEntries(Object.entries(v as Record<string, unknown>).filter(([, x]) => typeof x === 'string')) as Record<string, string>
+    : {};
 }
 export function saveSetup(s: Setup) {
   try { localStorage.setItem(STORE, JSON.stringify(s)); } catch { /* ignore */ }

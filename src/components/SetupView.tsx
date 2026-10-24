@@ -1,11 +1,14 @@
 import { Fragment, useRef, useState } from 'react';
 import { ALL_MAP_IDS, COMPETITIVE_POOL, FORMATS, TEAMC } from '../data/maps';
+import { BUILTIN_PRESETS, describePreset } from '../data/presets';
 import { cx, vars } from '../lib/fx';
-import { allMaps, deciderSideTeam, getSeq, other, poolPreset, simulate, sortPool } from '../lib/veto';
+import { allMaps, deciderSider, getSeq, other, pickSider, poolPreset, simulate, sortPool } from '../lib/veto';
 import { useApp } from '../state';
-import type { FirstTurn, Format, PoolPreset, SeqStep, Setup, StepType, TeamIdx } from '../types';
+import type { DeciderRule, FirstTurn, Format, PoolPreset, RulePreset, SeqStep, Setup, SideRule, StepType, TeamIdx } from '../types';
 import { Icon } from './Icons';
 import { MapArt } from './MapArt';
+import { Overlay } from './Overlay';
+import { TeamMark } from './TeamMark';
 
 const TIMERS = [0, 20, 45, 60];
 export const IMPORT_ERROR = 'This file isn’t a Map Veto plan. Export one from a finished veto and try again.';
@@ -15,6 +18,9 @@ export function SetupView({ onStart, onImport }: { onStart: () => void; onImport
   const { setup: S, patch, toast } = useApp();
   const seq = getSeq(S), sim = simulate(S, seq);
   const canStart = !sim.overflow && sim.games > 0;
+  const [confirm, setConfirm] = useState(false);
+  const [logoFor, setLogoFor] = useState<TeamIdx | null>(null);
+  const start = () => (sim.valid ? onStart() : setConfirm(true));
 
   const setTeam = (i: TeamIdx, v: string) => patch(s => {
     const teams: [string, string] = [...s.teams];
@@ -30,7 +36,7 @@ export function SetupView({ onStart, onImport }: { onStart: () => void; onImport
       {/* ---------- the match banner ---------- */}
       <section className="versus rise" style={vars({ '--i': 0 })} aria-label="Teams">
         <div className="vs-side a" style={vars({ '--tc': TEAMC[0] })}>
-          <span className="vs-tag">A</span>
+          <LogoButton i={0} onClick={() => setLogoFor(0)} />
           <div className="vs-name">
             <input value={S.teams[0]} onChange={e => setTeam(0, e.target.value)} onBlur={fixTeams} maxLength={24} aria-label="Team A name" spellCheck={false} />
             <small>{role(0)}</small>
@@ -42,7 +48,7 @@ export function SetupView({ onStart, onImport }: { onStart: () => void; onImport
             <input value={S.teams[1]} onChange={e => setTeam(1, e.target.value)} onBlur={fixTeams} maxLength={24} aria-label="Team B name" spellCheck={false} />
             <small>{role(1)}</small>
           </div>
-          <span className="vs-tag">B</span>
+          <LogoButton i={1} onClick={() => setLogoFor(1)} />
         </div>
         <div className="vs-base">
           <div className="vs-first">
@@ -53,10 +59,20 @@ export function SetupView({ onStart, onImport }: { onStart: () => void; onImport
               ))}
             </div>
           </div>
-          <label className="vs-title">
-            <span className="vs-label">Match title</span>
-            <input value={S.title} onChange={e => patch({ title: e.target.value })} placeholder="Optional, e.g. Week 3 playoffs" maxLength={60} />
-          </label>
+          <div className="vs-meta">
+            <label className="vs-title">
+              <span className="vs-label">Match title</span>
+              <input value={S.title} onChange={e => patch({ title: e.target.value })} placeholder="Optional, e.g. Upper final" maxLength={60} />
+            </label>
+            <label className="vs-event">
+              <span className="vs-label">Event</span>
+              <input value={S.event} onChange={e => patch({ event: e.target.value })} placeholder="Optional, e.g. Spring Cup" maxLength={40} />
+            </label>
+            <label className="vs-date">
+              <span className="vs-label">Date and time</span>
+              <input type="datetime-local" value={S.date} onChange={e => patch({ date: e.target.value })} />
+            </label>
+          </div>
         </div>
       </section>
 
@@ -75,13 +91,9 @@ export function SetupView({ onStart, onImport }: { onStart: () => void; onImport
             <span className="vs-label" id="side-label">Side selection</span>
             <button className={cx('sw', S.sidePick && 'on')} onClick={() => patch({ sidePick: !S.sidePick })} aria-pressed={S.sidePick} aria-labelledby="side-label" />
           </div>
-          <div className="rule">
-            <span className="vs-label" id="timer-label">Turn timer</span>
-            <div className="seg" role="group" aria-labelledby="timer-label">
-              {TIMERS.map(t => <button key={t} className={cx(S.timer === t && 'on')} aria-pressed={S.timer === t} onClick={() => patch({ timer: t })}>{t ? `${t}s` : 'Off'}</button>)}
-            </div>
-          </div>
+          <TimerRule />
         </div>
+        <RulesMore />
       </section>
 
       {/* ---------- pool + order ---------- */}
@@ -92,12 +104,182 @@ export function SetupView({ onStart, onImport }: { onStart: () => void; onImport
           <div className="order-foot">
             <OrderResult />
             <div className="order-go">
-              <button className="btn primary lg" onClick={onStart} disabled={!canStart}>Start the veto</button>
+              <button className="btn primary lg" onClick={start} disabled={!canStart}>Start the veto</button>
               <ImportButton onImport={onImport} onError={() => toast(IMPORT_ERROR)} />
             </div>
           </div>
         </aside>
       </div>
+
+      <Overlay open={confirm} onClose={() => setConfirm(false)} labelledBy="start-title">
+        <div className="confirm">
+          <h2 id="start-title">Start with this order?</h2>
+          <p>
+            This order gives {sim.games} map{sim.games === 1 ? '' : 's'}, but {FORMATS[S.format].name.toLowerCase()} needs {S.format}.
+            You can still run it, for example as a practice veto.
+          </p>
+          <div className="confirm-actions">
+            <button className="btn ghost" onClick={() => setConfirm(false)} autoFocus>Keep editing</button>
+            <button className="btn primary" onClick={() => { setConfirm(false); onStart(); }}>Start anyway</button>
+          </div>
+        </div>
+      </Overlay>
+      <LogoSheet i={logoFor} onClose={() => setLogoFor(null)} />
+    </div>
+  );
+}
+
+/* ---------------- team logos ---------------- */
+function LogoButton({ i, onClick }: { i: TeamIdx; onClick: () => void }) {
+  const { setup: S } = useApp();
+  return (
+    <button className="vs-tag" onClick={onClick} aria-label={`${S.teams[i]} logo${S.logos[i] ? '' : ', none set'}. Change`} title="Set a team logo">
+      <TeamMark i={i} url={S.logos[i]} />
+    </button>
+  );
+}
+
+function LogoSheet({ i, onClose }: { i: TeamIdx | null; onClose: () => void }) {
+  const { setup: S, patch } = useApp();
+  const [url, setUrl] = useState('');
+  const [last, setLast] = useState<TeamIdx | null>(null);
+  if (i !== last) { setLast(i); if (i != null) setUrl(S.logos[i]); }
+  const save = (v: string) => {
+    if (i == null) return;
+    patch(s => { const logos: [string, string] = [...s.logos]; logos[i] = v; return { logos }; });
+    onClose();
+  };
+  const ok = !url.trim() || /^https?:\/\/\S+$/.test(url.trim());
+  return (
+    <Overlay open={i != null} onClose={onClose} labelledBy="logo-title">
+      <div className="confirm">
+        <h2 id="logo-title">{i != null ? S.teams[i] : ''} logo</h2>
+        <form className="logo-form" onSubmit={e => { e.preventDefault(); if (ok) save(url.trim()); }}>
+          <div className="logo-prev">{i != null && <TeamMark i={i} url={ok ? url.trim() : ''} />}</div>
+          <label className="field">
+            <span className="vs-label">Image URL</span>
+            <input value={url} onChange={e => setUrl(e.target.value)} placeholder="https://…/logo.png" inputMode="url" aria-invalid={!ok} />
+            <small className="hint">{ok ? 'Square PNG or SVG works best. Shown on the board, the plan and the image export.' : 'Use a full link starting with https://'}</small>
+          </label>
+          <div className="confirm-actions">
+            {i != null && S.logos[i] && <button type="button" className="btn ghost" onClick={() => save('')}>Remove logo</button>}
+            <button type="submit" className="btn primary" disabled={!ok}>Save logo</button>
+          </div>
+        </form>
+      </div>
+    </Overlay>
+  );
+}
+
+/* ---------------- rules ---------------- */
+function TimerRule() {
+  const { setup: S, patch } = useApp();
+  const custom = !TIMERS.includes(S.timer);
+  const [editing, setEditing] = useState(custom);
+  return (
+    <div className="rule">
+      <span className="vs-label" id="timer-label">Turn timer</span>
+      <div className="seg" role="group" aria-labelledby="timer-label">
+        {TIMERS.map(t => (
+          <button key={t} className={cx(!editing && S.timer === t && 'on')} aria-pressed={!editing && S.timer === t} onClick={() => { setEditing(false); patch({ timer: t }); }}>
+            {t ? `${t}s` : 'Off'}
+          </button>
+        ))}
+        <button className={cx(editing && 'on')} aria-pressed={editing} onClick={() => { setEditing(true); if (!custom) patch({ timer: 30 }); }}>Custom</button>
+      </div>
+      {editing && (
+        <label className="timer-custom">
+          <input type="number" min={5} max={600} step={5} value={S.timer || ''} aria-label="Seconds per turn"
+            onChange={e => patch({ timer: Math.max(0, Math.min(600, Math.round(Number(e.target.value) || 0))) })} />
+          <span>s</span>
+        </label>
+      )}
+    </div>
+  );
+}
+
+const DECIDER_RULES: [DeciderRule, string][] = [
+  ['lastban', 'Team that didn’t ban last'],
+  ['teamA', 'Team A'],
+  ['teamB', 'Team B'],
+  ['knife', 'Knife round in game'],
+];
+
+const sameSeq = (a: SeqStep[], b: SeqStep[]) => a.length === b.length && a.every((x, i) => x.t === b[i].t && x.team === b[i].team);
+
+function RulesMore() {
+  const { setup: S, patch, toast } = useApp();
+  const presets = [...BUILTIN_PRESETS, ...S.presets];
+  const seq = getSeq(S);
+  const active = presets.find(p => p.format === S.format && sameSeq(p.seq, seq) && p.sidePick === S.sidePick && p.sideRule === S.sideRule && p.deciderRule === S.deciderRule);
+  const userPreset = active && S.presets.some(p => p.id === active.id) ? active : null;
+  const [naming, setNaming] = useState(false);
+  const [name, setName] = useState('');
+
+  const apply = (id: string) => {
+    const p = presets.find(x => x.id === id);
+    if (!p) return;
+    patch({ format: p.format, seq: p.seq.map(x => ({ ...x })), sidePick: p.sidePick, sideRule: p.sideRule, deciderRule: p.deciderRule });
+    toast(p.poolSize === S.pool.length ? `Using ${p.name}` : `Using ${p.name}. It’s built for ${p.poolSize} maps; your pool has ${S.pool.length}`);
+  };
+  const save = () => {
+    const n = name.trim();
+    if (!n) return toast('Give the rule set a name');
+    const p: RulePreset = { id: 'u_' + Date.now().toString(36), name: n.slice(0, 40), format: S.format, poolSize: S.pool.length, seq: seq.map(x => ({ ...x })), sidePick: S.sidePick, sideRule: S.sideRule, deciderRule: S.deciderRule };
+    patch(s => ({ presets: [...s.presets, p].slice(-12), seq: p.seq }));
+    setNaming(false);
+    toast(`Saved ${p.name}`);
+  };
+  const del = () => {
+    if (!userPreset) return;
+    patch(s => ({ presets: s.presets.filter(p => p.id !== userPreset.id) }));
+    toast(`Deleted ${userPreset.name}`);
+  };
+
+  return (
+    <div className="rules-more">
+      <div className="rule rule-preset">
+        <label className="vs-label" htmlFor="preset-sel">Rule set</label>
+        <select id="preset-sel" value={active?.id ?? ''} onChange={e => apply(e.target.value)}>
+          {!active && <option value="" disabled>Custom order</option>}
+          <optgroup label="Common orders">
+            {BUILTIN_PRESETS.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+          </optgroup>
+          {S.presets.length > 0 && (
+            <optgroup label="Saved in this browser">
+              {S.presets.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+            </optgroup>
+          )}
+        </select>
+        {naming ? (
+          <form className="preset-name" onSubmit={e => { e.preventDefault(); save(); }}>
+            <input autoFocus value={name} onChange={e => setName(e.target.value)} maxLength={40} aria-label="Rule set name" placeholder="e.g. League Bo3" />
+            <button className="btn sm" type="submit">Save</button>
+            <button className="btn ghost sm" type="button" onClick={() => setNaming(false)}>Cancel</button>
+          </form>
+        ) : userPreset
+          ? <button className="btn ghost sm" onClick={del}>Delete</button>
+          : !active && <button className="btn ghost sm" onClick={() => { setName(`${FORMATS[S.format].label} house rules`); setNaming(true); }}>Save as rule set</button>}
+      </div>
+      {active && !naming && <span className="hint rule-desc">{describePreset(active)}</span>}
+      {S.sidePick && (
+        <div className="rule-sides">
+          <div className="rule">
+            <span className="vs-label" id="siderule-label">After a pick, side chosen by</span>
+            <div className="seg" role="group" aria-labelledby="siderule-label">
+              {([['opponent', 'Opponent'], ['picker', 'Picker']] as [SideRule, string][]).map(([k, l]) => (
+                <button key={k} className={cx(S.sideRule === k && 'on')} aria-pressed={S.sideRule === k} onClick={() => patch({ sideRule: k })}>{l}</button>
+              ))}
+            </div>
+          </div>
+          <div className="rule">
+            <label className="vs-label" htmlFor="decider-sel">Decider side</label>
+            <select id="decider-sel" value={S.deciderRule} onChange={e => patch({ deciderRule: e.target.value as DeciderRule })}>
+              {DECIDER_RULES.map(([k, l]) => <option key={k} value={k}>{k === 'teamA' ? S.teams[0] : k === 'teamB' ? S.teams[1] : l}</option>)}
+            </select>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -106,6 +288,7 @@ export function SetupView({ onStart, onImport }: { onStart: () => void; onImport
 function MapPool() {
   const { setup: S, patch, toast, openInfo } = useApp();
   const [adding, setAdding] = useState(false);
+  const [editId, setEditId] = useState<string | null>(null);
   const [name, setName] = useState('');
   const [img, setImg] = useState('');
   const maps = allMaps(S);
@@ -133,9 +316,21 @@ function MapPool() {
       return { pool: sortPool(s, pool), customPool: saved, seq: null };
     });
   };
+  const startEdit = (id: string) => {
+    const m = S.custom.find(x => x.id === id);
+    if (!m) return;
+    setEditId(id); setName(m.name); setImg(m.img ?? ''); setAdding(true);
+  };
+  const close = () => { setAdding(false); setEditId(null); setName(''); setImg(''); };
   const add = () => {
     const n = name.trim();
     if (!n) return toast('Give the map a name');
+    if (editId) {
+      const url = img.trim();
+      patch(s => ({ custom: s.custom.map(m => (m.id === editId ? { ...m, name: n, img: /^https?:\/\//.test(url) ? url : '' } : m)) }));
+      toast(`${n} updated`);
+      return close();
+    }
     const hue = Math.floor(Math.random() * 360), id = 'c_' + Date.now().toString(36);
     patch(s => {
       const custom = [...s.custom, {
@@ -192,6 +387,7 @@ function MapPool() {
               <button className="ptile-hit" aria-pressed={on} aria-label={`${m.name}, ${on ? 'in pool' : 'not in pool'}`} onClick={() => toggle(m.id)} />
               <button className="pi" aria-label={`${m.name} details and notes`} onClick={() => openInfo(m.id)}>i</button>
               {m.custom && <button className="x" aria-label={`Delete ${m.name}`} onClick={() => remove(m.id)}><Icon.close /></button>}
+              {m.custom && <button className="ed" aria-label={`Edit ${m.name}`} onClick={() => startEdit(m.id)}><Icon.edit /></button>}
             </div>
           );
         })}
@@ -205,8 +401,8 @@ function MapPool() {
         <form className="addmap" onSubmit={e => { e.preventDefault(); add(); }}>
           <input autoFocus value={name} onChange={e => setName(e.target.value)} placeholder="Map name" maxLength={20} aria-label="Custom map name" />
           <input value={img} onChange={e => setImg(e.target.value)} placeholder="Image URL (optional)" aria-label="Custom map image URL" />
-          <button className="btn" type="submit">Add map</button>
-          <button className="btn ghost" type="button" onClick={() => setAdding(false)}>Cancel</button>
+          <button className="btn" type="submit">{editId ? 'Save map' : 'Add map'}</button>
+          <button className="btn ghost" type="button" onClick={close}>Cancel</button>
         </form>
       )}
     </section>
@@ -218,6 +414,7 @@ function VetoOrder() {
   const { setup: S, patch } = useApp();
   const seq = getSeq(S), sim = simulate(S, seq);
   const short = (t: TeamIdx) => S.teams[t] || (t ? 'Team B' : 'Team A');
+  const decSider = deciderSider(S, seq);
 
   const edit = (fn: (q: SeqStep[]) => void) => {
     const q = seq.map(x => ({ ...x }));
@@ -253,7 +450,7 @@ function VetoOrder() {
               <button className="rail-del" aria-label={`Remove step ${i + 1}`} onClick={() => edit(q => { q.splice(i, 1); })}><Icon.close /></button>
             </li>
             {s.t === 'pick' && S.sidePick && (
-              <li className="rail-sub" style={vars({ '--tc': TEAMC[other(s.team)] })}><i />{short(other(s.team))} picks a side</li>
+              <li className="rail-sub" style={vars({ '--tc': TEAMC[pickSider(S, s.team)] })}><i />{short(pickSider(S, s.team))} picks a side</li>
             )}
           </Fragment>
         ))}
@@ -263,9 +460,9 @@ function VetoOrder() {
               <span className="rail-no" aria-hidden="true">◆</span>
               <span className="rail-auto">Decider<small>The last map left is played</small></span>
             </li>
-            {S.sidePick && (
-              <li className="rail-sub" style={vars({ '--tc': TEAMC[deciderSideTeam(seq)] })}><i />{short(deciderSideTeam(seq))} picks a side</li>
-            )}
+            {S.sidePick && (decSider != null
+              ? <li className="rail-sub" style={vars({ '--tc': TEAMC[decSider] })}><i />{short(decSider)} picks a side</li>
+              : <li className="rail-sub muted">Knife round decides sides</li>)}
           </>
         )}
         {sim.unplayed > 0 && <li className="rail-sub muted">{sim.unplayed} map{sim.unplayed > 1 ? 's' : ''} left unplayed</li>}

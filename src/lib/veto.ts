@@ -64,15 +64,29 @@ export interface PlanStep { k: ActionKind; team: TeamIdx | null }
 export interface Step extends PlanStep { i: number; total: number; map: string }
 
 /** Every step the veto will go through, including side choices and the decider. */
+/** Who chooses the side after `picker` picks a map. */
+export const pickSider = (s: Pick<Setup, 'sideRule'>, picker: TeamIdx): TeamIdx => (s.sideRule === 'picker' ? picker : other(picker));
+
+/** Who chooses the decider's side, or null when it's settled in game (knife round). */
+export function deciderSider(s: Pick<Setup, 'deciderRule'>, seq: SeqStep[]): TeamIdx | null {
+  switch (s.deciderRule) {
+    case 'teamA': return 0;
+    case 'teamB': return 1;
+    case 'knife': return null;
+    default: return deciderSideTeam(seq);
+  }
+}
+
 export function plan(s: Setup): PlanStep[] {
   const seq = getSeq(s), out: PlanStep[] = [];
   for (const x of seq) {
     out.push({ k: x.t, team: x.team });
-    if (x.t === 'pick' && s.sidePick) out.push({ k: 'side', team: other(x.team) });
+    if (x.t === 'pick' && s.sidePick) out.push({ k: 'side', team: pickSider(s, x.team) });
   }
   if (simulate(s, seq).decider) {
     out.push({ k: 'decider', team: null });
-    if (s.sidePick) out.push({ k: 'side', team: deciderSideTeam(seq) });
+    const sider = deciderSider(s, seq);
+    if (s.sidePick && sider != null) out.push({ k: 'side', team: sider });
   }
   return out;
 }

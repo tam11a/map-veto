@@ -120,4 +120,6 @@ Every page and shared system reviewed against what captains, coaches, organisers
 - Landing & guide: try-it-yourself hero, pool shortcut, example replays per format, FAQ updated.
 - Foundations: Vitest suite (veto, share, rooms, rotation parsers), GitHub Actions CI, robots.txt and sitemap, service worker and web manifest, Netlify functions config.
 
-**Still open:** rotation history on map pages; per-plan social images; pre-rendered map pages; live updates are polling (about 1s), not push; a real Netlify deploy, screen-reader pass and service-worker check on a real browser are still to verify.
+**Still open:** rotation history on map pages; per-plan social images; pre-rendered map pages; live updates are polling (about 1s), not push; a screen-reader pass and a service-worker check on a real browser are still to verify.
+
+**Deployed:** https://map-veto.netlify.app, built by Netlify on every push to `main` (GitHub app link). Verified on the live site: all routes, `/api/rotation` (wiki rejected while half-edited, built-in pool used), a two-device room with turn locking and the overlay, short links in Netlify Blobs, absolute `og:image`, `robots.txt` and `sitemap.xml`. Function routes take precedence over the SPA redirect as expected.

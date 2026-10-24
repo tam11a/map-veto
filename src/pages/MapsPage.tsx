@@ -5,6 +5,7 @@ import { COMPETITIVE_POOL, MAPS } from '../data/maps';
 import { cx, vars } from '../lib/fx';
 import { useTitle } from '../lib/useTitle';
 import { poolPreset, sortPool } from '../lib/veto';
+import { WIKI_PAGE } from '../../scripts/rotation-core.mjs';
 import type { RotationInfo } from '../lib/rotation';
 import { useApp } from '../state';
 
@@ -154,9 +155,13 @@ const fmtDate = (iso: string | null) =>
 
 /** Says where the competitive rotation came from, so a stale list is never mistaken for a live one. */
 function RotationSource({ info }: { info: RotationInfo }) {
-  const text =
-    info.source === 'live' ? `Competitive rotation is live, checked ${fmtDate(info.updated)}.`
-      : info.source === 'snapshot' ? `Competitive rotation as of ${fmtDate(info.updated)}.`
-      : 'Competitive rotation is the built-in list and may be out of date.';
-  return <p className={`rot-source ${info.source}`}><i />{text}</p>;
+  const when = info.source === 'live' ? `checked ${fmtDate(info.updated)}` : `as of ${fmtDate(info.updated)}`;
+  return (
+    <p className={`rot-source ${info.source}`}>
+      <i />
+      {info.source === 'built-in' ? 'Competitive rotation is the built-in list and may be out of date.'
+        : info.origin === 'wiki' ? <>Competitive rotation from the <a href={WIKI_PAGE} target="_blank" rel="noreferrer">Valorant Wiki</a> (community-edited, CC BY-SA), {when}.</>
+        : `Competitive rotation from Riot's queue data via HenrikDev, ${when}.`}
+    </p>
+  );
 }

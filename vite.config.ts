@@ -1,7 +1,6 @@
 import { defineConfig, loadEnv, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
-// @ts-expect-error plain ESM shared with the Netlify function
-import { fetchRotation } from './scripts/rotation-core.mjs';
+import { resolveRotation } from './scripts/rotation-core.mjs';
 
 /** Serves /api/rotation during `npm run dev`, mirroring netlify/functions/rotation.mjs. */
 function devRotationApi(env: Record<string, string>): Plugin {
@@ -11,8 +10,8 @@ function devRotationApi(env: Record<string, string>): Plugin {
       server.middlewares.use('/api/rotation', async (_req, res) => {
         res.setHeader('Content-Type', 'application/json');
         try {
-          const pool = await fetchRotation({ key: env.HENRIK_API_KEY, region: env.HENRIK_REGION || 'eu' });
-          res.end(JSON.stringify({ source: 'henrikdev', updated: new Date().toISOString(), pool }));
+          const { source, pool } = await resolveRotation({ key: env.HENRIK_API_KEY, region: env.HENRIK_REGION || 'eu' });
+          res.end(JSON.stringify({ source, updated: new Date().toISOString(), pool }));
         } catch (err) {
           res.statusCode = 502;
           res.end(JSON.stringify({ error: String((err as Error)?.message ?? err) }));

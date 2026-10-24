@@ -1,20 +1,21 @@
-import { fetchRotation } from '../../scripts/rotation-core.mjs';
+import { resolveRotation } from '../../scripts/rotation-core.mjs';
 
 /**
- * GET /api/rotation -> { source, updated, pool: ["abyss", ...] }
+ * GET /api/rotation -> { source: "henrikdev" | "wiki", updated, pool: ["abyss", ...] }
  *
- * Netlify's CDN keeps the answer for a day and serves the stale copy for up to a week while it
- * refreshes in the background, so HenrikDev sees roughly one request per day per region.
- * The API key stays on the server (HENRIK_API_KEY in Netlify's environment variables).
+ * Uses HenrikDev when HENRIK_API_KEY is set, otherwise (or if that fails) the key-free
+ * Valorant wiki. Netlify's CDN keeps the answer for a day and serves the stale copy for up
+ * to a week while it refreshes, so each upstream sees roughly one request per day.
  */
 export default async () => {
   try {
-    const pool = await fetchRotation({
+    const { source, pool, note } = await resolveRotation({
       key: process.env.HENRIK_API_KEY,
       region: process.env.HENRIK_REGION || 'eu',
     });
+    if (note) console.warn(`[rotation] ${note}`);
     return Response.json(
-      { source: 'henrikdev', updated: new Date().toISOString(), pool },
+      { source, updated: new Date().toISOString(), pool },
       {
         headers: {
           'Cache-Control': 'public, max-age=3600',

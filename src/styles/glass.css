@@ -126,3 +126,4 @@ details.faq { border-radius: var(--r-lg); }
 .rot-source i { width: 8px; height: 8px; border-radius: 50%; background: var(--dim); }
 .rot-source.live i { background: var(--pick); box-shadow: 0 0 0 4px color-mix(in srgb, var(--pick) 20%, transparent); }
 .rot-source.snapshot i { background: var(--decider); }
+.rot-source a { color: var(--signal); text-decoration: underline; text-decoration-color: var(--line-2); text-underline-offset: 3px; }

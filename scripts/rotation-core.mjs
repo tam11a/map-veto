@@ -42,6 +42,56 @@ export async function fetchRotation({ key, region = 'eu', fetchImpl } = {}) {
   return pickCompetitive(json);
 }
 
+/* ---------------- key-free source: the Valorant Fandom wiki (CC BY-SA) ---------------- */
+
+export const WIKI_PAGE = 'https://valorant.fandom.com/wiki/Maps#Map_rotations';
+// origin=* makes the MediaWiki API answer cross-origin requests, so browsers can call it too
+const WIKI_API = 'https://valorant.fandom.com/api.php?action=parse&page=Maps&prop=wikitext&format=json&formatversion=2&origin=*';
+
+/**
+ * Reads the "Current" rotation block from the Maps page wikitext and returns the map ids it names.
+ * Only the block between "===Current===" and the "Rotated out" table is read; names are matched
+ * against known standard maps, so wiki markup, patch notes and file names don't leak in.
+ */
+export function pickWikiRotation(wikitext, knownMaps) {
+  const text = String(wikitext ?? '');
+  const start = text.search(/===\s*Current\s*===/i);
+  if (start < 0) throw new Error('no "Current" rotation section on the wiki page');
+  const rest = text.slice(start + 3);
+  const endCandidates = [rest.search(/Rotated out/i), rest.search(/\n==[^=]/)].filter(i => i > 0);
+  const block = rest.slice(0, endCandidates.length ? Math.min(...endCandidates) : undefined);
+  const pool = knownMaps
+    .filter(m => new RegExp(`\\b${m.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i').test(block))
+    .map(m => m.id);
+  // the rotation is 7 maps; allow some slack for mid-act edits, reject anything implausible
+  if (pool.length < 5 || pool.length > 9) throw new Error(`wiki rotation lists ${pool.length} maps`);
+  return pool;
+}
+
+/** Competitive rotation from the Valorant wiki. No key; community-edited. */
+export async function fetchWikiRotation({ knownMaps, fetchImpl } = {}) {
+  const maps = knownMaps ?? (await fetchStandardMaps({ fetchImpl }));
+  const headers = typeof window === 'undefined' ? { 'User-Agent': 'MapVeto/1.0 (map rotation; https://github.com/tam11a)' } : {};
+  const json = await getJson(WIKI_API, { headers, fetchImpl });
+  return pickWikiRotation(json?.parse?.wikitext, maps);
+}
+
+/**
+ * Best available rotation: HenrikDev when a key is configured (it reads Riot's live queue data),
+ * otherwise or on failure the community-edited wiki. Returns { source, pool, note? }.
+ */
+export async function resolveRotation({ key, region = 'eu', fetchImpl } = {}) {
+  let note;
+  if (key) {
+    try {
+      return { source: 'henrikdev', pool: await fetchRotation({ key, region, fetchImpl }) };
+    } catch (err) {
+      note = `HenrikDev failed (${err.message}); used the wiki`;
+    }
+  }
+  return { source: 'wiki', pool: await fetchWikiRotation({ fetchImpl }), ...(note ? { note } : {}) };
+}
+
 /** Every standard (bomb-site) map from valorant-api.com. No key needed. */
 export async function fetchStandardMaps({ fetchImpl } = {}) {
   const json = await getJson(VALORANT_API_MAPS, { fetchImpl });

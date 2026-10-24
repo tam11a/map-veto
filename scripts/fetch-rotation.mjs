@@ -1,9 +1,9 @@
 // Runs before `npm run dev` and `npm run build`.
-// Writes src/data/rotation.generated.json: the competitive rotation (HenrikDev, needs HENRIK_API_KEY)
-// and every standard map (valorant-api.com, no key). The app bundles it as the offline fallback.
+// Writes src/data/rotation.generated.json: the competitive rotation (HenrikDev with HENRIK_API_KEY,
+// otherwise the key-free Valorant wiki) and every standard map (valorant-api.com, no key). The app bundles it as the offline fallback.
 // It never fails the build: if a source is unreachable, the previous snapshot or the built-in list is kept.
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
-import { fetchRotation, fetchStandardMaps } from './rotation-core.mjs';
+import { fetchStandardMaps, resolveRotation } from './rotation-core.mjs';
 
 // minimal .env loader (no dependency); real environment variables win
 for (const file of ['.env.local', '.env']) {
@@ -21,9 +21,10 @@ try { prev = JSON.parse(readFileSync(OUT, 'utf8')); } catch { /* first run */ }
 const out = { generated: new Date().toISOString(), rotation: prev?.rotation ?? null, standardMaps: prev?.standardMaps ?? null };
 
 try {
-  const pool = await fetchRotation({ key: process.env.HENRIK_API_KEY, region: process.env.HENRIK_REGION || 'eu' });
-  out.rotation = { source: 'henrikdev', updated: new Date().toISOString(), pool };
-  console.log(`[rotation] competitive pool: ${pool.join(', ')}`);
+  const { source, pool, note } = await resolveRotation({ key: process.env.HENRIK_API_KEY, region: process.env.HENRIK_REGION || 'eu' });
+  if (note) console.warn(`[rotation] ${note}`);
+  out.rotation = { source, updated: new Date().toISOString(), pool };
+  console.log(`[rotation] competitive pool from ${source}: ${pool.join(', ')}`);
 } catch (err) {
   console.warn(`[rotation] ${err.message}. Keeping ${out.rotation ? `the snapshot from ${out.rotation.updated}` : 'the built-in list'}.`);
 }

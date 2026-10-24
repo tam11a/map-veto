@@ -67,7 +67,7 @@ function CompPicker({ mapId }: { mapId: string }) {
         {Array.from({ length: COMP_SIZE }, (_, i) => {
           const name = comp[i];
           return (
-            <li key={i} className={cx(!name && 'empty')}>
+            <li key={i} className={cx(!name && 'slot-free')}>
               {name ? (
                 <button onClick={() => save(comp.filter(n => n !== name))} aria-label={`Remove ${name}`} title={`Remove ${name}`}>
                   {agentIcon(agents, name) ? <img src={agentIcon(agents, name)} alt="" /> : <b>{name.slice(0, 2)}</b>}

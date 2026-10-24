@@ -98,7 +98,7 @@ export function ResultView({ veto, onEdit, onReplay, onNew }: Props) {
               <span className="inline-flex items-center gap-2 text-(--tc)" style={vars({ '--tc': TEAMC[i] })}>
                 {logo(i) && <span className="grid size-8 place-items-center overflow-hidden rounded-md border border-(--tc) bg-black/40 text-sm"><TeamMark i={i} url={logo(i)} /></span>}
                 {editing
-                  ? <Input value={t[i]} onChange={e => rename(i, e.target.value)} onBlur={e => { if (!e.target.value.trim()) rename(i, i ? 'Team B' : 'Team A'); }} maxLength={24} aria-label={`Team ${i ? 'B' : 'A'} name`} className="w-44 text-center text-lg! font-bold text-(--tc)" />
+                  ? <Input value={t[i]} onChange={e => rename(i, e.target.value)} onBlur={e => { if (!e.target.value.trim()) rename(i, i ? 'Team Omega' : 'Team Alpha'); }} maxLength={24} aria-label={`Team ${i ? 'B' : 'A'} name`} className="w-44 text-center text-lg! font-bold text-(--tc)" />
                   : t[i]}
               </span>
             </Fragment>

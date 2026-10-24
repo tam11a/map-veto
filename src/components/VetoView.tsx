@@ -445,17 +445,17 @@ export function TeamCard({ team, name, hist, active, logo = '' }: { team: TeamId
   return (
     <div
       className={cn(
-        'flex min-w-0 items-center gap-3 rounded-xl border border-white/10 bg-card px-3 py-2.5 backdrop-blur-xl transition-[border-color,box-shadow,background-color] duration-300 sm:px-4 sm:py-3',
+        'flex min-w-0 items-center gap-2 rounded-xl border border-white/10 bg-card px-2 py-2.5 min-[400px]:px-2.5 backdrop-blur-xl transition-[border-color,box-shadow,background-color] duration-300 sm:gap-3 sm:px-4 sm:py-3',
         team === 1 && 'flex-row-reverse text-right lg:order-3',
         active && 'border-(--tc) bg-(--tc)/10 shadow-[0_0_0_1px_var(--tc),0_10px_36px_-12px_var(--tc)]',
       )}
       style={vars({ '--tc': TEAMC[team] })}
     >
-      <span className={cn('grid size-8 shrink-0 place-items-center overflow-hidden rounded-md text-sm font-extrabold text-ink sm:size-9 sm:text-base', logo ? 'bg-black/40' : 'bg-(--tc)')}>
+      <span className={cn('grid size-7 shrink-0 place-items-center overflow-hidden rounded-md text-sm font-extrabold text-ink min-[400px]:size-8 sm:size-9 sm:text-base', logo ? 'bg-black/40' : 'bg-(--tc)')}>
         <TeamMark i={team} url={logo} />
       </span>
       <div className="min-w-0">
-        <b className="block truncate text-base font-bold tracking-[-0.02em] sm:text-xl">{name}</b>
+        <b className="block truncate text-[0.9375rem] font-bold min-[400px]:text-base tracking-[-0.02em] sm:text-xl">{name}</b>
         <small className="text-xs text-muted-foreground tabular-nums">{bans} ban{bans === 1 ? '' : 's'}, {picks} pick{picks === 1 ? '' : 's'}</small>
       </div>
     </div>

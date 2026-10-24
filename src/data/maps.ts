@@ -46,7 +46,7 @@ export const FORMATS: Record<Format, { label: string; name: string; d: string }>
 
 export const defaultSetup = (): Setup => ({
   title: '',
-  teams: ['Team Alpha', 'Team Bravo'],
+  teams: ['Team Alpha', 'Team Omega'],
   first: 'a',
   format: 3,
   pool: [...COMPETITIVE_POOL],

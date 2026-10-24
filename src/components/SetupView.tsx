@@ -81,7 +81,7 @@ function Versus() {
     teams[i] = v;
     return { teams };
   });
-  const fixTeams = () => patch(s => ({ teams: [s.teams[0].trim() || 'Team A', s.teams[1].trim() || 'Team B'] }));
+  const fixTeams = () => patch(s => ({ teams: [s.teams[0].trim() || 'Team Alpha', s.teams[1].trim() || 'Team Omega'] }));
   const role = (i: TeamIdx) =>
     S.first === 'coin' ? 'Coin toss decides who acts first' : (S.first === 'a') === (i === 0) ? 'Acts first' : 'Acts second';
 
@@ -505,7 +505,7 @@ function MapPool() {
 function VetoOrder() {
   const { setup: S, patch } = useApp();
   const seq = getSeq(S), sim = simulate(S, seq);
-  const short = (t: TeamIdx) => S.teams[t] || (t ? 'Team B' : 'Team A');
+  const short = (t: TeamIdx) => S.teams[t] || (t ? 'Team Omega' : 'Team Alpha');
   const decSider = deciderSider(S, seq);
 
   const edit = (fn: (q: SeqStep[]) => void) => {

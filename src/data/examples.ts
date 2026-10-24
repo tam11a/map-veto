@@ -10,7 +10,7 @@ const PICK_ORDER = ['haven', 'summit', 'sunset', 'lotus', 'corrode', 'abyss', 'b
 
 /** A finished example veto for a format, built with the default order, for the guide's replays. */
 export function examplePlan(format: Format): Payload {
-  const s = { ...defaultSetup(), title: `Example ${['', 'Bo1', 'Bo2', 'Bo3', '', 'Bo5'][format]}`, teams: ['Phantoms', 'Vandals'] as [string, string], format, pool: POOL, seq: null };
+  const s = { ...defaultSetup(), title: `Example ${['', 'Bo1', 'Bo2', 'Bo3', '', 'Bo5'][format]}`, teams: ['Team Alpha', 'Team Omega'] as [string, string], format, pool: POOL, seq: null };
   const hist: Action[] = [];
   for (let step = curStep(s, hist), n = 0; step && n < 40; step = curStep(s, hist), n++) {
     const left = remaining(s, hist);

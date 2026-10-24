@@ -48,7 +48,7 @@ function SectionHead({ title, lead, aside }: { title: ReactNode; lead?: ReactNod
 }
 
 /* ================= hero: the broadcast veto wall ================= */
-const TEAMS = ['Phantoms', 'Vandals'] as const;
+const TEAMS = ['Team Alpha', 'Team Omega'] as const;
 const WALL = ['abyss', 'bind', 'corrode', 'haven', 'lotus', 'summit', 'sunset'];
 const PLAY: Action[] = [
   { k: 'ban', team: 0, map: 'bind' },
@@ -322,7 +322,7 @@ function CaptainVisual() {
         </svg>
         <span className="absolute inset-0 grid place-items-center text-sm font-bold text-ban motion-safe:animate-blink">4</span>
       </div>
-      <div className="min-w-0"><div className="text-xl font-bold tracking-[-0.02em] text-(--tc)">Vandals</div><div className="text-sm text-muted-foreground">Ban a map</div></div>
+      <div className="min-w-0"><div className="text-xl font-bold tracking-[-0.02em] text-(--tc)">Team Omega</div><div className="text-sm text-muted-foreground">Ban a map</div></div>
       <div className="ml-auto text-xs tracking-[0.12em] text-dim">STEP 2/7</div>
     </div>
   );
@@ -354,7 +354,7 @@ function TeamVisual() {
       <div className="flex items-center justify-between gap-3">
         <div>
           <p className="text-xs text-muted-foreground">Best of 3 match plan</p>
-          <h4 className="text-lg font-extrabold tracking-[-0.02em]">Phantoms vs Vandals</h4>
+          <h4 className="text-lg font-extrabold tracking-[-0.02em]">Team Alpha vs Team Omega</h4>
         </div>
         <LogoMark size={32} />
       </div>

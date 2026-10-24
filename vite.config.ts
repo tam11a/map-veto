@@ -107,14 +107,12 @@ export default defineConfig(({ mode }) => ({
   base: '/',
   resolve: { alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) } },
   build: {
+    // all dependencies in one long-cached chunk; splitting them (react / ui) made chunks import each
+    // other in a cycle, which broke the page at load time ("Cannot access … before initialization")
+    chunkSizeWarningLimit: 600,
     rollupOptions: {
       output: {
-        // framework and UI libraries change rarely: keep them in their own long-cached chunks
-        manualChunks(id) {
-          if (!id.includes('node_modules')) return;
-          if (/[\/](react|react-dom|scheduler|react-router|react-router-dom|@remix-run)[\/]/.test(id)) return 'react';
-          if (/[\/](@radix-ui|radix-ui|@floating-ui|sonner|cn|lucide-react|class-variance-authority|tslib|aria-hidden|react-remove-scroll[^\/]*|use-callback-ref|use-sidecar|detect-node-es|get-nonce)[\/]/.test(id)) return 'ui';
-        },
+        manualChunks: id => (id.includes('node_modules') ? 'vendor' : undefined),
       },
     },
   },

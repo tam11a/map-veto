@@ -98,6 +98,9 @@ main.flush { padding-top: 0; }
 
 /* try mode: the visitor bans and picks by clicking the wall */
 .slice-hit { position: absolute; inset: 0; z-index: 3; cursor: pointer; }
+/* the copy block spans the full width over the wall: let clicks through to the maps, except on its own controls */
+.wall-copy { pointer-events: none; }
+.wall-copy :is(a, button, .wall-hud) { pointer-events: auto; }
 .slice-hit:focus-visible { outline-offset: -4px; }
 .slice.open::before { background: var(--tc); }
 @media (hover: hover) {

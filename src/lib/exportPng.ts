@@ -1,5 +1,5 @@
 import { MARK } from '../brand/Logo';
-import { FORMATS, GOLD, TEAMC } from '../data/maps';
+import { FORMATS, DECIDER, TEAMC } from '../data/maps';
 import type { Setup, VetoState } from '../types';
 import { agentIcon, getAgents } from './agents';
 import { imgFor, loadImg } from './images';
@@ -15,8 +15,8 @@ export function drawMark(x: Ctx, X: number, Y: number, size: number) {
   x.translate(X, Y);
   x.scale(size / 64, size / 64);
   const bg = x.createLinearGradient(0, 0, 64, 64);
-  bg.addColorStop(0, '#18202f');
-  bg.addColorStop(1, '#0a0d14');
+  bg.addColorStop(0, '#2a1622');
+  bg.addColorStop(1, '#0d0a12');
   const badge = new Path2D(MARK.badge);
   x.fillStyle = bg;
   x.fill(badge);
@@ -27,7 +27,7 @@ export function drawMark(x: Ctx, X: number, Y: number, size: number) {
   x.fill(new Path2D(MARK.pick));
   x.fillStyle = TEAMC[1];
   x.fill(new Path2D(MARK.ban));
-  x.fillStyle = GOLD;
+  x.fillStyle = DECIDER;
   x.fill(new Path2D(MARK.decider));
   x.restore();
 }
@@ -38,7 +38,7 @@ function rr(x: Ctx, X: number, Y: number, w: number, h: number, r: number) {
 }
 
 /** Shrinks the font until `text` fits, then truncates with an ellipsis as a last resort. */
-function fit(x: Ctx, text: string, maxW: number, size: number, weight = 700, fam = 'Big Shoulders Display', min = 14) {
+function fit(x: Ctx, text: string, maxW: number, size: number, weight = 700, fam = 'Poppins', min = 14) {
   let s = size;
   x.font = `${weight} ${s}px "${fam}"`;
   while (x.measureText(text).width > maxW && s > min) { s -= 2; x.font = `${weight} ${s}px "${fam}"`; }
@@ -108,7 +108,7 @@ function drawFaces(x: Ctx, faces: (HTMLImageElement | null)[], X: number, Y: num
     x.save();
     x.beginPath();
     x.arc(fx + size / 2, Y + size / 2, size / 2, 0, Math.PI * 2);
-    x.fillStyle = '#1a2130';
+    x.fillStyle = '#221a2c';
     x.fill();
     x.clip();
     if (im) x.drawImage(im, fx, Y, size, size);
@@ -135,13 +135,13 @@ export async function buildPNG(s: Setup, v: VetoState): Promise<HTMLCanvasElemen
     const tag = h.k === 'decider' ? 'DECIDER' : h.k.toUpperCase();
     const txt = h.k === 'side' ? `${who} starts ${h.side === 'atk' ? 'Attack' : 'Defense'} on ${name(h.map)}`
       : h.k === 'decider' ? `${name(h.map)} is the decider` : `${who} ${h.k === 'ban' ? 'banned' : 'picked'} ${name(h.map)}`;
-    return { tag, txt, color: h.team != null ? TEAMC[h.team] : GOLD, ban: h.k === 'ban' };
+    return { tag, txt, color: h.team != null ? TEAMC[h.team] : DECIDER, ban: h.k === 'ban' };
   });
   let cx = P, cy = 0;
   const lay = chips.map(chip => {
-    x.font = '700 14px "Big Shoulders Display"';
+    x.font = '700 14px Poppins';
     const tw = x.measureText(chip.tag).width + 16;
-    x.font = '600 19px Barlow';
+    x.font = '600 19px Poppins';
     const w = tw + x.measureText(chip.txt).width + 30;
     if (cx + w > W - P) { cx = P; cy += 52; }
     const pos = { ...chip, x: cx, y: cy, w, tw };
@@ -153,11 +153,11 @@ export async function buildPNG(s: Setup, v: VetoState): Promise<HTMLCanvasElemen
   c.height = H;
 
   // background
-  x.fillStyle = '#0f1218';
+  x.fillStyle = '#0d0a12';
   x.fillRect(0, 0, W, H);
-  ([[0, TEAMC[0]], [W, TEAMC[1]]] as const).forEach(([gx, col]) => {
+  ([[0, '#7a160f'], [W, '#2c1257']] as const).forEach(([gx, col]) => {
     const rg = x.createRadialGradient(gx, 0, 0, gx, 0, 900);
-    rg.addColorStop(0, col + '30');
+    rg.addColorStop(0, col + 'b0');
     rg.addColorStop(1, col + '00');
     x.fillStyle = rg;
     x.fillRect(0, 0, W, H);
@@ -169,17 +169,17 @@ export async function buildPNG(s: Setup, v: VetoState): Promise<HTMLCanvasElemen
 
   // header
   spacing(x, '4px');
-  x.fillStyle = '#8b95a9';
-  x.font = '600 18px "Big Shoulders Display"';
+  x.fillStyle = '#b7adc2';
+  x.font = '600 18px Poppins';
   x.textAlign = 'left';
   x.fillText(`${FORMATS[s.format].name.toUpperCase()} MATCH PLAN`, P, 76);
   spacing(x, '0px');
-  x.fillStyle = '#e9edf5';
+  x.fillStyle = '#f3eff6';
   x.fillText(fit(x, s.title || `${t[0]} vs ${t[1]}`, W - 2 * P - 320, 56), P, 140);
-  x.font = '700 26px "Big Shoulders Display"';
+  x.font = '700 26px Poppins';
   let tx = P;
   const hasLogo = logos.some(Boolean);
-  ([[t[0], TEAMC[0], 0], ['  VS  ', '#7d879a', -1], [t[1], TEAMC[1], 1]] as const).forEach(([str, col, li]) => {
+  ([[t[0], TEAMC[0], 0], ['  VS  ', '#8d8399', -1], [t[1], TEAMC[1], 1]] as const).forEach(([str, col, li]) => {
     if (hasLogo && li >= 0) { drawLogo(x, logos[li], tx, 160, 32, col); tx += 42; }
     x.fillStyle = col;
     x.fillText(str, tx, 184);
@@ -188,27 +188,28 @@ export async function buildPNG(s: Setup, v: VetoState): Promise<HTMLCanvasElemen
   // brand lockup, top right
   x.textAlign = 'right';
   spacing(x, '3px');
-  x.font = '700 24px "Big Shoulders Display"';
-  x.fillStyle = '#ff4655';
+  x.font = '700 24px Poppins';
+  x.fillStyle = '#ff2a36';
   x.fillText('VETO', W - P, 72);
   const vetoW = x.measureText('VETO').width;
-  x.fillStyle = '#e9edf5';
+  x.fillStyle = '#f3eff6';
   x.fillText('MAP ', W - P - vetoW, 72);
   const wordW = vetoW + x.measureText('MAP ').width;
   spacing(x, '2.5px');
-  x.font = '600 11px Barlow';
-  x.fillStyle = '#8b95a9';
+  x.font = '600 11px Poppins';
+  x.fillStyle = '#b7adc2';
   x.fillText('VALORANT MAP PICKER', W - P, 92);
+  const lockW = Math.max(wordW, x.measureText('VALORANT MAP PICKER').width);
   spacing(x, '0px');
-  drawMark(x, W - P - wordW - 64, 38, 54);
-  x.font = '500 15px Barlow';
-  x.fillStyle = '#7d879a';
-  x.fillText(fit(x, matchLine(s) || new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }), 420, 15, 500, 'Barlow', 12), W - P, 124);
+  drawMark(x, W - P - lockW - 66, 38, 54);
+  x.font = '500 15px Poppins';
+  x.fillStyle = '#8d8399';
+  x.fillText(fit(x, matchLine(s) || new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }), 420, 15, 500, 'Poppins', 12), W - P, 124);
   x.textAlign = 'left';
 
   // game cards
   g.forEach((gm, i) => {
-    const X = P + i * (cw + gap), Y = top, m = getMap(s, gm.map), col = gm.by != null ? TEAMC[gm.by] : GOLD, img = imgs[i];
+    const X = P + i * (cw + gap), Y = top, m = getMap(s, gm.map), col = gm.by != null ? TEAMC[gm.by] : DECIDER, img = imgs[i];
     x.save();
     rr(x, X, Y, cw, ch, 20);
     x.clip();
@@ -221,15 +222,15 @@ export async function buildPNG(s: Setup, v: VetoState): Promise<HTMLCanvasElemen
       const sc = Math.max(cw / img.width, ch / img.height), iw = img.width * sc, ih = img.height * sc;
       x.drawImage(img, X + (cw - iw) / 2, Y + (ch - ih) / 2, iw, ih);
     } else {
-      x.font = '700 120px "Big Shoulders Display"';
+      x.font = '700 120px Poppins';
       x.fillStyle = 'rgba(255,255,255,.06)';
       x.fillText(m.name, X + 10, Y + ch * 0.55);
     }
     const sh = x.createLinearGradient(0, Y, 0, Y + ch);
-    sh.addColorStop(0, 'rgba(6,8,12,.15)');
-    sh.addColorStop(0.4, 'rgba(6,8,12,.35)');
-    sh.addColorStop(0.7, 'rgba(6,8,12,.92)');
-    sh.addColorStop(1, 'rgba(6,8,12,.98)');
+    sh.addColorStop(0, 'rgba(9,6,13,.15)');
+    sh.addColorStop(0.4, 'rgba(9,6,13,.35)');
+    sh.addColorStop(0.7, 'rgba(9,6,13,.92)');
+    sh.addColorStop(1, 'rgba(9,6,13,.98)');
     x.fillStyle = sh;
     x.fillRect(X, Y, cw, ch);
     x.restore();
@@ -239,12 +240,12 @@ export async function buildPNG(s: Setup, v: VetoState): Promise<HTMLCanvasElemen
     x.stroke();
 
     const badge = `MAP ${i + 1}${gm.decider ? ' DECIDER' : ''}`;
-    x.font = '700 15px "Big Shoulders Display"';
+    x.font = '700 15px Poppins';
     const bw = x.measureText(badge).width + 22;
     x.fillStyle = col;
     rr(x, X + 18, Y + 18, bw, 32, 8);
     x.fill();
-    x.fillStyle = '#06100e';
+    x.fillStyle = '#0d0a12';
     x.fillText(badge, X + 29, Y + 40);
 
     // text block, stacked upwards from the bottom
@@ -252,14 +253,14 @@ export async function buildPNG(s: Setup, v: VetoState): Promise<HTMLCanvasElemen
     let by = Y + ch - 24;
     const note = noteText(s, gm.map);
     if (note) {
-      x.font = '500 16px Barlow';
+      x.font = '500 16px Poppins';
       const lines = wrap(x, note, iw2 - 14, n >= 4 ? 4 : 3), nh = lines.length * 22 + 14;
       x.fillStyle = 'rgba(255,255,255,.06)';
       rr(x, ix, by - nh, iw2, nh, 8);
       x.fill();
       x.fillStyle = col;
       x.fillRect(ix, by - nh, 3, nh);
-      x.fillStyle = '#c9cfdb';
+      x.fillStyle = '#d6cfdd';
       lines.forEach((l, j) => x.fillText(l, ix + 14, by - nh + 26 + j * 22));
       by -= nh + 14;
     }
@@ -276,27 +277,27 @@ export async function buildPNG(s: Setup, v: VetoState): Promise<HTMLCanvasElemen
       x.fillStyle = TEAMC[team];
       x.fillRect(ix + 12, by - 24, 9, 9);
       const lbl = sd ? (sd === 'atk' ? 'ATK' : 'DEF') : gm.decider && s.deciderRule === 'knife' ? 'KNIFE' : 'TBD';
-      x.font = '700 15px "Big Shoulders Display"';
+      x.font = '700 15px Poppins';
       const lw = x.measureText(lbl).width + 16;
-      x.fillStyle = '#e9edf5';
-      x.fillText(fit(x, t[team], iw2 - lw - 52, 17, 600, 'Barlow', 12), ix + 30, by - 14);
-      x.font = '700 15px "Big Shoulders Display"';
-      x.fillStyle = sd === 'atk' ? 'rgba(255,154,98,.2)' : sd === 'def' ? 'rgba(127,178,255,.22)' : 'rgba(255,255,255,.06)';
+      x.fillStyle = '#f3eff6';
+      x.fillText(fit(x, t[team], iw2 - lw - 52, 17, 600, 'Poppins', 12), ix + 30, by - 14);
+      x.font = '700 15px Poppins';
+      x.fillStyle = sd === 'atk' ? 'rgba(255,138,76,.2)' : sd === 'def' ? 'rgba(142,163,255,.22)' : 'rgba(255,255,255,.06)';
       rr(x, ix + iw2 - lw - 8, by - 32, lw, 24, 5);
       x.fill();
-      x.fillStyle = sd === 'atk' ? '#ff9a62' : sd === 'def' ? '#7fb2ff' : '#7d879a';
+      x.fillStyle = sd === 'atk' ? '#ff8a4c' : sd === 'def' ? '#8ea3ff' : '#8d8399';
       x.fillText(lbl, ix + iw2 - lw, by - 14);
       by -= 48;
     }
     by -= 4;
-    x.font = '500 17px Barlow';
-    x.fillStyle = '#8b95a9';
+    x.font = '500 17px Poppins';
+    x.fillStyle = '#b7adc2';
     const pb = gm.by == null ? 'Decider, the last map standing' : 'Picked by ';
     x.fillText(pb, ix, by);
     if (gm.by != null) {
       const pw = x.measureText(pb).width;
       x.fillStyle = col;
-      x.fillText(fit(x, t[gm.by], iw2 - pw, 17, 700, 'Barlow', 12), ix + pw, by);
+      x.fillText(fit(x, t[gm.by], iw2 - pw, 17, 700, 'Poppins', 12), ix + pw, by);
     }
     by -= 34;
     x.fillStyle = '#ffffff';
@@ -304,44 +305,44 @@ export async function buildPNG(s: Setup, v: VetoState): Promise<HTMLCanvasElemen
     by -= n >= 4 ? 44 : 56;
     spacing(x, '2px');
     x.fillStyle = 'rgba(255,255,255,.6)';
-    x.fillText(fit(x, `${m.loc}   SITES ${m.sites}`.toUpperCase(), iw2, 13, 600, 'Barlow', 10), ix, by);
+    x.fillText(fit(x, `${m.loc}   SITES ${m.sites}`.toUpperCase(), iw2, 13, 600, 'Poppins', 10), ix, by);
     spacing(x, '0px');
   });
 
   // veto log
   spacing(x, '4px');
-  x.font = '600 16px "Big Shoulders Display"';
-  x.fillStyle = '#8b95a9';
+  x.font = '600 16px Poppins';
+  x.fillStyle = '#b7adc2';
   x.fillText('VETO LOG', P, logY - 22);
   spacing(x, '0px');
   for (const l of lay) {
     const Y = logY + l.y;
-    x.fillStyle = '#121825';
+    x.fillStyle = '#1b1424';
     rr(x, l.x, Y, l.w, 42, 9);
     x.fill();
-    x.strokeStyle = '#232c3d';
+    x.strokeStyle = '#2a2133';
     x.lineWidth = 1;
     rr(x, l.x + 0.5, Y + 0.5, l.w - 1, 41, 9);
     x.stroke();
     x.fillStyle = l.color;
     rr(x, l.x + 8, Y + 9, l.tw, 24, 5);
     x.fill();
-    x.fillStyle = '#06100e';
-    x.font = '700 14px "Big Shoulders Display"';
+    x.fillStyle = '#0d0a12';
+    x.font = '700 14px Poppins';
     x.fillText(l.tag, l.x + 16, Y + 26);
-    x.fillStyle = l.ban ? '#8b95a9' : '#e9edf5';
-    x.font = '600 19px Barlow';
+    x.fillStyle = l.ban ? '#b7adc2' : '#f3eff6';
+    x.font = '600 19px Poppins';
     x.fillText(l.txt, l.x + l.tw + 18, Y + 28);
   }
 
   // footer
-  x.strokeStyle = '#232c3d';
+  x.strokeStyle = '#2a2133';
   x.beginPath();
   x.moveTo(P, H - 60);
   x.lineTo(W - P, H - 60);
   x.stroke();
-  x.font = '500 15px Barlow';
-  x.fillStyle = '#7d879a';
+  x.font = '500 15px Poppins';
+  x.fillStyle = '#8d8399';
   x.fillText(`${t[0]} vs ${t[1]}, ${FORMATS[s.format].name.toLowerCase()}${s.sidePick ? ', side selection on' : ''}${s.sidePick && s.deciderRule === 'knife' ? ', knife round on the decider' : ''}`, P, H - 28);
   x.textAlign = 'right';
   x.fillText('Planned with Map Veto: Valorant Map Picker', W - P, H - 28);
@@ -360,11 +361,11 @@ export async function buildStory(s: Setup, v: VetoState): Promise<HTMLCanvasElem
   c.width = W;
   c.height = H;
 
-  x.fillStyle = '#0f1218';
+  x.fillStyle = '#0d0a12';
   x.fillRect(0, 0, W, H);
-  ([[0, TEAMC[0]], [W, TEAMC[1]]] as const).forEach(([gx, col]) => {
+  ([[0, '#7a160f'], [W, '#2c1257']] as const).forEach(([gx, col]) => {
     const rg = x.createRadialGradient(gx, 0, 0, gx, 0, 1100);
-    rg.addColorStop(0, col + '38');
+    rg.addColorStop(0, col + 'c0');
     rg.addColorStop(1, col + '00');
     x.fillStyle = rg;
     x.fillRect(0, 0, W, H);
@@ -374,23 +375,23 @@ export async function buildStory(s: Setup, v: VetoState): Promise<HTMLCanvasElem
   const half = W / 2, ls = 64;
   x.textAlign = 'center';
   spacing(x, '5px');
-  x.fillStyle = '#8b95a9';
-  x.font = '600 24px "Big Shoulders Display"';
+  x.fillStyle = '#b7adc2';
+  x.font = '600 24px Poppins';
   x.fillText(`${FORMATS[s.format].name.toUpperCase()} MATCH PLAN`, half, 130);
   spacing(x, '0px');
-  x.fillStyle = '#e9edf5';
+  x.fillStyle = '#f3eff6';
   x.fillText(fit(x, s.title || `${t[0]} vs ${t[1]}`, cw, 80), half, 220);
   ([0, 1] as const).forEach(i => {
     const lx = i ? half + 60 : half - 60 - ls;
     drawLogo(x, logos[i], lx, 252, ls, TEAMC[i]);
     if (!logos[i]) {
       x.fillStyle = TEAMC[i];
-      x.font = '800 30px "Big Shoulders Display"';
+      x.font = '800 30px Poppins';
       x.fillText(i ? 'B' : 'A', lx + ls / 2, 295);
     }
   });
-  x.fillStyle = '#7d879a';
-  x.font = '700 28px "Big Shoulders Display"';
+  x.fillStyle = '#8d8399';
+  x.font = '700 28px Poppins';
   x.fillText('VS', half, 294);
   x.textAlign = 'right';
   x.fillStyle = TEAMC[0];
@@ -401,15 +402,15 @@ export async function buildStory(s: Setup, v: VetoState): Promise<HTMLCanvasElem
   x.textAlign = 'center';
   const ml = matchLine(s);
   if (ml) {
-    x.fillStyle = '#8b95a9';
-    x.fillText(fit(x, ml, cw, 26, 500, 'Barlow'), half, 368);
+    x.fillStyle = '#b7adc2';
+    x.fillText(fit(x, ml, cw, 26, 500, 'Poppins'), half, 368);
   }
   x.textAlign = 'left';
 
   // one wide card per game, stacked and centred in the space left
   const y0 = top + Math.max(0, (bottom - top - (ch * n + gap * (n - 1))) / 2);
   g.forEach((gm, i) => {
-    const X = P, Y = y0 + i * (ch + gap), m = getMap(s, gm.map), col = gm.by != null ? TEAMC[gm.by] : GOLD, img = imgs[i];
+    const X = P, Y = y0 + i * (ch + gap), m = getMap(s, gm.map), col = gm.by != null ? TEAMC[gm.by] : DECIDER, img = imgs[i];
     x.save();
     rr(x, X, Y, cw, ch, 24);
     x.clip();
@@ -423,9 +424,9 @@ export async function buildStory(s: Setup, v: VetoState): Promise<HTMLCanvasElem
       x.drawImage(img, X + (cw - iw) / 2, Y + (ch - ih) / 2, iw, ih);
     }
     const sh = x.createLinearGradient(X, 0, X + cw, 0);
-    sh.addColorStop(0, 'rgba(6,8,12,.94)');
-    sh.addColorStop(0.55, 'rgba(6,8,12,.72)');
-    sh.addColorStop(1, 'rgba(6,8,12,.3)');
+    sh.addColorStop(0, 'rgba(9,6,13,.94)');
+    sh.addColorStop(0.55, 'rgba(9,6,13,.72)');
+    sh.addColorStop(1, 'rgba(9,6,13,.3)');
     x.fillStyle = sh;
     x.fillRect(X, Y, cw, ch);
     x.restore();
@@ -436,33 +437,33 @@ export async function buildStory(s: Setup, v: VetoState): Promise<HTMLCanvasElem
 
     const k = Math.min(1, ch / 300), ix = X + 36;
     const badge = `MAP ${i + 1}${gm.decider ? ' DECIDER' : ''}`;
-    x.font = `700 ${Math.round(20 * k)}px "Big Shoulders Display"`;
+    x.font = `700 ${Math.round(20 * k)}px Poppins`;
     const bw = x.measureText(badge).width + 24;
     x.fillStyle = col;
     rr(x, ix, Y + 30 * k, bw, 38 * k, 8);
     x.fill();
-    x.fillStyle = '#06100e';
+    x.fillStyle = '#0d0a12';
     x.fillText(badge, ix + 12, Y + 56 * k);
     x.fillStyle = '#ffffff';
     x.fillText(fit(x, m.name.toUpperCase(), cw * 0.55, Math.round(96 * k)), ix, Y + ch * 0.64);
-    x.fillStyle = '#a3abba';
-    x.fillText(fit(x, gm.by == null ? 'Decider' : `Picked by ${t[gm.by]}`, cw * 0.55, Math.round(24 * k), 500, 'Barlow', 14), ix, Y + ch * 0.64 + 44 * k);
+    x.fillStyle = '#b7adc2';
+    x.fillText(fit(x, gm.by == null ? 'Decider' : `Picked by ${t[gm.by]}`, cw * 0.55, Math.round(24 * k), 500, 'Poppins', 14), ix, Y + ch * 0.64 + 44 * k);
 
     // starting sides, right column
     const rx = X + cw - 36, rh = 56 * k;
     ([0, 1] as const).forEach((team, j) => {
       const sd = sideFor(gm, team), ry = Y + ch / 2 - rh - 6 + j * (rh + 12);
       const lbl = sd ? (sd === 'atk' ? 'ATTACK' : 'DEFENSE') : gm.decider && s.deciderRule === 'knife' ? 'KNIFE' : 'TBD';
-      x.font = `700 ${Math.round(26 * k)}px "Big Shoulders Display"`;
+      x.font = `700 ${Math.round(26 * k)}px Poppins`;
       const lw = x.measureText(lbl).width + 28;
-      x.fillStyle = sd === 'atk' ? 'rgba(255,154,98,.22)' : sd === 'def' ? 'rgba(127,178,255,.24)' : 'rgba(255,255,255,.08)';
+      x.fillStyle = sd === 'atk' ? 'rgba(255,138,76,.22)' : sd === 'def' ? 'rgba(142,163,255,.24)' : 'rgba(255,255,255,.08)';
       rr(x, rx - lw, ry, lw, rh, 10);
       x.fill();
-      x.fillStyle = sd === 'atk' ? '#ff9a62' : sd === 'def' ? '#7fb2ff' : '#8b95a9';
+      x.fillStyle = sd === 'atk' ? '#ff8a4c' : sd === 'def' ? '#8ea3ff' : '#b7adc2';
       x.textAlign = 'right';
       x.fillText(lbl, rx - 14, ry + rh * 0.68);
       x.fillStyle = TEAMC[team];
-      x.fillText(fit(x, t[team], 260, Math.round(25 * k), 600, 'Barlow', 12), rx - lw - 14, ry + rh * 0.66);
+      x.fillText(fit(x, t[team], 260, Math.round(25 * k), 600, 'Poppins', 12), rx - lw - 14, ry + rh * 0.66);
       x.textAlign = 'left';
     });
   });
@@ -471,14 +472,14 @@ export async function buildStory(s: Setup, v: VetoState): Promise<HTMLCanvasElem
   const fy = H - 110, lx = half - 80;
   drawMark(x, lx - 72, fy - 40, 56);
   spacing(x, '3px');
-  x.font = '700 30px "Big Shoulders Display"';
-  x.fillStyle = '#e9edf5';
+  x.font = '700 30px Poppins';
+  x.fillStyle = '#f3eff6';
   x.fillText('MAP ', lx, fy);
-  x.fillStyle = '#ff4655';
+  x.fillStyle = '#ff2a36';
   x.fillText('VETO', lx + x.measureText('MAP ').width, fy);
   spacing(x, '2.5px');
-  x.font = '600 13px Barlow';
-  x.fillStyle = '#8b95a9';
+  x.font = '600 13px Poppins';
+  x.fillStyle = '#b7adc2';
   x.fillText('VALORANT MAP PICKER', lx, fy + 24);
   spacing(x, '0px');
   return c;

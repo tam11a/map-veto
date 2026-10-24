@@ -4,7 +4,7 @@ import { Icon } from '../components/Icons';
 import { MapArt } from '../components/MapArt';
 import { Overlay } from '../components/Overlay';
 import { MapCard, type Rec, TeamCard, Timeline, TurnBanner } from '../components/VetoView';
-import { GOLD, TEAMC } from '../data/maps';
+import { DECIDER, TEAMC } from '../data/maps';
 import { confetti, cx, vars } from '../lib/fx';
 import { OVERLAY_DEFAULTS, type OverlayOptions, overlayQuery } from '../lib/overlay';
 import { type Role, roomLinks, rememberToken, savedInvite, savedToken, useRoom } from '../lib/rooms';
@@ -115,7 +115,7 @@ export function RoomPage() {
   return (
     <div className="container page-app room">
       <div className="room-bar">
-        <span className={cx('room-role', role && `r-${role}`)} style={vars({ '--tc': myTeam != null ? TEAMC[myTeam] : role === 'host' ? GOLD : 'var(--mute)' })}>
+        <span className={cx('room-role', role && `r-${role}`)} style={vars({ '--tc': myTeam != null ? TEAMC[myTeam] : role === 'host' ? DECIDER : 'var(--mute)' })}>
           <i />{role === 'host' ? 'You’re the host: you can act for both teams' : myTeam != null ? `You’re the captain of ${teams[myTeam]}` : 'Spectating'}
         </span>
         <span className="room-id">Room <b>{room.id}</b>{error && <em> · reconnecting</em>}</span>
@@ -128,7 +128,7 @@ export function RoomPage() {
         <TurnBanner step={step} teams={teams} timer={S.timer} deadline={room.deadline} now={now} paused={null} setup={S} waiting={!!step && !mine} doneText="The match plan is ready to open" />
       </div>
       <Timeline teams={teams} hist={hist} setup={S} />
-      <div className="grid" data-mode={live ? step!.k : 'idle'} style={vars({ '--tc': step?.team != null ? TEAMC[step.team] : GOLD })}>
+      <div className="grid" data-mode={live ? step!.k : 'idle'} style={vars({ '--tc': step?.team != null ? TEAMC[step.team] : DECIDER })}>
         {S.pool.map(mapId => (
           <MapCard
             key={mapId}
@@ -193,7 +193,7 @@ function Invite({ id, teams }: { id: string; teams: [string, string] }) {
     [`${teams[0]} captain`, links.a, TEAMC[0]],
     [`${teams[1]} captain`, links.b, TEAMC[1]],
     ['Spectators', links.watch, 'var(--mute)'],
-    ['Stream overlay for OBS', links.overlay + overlayQuery(ov), GOLD],
+    ['Stream overlay for OBS', links.overlay + overlayQuery(ov), DECIDER],
   ];
   const set = (p: Partial<OverlayOptions>) => setOv(o => ({ ...o, ...p }));
   const preview = links.overlay + overlayQuery(ov) + (overlayQuery(ov) ? '&' : '?') + 'bg=1';
@@ -213,7 +213,7 @@ function Invite({ id, teams }: { id: string; teams: [string, string] }) {
               <button className="btn sm" onClick={() => copy(label + ' link', url)}><Icon.link /> Copy</button>
             </li>
           ))}
-          <li className="ov-opts" style={vars({ '--tc': GOLD })} aria-label="Overlay layout">
+          <li className="ov-opts" style={vars({ '--tc': DECIDER })} aria-label="Overlay layout">
             <span>Overlay layout</span>
             <div className="ov-opts-in">
               <div className="seg" role="group" aria-label="Position">

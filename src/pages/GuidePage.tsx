@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { BRAND } from '../brand/Logo';
-import { FORMATS, GOLD, TEAMC } from '../data/maps';
+import { FORMATS, DECIDER, TEAMC } from '../data/maps';
 import { Icon } from '../components/Icons';
 import { cx } from '../lib/fx';
 import { useTitle } from '../lib/useTitle';
@@ -103,8 +103,8 @@ export function GuidePage() {
             <dl className="gloss">
               <div><dt><i style={{ background: TEAMC[1] }} />Ban</dt><dd>Removes a map from the pool. Nobody plays it this series.</dd></div>
               <div><dt><i style={{ background: TEAMC[0] }} />Pick</dt><dd>Locks in a map to be played. The picker’s opponent chooses sides.</dd></div>
-              <div><dt><i style={{ background: GOLD }} />Decider</dt><dd>The last map left in the pool, played when the series goes the distance.</dd></div>
-              <div><dt><i style={{ background: '#7cc7ff' }} />Side</dt><dd>Attack or Defense for the first half. Teams swap at halftime.</dd></div>
+              <div><dt><i style={{ background: DECIDER }} />Decider</dt><dd>The last map left in the pool, played when the series goes the distance.</dd></div>
+              <div><dt><i style={{ background: '#9fb0ff' }} />Side</dt><dd>Attack or Defense for the first half. Teams swap at halftime.</dd></div>
             </dl>
           </section>
 

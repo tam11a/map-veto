@@ -126,8 +126,8 @@ Map art, minimaps, callouts and agents come from valorant-api.com at runtime and
 ## Styling
 
 - Plain CSS with design tokens. No CSS-in-JS, no utility framework. Colours, type sizes, spacing, radii, motion and z-index are tokens in `src/styles/tokens.css`; use them instead of raw values.
-- The look is "Observer HUD": dark glass surfaces, and colour only where it means something. Mint `--pick`, red `--ban` and gold `--decider` are reserved for those actions; `--atk` and `--def` for sides. Team A and Team B colours come from `TEAMC` in `data/maps.ts`.
-- Fonts: Big Shoulders Display (`--fd`) for display text and labels, Barlow (`--fb`) for everything else.
+- The look is "Ember & Velvet": a red-to-violet night (ember glow on the left, velvet on the right, film grain) with teal map lines. Strike red `--ban` is the call to action and Team B; teal `--pick` is picks and Team A; violet `--decider` is the decider; `--atk` and `--def` are sides. Team colours come from `TEAMC` and the decider colour from `DECIDER` in `data/maps.ts`.
+- Font: Poppins everywhere (`--fd` and `--fb`), heavy (700–800) with tight tracking for display text.
 - Interaction rules the codebase follows:
   - Put hover styles inside `@media (hover: hover)` so they don't stick on touch screens.
   - Transition named properties, never `all`.

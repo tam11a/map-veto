@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { FORMATS, GOLD, TEAMC } from '../data/maps';
+import { FORMATS, DECIDER, TEAMC } from '../data/maps';
 import { buildPNG, buildStory, canvasBlob, matchLine } from '../lib/exportPng';
 import { cx, vars } from '../lib/fx';
 import { shortLink } from '../lib/rooms';
@@ -98,7 +98,7 @@ export function ResultView({ veto, onEdit, onReplay, onNew }: Props) {
 
       <div className="games" style={vars({ '--n': Math.max(1, g.length) })}>
         {g.map((gm, i) => {
-          const m = getMap(S, gm.map), color = gm.by != null ? TEAMC[gm.by] : GOLD;
+          const m = getMap(S, gm.map), color = gm.by != null ? TEAMC[gm.by] : DECIDER;
           const knife = !gm.side && gm.decider && S.sidePick && S.deciderRule === 'knife';
           const atk = S.notesAtk[gm.map], def = S.notesDef[gm.map], comp = S.comps[gm.map] ?? [];
           return (
@@ -143,7 +143,7 @@ export function ResultView({ veto, onEdit, onReplay, onNew }: Props) {
             const who = h.team != null ? t[h.team] : 'Auto';
             return (
               <div key={i} className={`log-item k-${h.k}`} style={vars({ '--i': i })}>
-                <b style={{ background: h.team != null ? TEAMC[h.team] : GOLD }}>{h.k.toUpperCase()}</b>
+                <b style={{ background: h.team != null ? TEAMC[h.team] : DECIDER }}>{h.k.toUpperCase()}</b>
                 {h.k === 'ban' ? <>{who} banned <s>{name(h.map)}</s></>
                   : h.k === 'pick' ? <>{who} picked <strong>{name(h.map)}</strong></>
                   : h.k === 'side' ? <>{who} starts {h.side === 'atk' ? 'Attack' : 'Defense'} on {name(h.map)}</>

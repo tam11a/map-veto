@@ -1,29 +1,32 @@
 /* ============================================================
-   Map Veto — design tokens ("Observer HUD")
-   Colour only appears where it carries meaning:
-   pick = Team A, ban = Team B / primary action, decider = last map.
+   Map Veto — design tokens ("Ember & Velvet")
+   A red-to-violet night: ember red on the left, velvet violet on the right,
+   teal map lines between them. Colour still carries meaning:
+   pick = Team A (teal), ban = Team B / primary action (strike red), decider = violet.
    ============================================================ */
 :root {
   color-scheme: dark;
 
   /* colour — named palette */
-  --range: #0f1218;      /* page */
-  /* surfaces are translucent so the ambient light reads through them as glass */
-  --glass: rgb(26 31 42 / 0.6);      /* panels */
-  --glass-2: rgb(40 47 62 / 0.62);   /* raised controls */
-  --well: rgb(8 11 16 / 0.42);       /* inputs, tracks */
-  --solid: #1a1f29;                  /* opaque panel colour, for masks */
+  --range: #0d0a12;      /* ink: page, a violet-black */
+  --ember: #7a160f;      /* left glow */
+  --velvet: #2c1257;     /* right glow */
+  /* surfaces are translucent so the ember/velvet light reads through them */
+  --glass: rgb(26 19 34 / 0.62);     /* panels */
+  --glass-2: rgb(48 37 60 / 0.62);   /* raised controls */
+  --well: rgb(9 6 13 / 0.45);        /* inputs, tracks */
+  --solid: #1b1424;                  /* opaque panel colour, for masks */
   --line: rgb(255 255 255 / 0.09);
-  --line-2: rgb(255 255 255 / 0.15);
-  --signal: #e6e9ef;     /* text */
-  --mute: #a0a9ba;       /* secondary text, 7.6:1 on range */
-  --dim: #7d879a;        /* tertiary text, 5.2:1 on range */
-  --pick: #2ee6c5;
-  --ban: #ff4655;
-  --decider: #ffc861;
-  --atk: #ff9a62;
-  --def: #7fb2ff;
-  --on-accent: #0f1218;
+  --line-2: rgb(255 255 255 / 0.16);
+  --signal: #f3eff6;     /* text */
+  --mute: #b7adc2;       /* secondary text, 8.9:1 on ink */
+  --dim: #8d8399;        /* tertiary text, 5.4:1 on ink */
+  --pick: #2bd4c8;       /* teal, the map lines */
+  --ban: #ff2a36;        /* strike red, the call to action */
+  --decider: #a97cff;    /* velvet violet */
+  --atk: #ff8a4c;
+  --def: #8ea3ff;
+  --on-accent: #0d0a12;
 
   /* aliases used by inline styles in components */
   --bg: var(--range);
@@ -36,9 +39,9 @@
   --b: var(--ban);
   --gold: var(--decider);
 
-  /* type — Big Shoulders Display (condensed, broadcast) for display & HUD, Barlow for UI and body */
-  --fd: 'Big Shoulders Display', 'Barlow Condensed', system-ui, sans-serif;
-  --fb: 'Barlow', system-ui, sans-serif;
+  /* type — Poppins throughout: geometric, heavy for display (700-800), regular for body */
+  --fd: 'Poppins', system-ui, sans-serif;
+  --fb: 'Poppins', system-ui, sans-serif;
   /* 1.25 scale on a 16px base */
   --fs-12: 0.75rem;
   --fs-14: 0.875rem;
@@ -55,11 +58,11 @@
   --measure: 68ch;
 
   /* radius — nested surfaces follow outer = inner + padding (+ border) */
-  --r-xs: 6px;
-  --r-sm: 10px;
-  --r-md: 14px;
-  --r-lg: 20px;
-  --r-xl: 28px;
+  --r-xs: 4px;
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 14px;
+  --r-xl: 18px;
   --r-pill: 999px;
 
   /* space */
@@ -99,9 +102,17 @@
   --image-outline: oklch(1 0 0 / 0.1);
   --depth: 0 24px 48px -24px rgb(0 0 0 / 0.8);
 
+  /* signature gradients */
+  /* white text stays at 4.6:1 or better across the whole fill */
+  --grad-strike: linear-gradient(180deg, #e8131f 0%, #c90c18 100%);
+  --grad-night: radial-gradient(70% 90% at 0% 30%, var(--ember), transparent 70%),
+    radial-gradient(70% 90% at 100% 70%, var(--velvet), transparent 70%),
+    linear-gradient(90deg, #170a0c, var(--range) 45%, #120b1f);
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+
   /* frosted glass — needs colour behind it (see .ambient) */
   --frost: rgb(255 255 255 / 0.055);
-  --frost-strong: rgb(20 24 33 / 0.58);
+  --frost-strong: rgb(22 16 30 / 0.6);
   --frost-line: rgb(255 255 255 / 0.12);
   --frost-hi: inset 0 1px 0 rgb(255 255 255 / 0.14);
   --frost-shadow: 0 24px 60px -24px rgb(0 0 0 / 0.75);
@@ -110,7 +121,7 @@
 
 /* without backdrop-filter, glass falls back to a solid tint */
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  :root { --frost: rgb(32 38 50 / 0.92); --frost-strong: rgb(22 27 37 / 0.96); }
+  :root { --frost: rgb(36 27 46 / 0.92); --frost-strong: rgb(24 18 32 / 0.96); }
 }
 
 @media (prefers-reduced-motion: reduce) {

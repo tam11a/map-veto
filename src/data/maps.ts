@@ -1,7 +1,7 @@
 import type { Format, MapInfo, Setup } from '../types';
 
-export const TEAMC = ['#2ee6c5', '#ff4655'] as const;
-export const GOLD = '#ffc861';
+export const TEAMC = ['#2bd4c8', '#ff2a36'] as const;
+export const DECIDER = '#a97cff';
 
 export const MAPS: MapInfo[] = [
   { id: 'abyss', name: 'Abyss', loc: 'Norway', year: 2024, sites: 'A, B', tag: 'Open map edges', c: ['#24506b', '#0c1824'],

@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react';
-import { GOLD, TEAMC } from '../data/maps';
+import { DECIDER, TEAMC } from '../data/maps';
 
 export const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -8,7 +8,7 @@ export function confetti() {
   if (prefersReducedMotion()) return;
   const box = document.createElement('div');
   box.className = 'confetti';
-  const cols = [TEAMC[0], TEAMC[1], GOLD, '#ffffff'];
+  const cols = [TEAMC[0], TEAMC[1], DECIDER, '#ffffff'];
   for (let i = 0; i < 90; i++) {
     const p = document.createElement('i');
     p.style.cssText = `left:${Math.random() * 100}%;background:${cols[i % 4]};animation-delay:${Math.random() * 0.5}s;`

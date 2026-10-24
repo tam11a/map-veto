@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { LogoMark } from '../brand/Logo';
 import { Icon } from '../components/Icons';
 import { MapArt } from '../components/MapArt';
-import { COMPETITIVE_POOL, FORMATS, GOLD, MAPS, TEAMC } from '../data/maps';
+import { COMPETITIVE_POOL, FORMATS, DECIDER, MAPS, TEAMC } from '../data/maps';
 import { cx, vars } from '../lib/fx';
 import { useTitle } from '../lib/useTitle';
 import { useApp } from '../state';
@@ -86,11 +86,11 @@ function VetoWall() {
       <div className="wall" aria-hidden={!mine}>
         {WALL.map(id => {
           const m = mapById(id), r = rec[id];
-          const mc = r?.team != null ? TEAMC[r.team] : GOLD;
+          const mc = r?.team != null ? TEAMC[r.team] : DECIDER;
           const tag = !r ? '' : r.k === 'ban' ? `${TEAMS[r.team!]} ban` : r.k === 'pick' ? `Map ${r.g}  ${TEAMS[r.team!]}` : `Map ${r.g}  Decider`;
           const open = !!mine && !r && !!next && next.team != null;
           return (
-            <div key={id} className={cx('slice', r?.k, open && 'open')} style={vars({ '--mc': mc, '--tc': next?.team != null ? TEAMC[next.team] : GOLD })}>
+            <div key={id} className={cx('slice', r?.k, open && 'open')} style={vars({ '--mc': mc, '--tc': next?.team != null ? TEAMC[next.team] : DECIDER })}>
               <MapArt map={m} kind="tall" watermark={false} />
               <span className="slice-name">{m.name}</span>
               <span className="slice-tag">{tag}</span>
@@ -112,7 +112,7 @@ function VetoWall() {
         <aside className="wall-hud frost" aria-label="Example veto status">
           <div className="match"><b style={{ color: TEAMC[0] }}>{TEAMS[0]}</b> vs <b style={{ color: TEAMC[1] }}>{TEAMS[1]}</b>, best of 3</div>
           <div className="wall-steps" aria-hidden="true">
-            {PLAY.map((a, i) => <i key={i} className={cx(i < hist.length && 'done')} style={vars({ '--tc': a.team != null ? TEAMC[a.team] : GOLD })} />)}
+            {PLAY.map((a, i) => <i key={i} className={cx(i < hist.length && 'done')} style={vars({ '--tc': a.team != null ? TEAMC[a.team] : DECIDER })} />)}
           </div>
           <div className="wall-status" role="status" key={hist.length}>
             <em>{done ? 'Veto complete' : `Step ${hist.length + 1} of ${PLAY.length}`}</em>{status}
@@ -293,7 +293,7 @@ function TeamVisual() {
   const games = [
     { map: 'ascent', badge: 'MAP 1', mc: TEAMC[0] },
     { map: 'haven', badge: 'MAP 2', mc: TEAMC[1] },
-    { map: 'sunset', badge: 'DECIDER', mc: GOLD },
+    { map: 'sunset', badge: 'DECIDER', mc: DECIDER },
   ];
   return (
     <div className="plan-mock">

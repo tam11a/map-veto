@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { MapArt } from '../components/MapArt';
 import { TeamMark } from '../components/TeamMark';
-import { GOLD, TEAMC } from '../data/maps';
+import { DECIDER, TEAMC } from '../data/maps';
 import { cx, vars } from '../lib/fx';
 import { ensureMapArt } from '../lib/images';
 import { readOverlayOptions } from '../lib/overlay';
@@ -41,7 +41,7 @@ export function OverlayPage() {
   const state = (mapId: string) => {
     const ban = hist.find(h => h.k === 'ban' && h.map === mapId);
     const gi = g.findIndex(x => x.map === mapId), game: Game | undefined = g[gi];
-    const col = ban ? (ban.team != null ? TEAMC[ban.team] : GOLD) : game ? (game.by != null ? TEAMC[game.by] : GOLD) : 'transparent';
+    const col = ban ? (ban.team != null ? TEAMC[ban.team] : DECIDER) : game ? (game.by != null ? TEAMC[game.by] : DECIDER) : 'transparent';
     return { ban, gi, game, col };
   };
 
@@ -52,7 +52,7 @@ export function OverlayPage() {
     </div>
   );
   const turn = (
-    <div className="ov-turn" style={vars({ order: 2, '--tc': step?.team != null ? TEAMC[step.team] : GOLD })}>
+    <div className="ov-turn" style={vars({ order: 2, '--tc': step?.team != null ? TEAMC[step.team] : DECIDER })}>
       {opt.title && <small>{heading}</small>}
       <b>{who ? `${who}: ${action}` : action}</b>
       {left > 0 && <span className={cx('ov-clock', left <= 5 && 'low')}>{left}</span>}

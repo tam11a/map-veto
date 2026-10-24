@@ -15,15 +15,15 @@ export const MARK = {
   decider: 'M32 46.5L36.5 51L32 55.5L27.5 51Z',
 };
 
-/** The mark: a V whose mint arm is the pick, red arm the ban and gold diamond the decider. */
+/** The mark: a V whose teal arm is the pick, red arm the ban and violet diamond the decider. */
 export function LogoMark({ size = 36, className }: { size?: number; className?: string }) {
   const id = 'mv' + useId().replace(/:/g, '');
   return (
     <svg className={className} width={size} height={size} viewBox="0 0 64 64" aria-hidden="true">
       <defs>
         <linearGradient id={id} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#18202f" />
-          <stop offset="1" stopColor="#0a0d14" />
+          <stop offset="0" stopColor="#2a1622" />
+          <stop offset="1" stopColor="#0d0a12" />
         </linearGradient>
       </defs>
       <path d={MARK.badge} fill={`url(#${id})`} />

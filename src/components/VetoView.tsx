@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { GOLD, TEAMC } from '../data/maps';
+import { DECIDER, TEAMC } from '../data/maps';
 import { cx, vars } from '../lib/fx';
 import { cue, setSound, useSound } from '../lib/sound';
 import { type Step, curStep, games, getMap, plan, remaining, sideLabel } from '../lib/veto';
@@ -194,7 +194,7 @@ export function VetoView({ veto, updateHist, replay, onFinish, onSkip, onExit }:
         <TurnBanner step={step} teams={teams} timer={S.timer} deadline={deadline} now={now} paused={paused} />
       </div>
       <div className="rise" style={vars({ '--i': 1 })}><Timeline teams={teams} hist={hist} /></div>
-      <div className="grid rise" data-mode={live ? step!.k : 'idle'} style={vars({ '--i': 2, '--tc': step?.team != null ? TEAMC[step.team] : GOLD })}>
+      <div className="grid rise" data-mode={live ? step!.k : 'idle'} style={vars({ '--i': 2, '--tc': step?.team != null ? TEAMC[step.team] : DECIDER })}>
         {S.pool.map(id => (
           <MapCard
             key={id}
@@ -274,7 +274,7 @@ interface MapCardProps {
 
 /** A map on the veto board. State lives in classes driven by transitions; the action is a real button. */
 export function MapCard({ map: m, rec: r, live, done, fresh, teams, hasNotes, hotkey, action, onAct, onInfo }: MapCardProps) {
-  const color = r?.team != null ? TEAMC[r.team] : r ? GOLD : 'var(--dim)';
+  const color = r?.team != null ? TEAMC[r.team] : r ? DECIDER : 'var(--dim)';
   const stamp = r ? (r.k === 'ban' ? 'BANNED' : r.k === 'pick' ? `MAP ${r.g} PICK` : `MAP ${r.g} DECIDER`) : done ? 'UNPLAYED' : '';
   const status = r ? (r.k === 'ban' ? `banned by ${teams[r.team!]}` : r.k === 'pick' ? `map ${r.g}, picked by ${teams[r.team!]}` : `map ${r.g}, decider`) : done ? 'unplayed' : 'available';
   return (
@@ -320,8 +320,8 @@ export function TurnBanner({ step, teams, timer, deadline, now, paused, setup: g
   const app = useApp();
   const setup = given ?? app.setup;
   let who: string, what: string, color: string;
-  if (!step) { who = 'Veto complete'; what = doneText; color = GOLD; }
-  else if (step.k === 'decider' || step.team == null) { who = 'Decider'; what = `${getMap(setup, step.map).name} is the last map standing`; color = GOLD; }
+  if (!step) { who = 'Veto complete'; what = doneText; color = DECIDER; }
+  else if (step.k === 'decider' || step.team == null) { who = 'Decider'; what = `${getMap(setup, step.map).name} is the last map standing`; color = DECIDER; }
   else {
     who = teams[step.team];
     color = TEAMC[step.team];
@@ -364,7 +364,7 @@ export function Timeline({ teams, hist, setup: given }: { teams: [string, string
         const name = h ? getMap(setup, h.map).name : '';
         const sub = h ? (h.k === 'side' && h.side ? `${sideLabel(h.side)} on ${name}` : name) : st.team != null ? teams[st.team].slice(0, 10) : 'Auto';
         return (
-          <div key={i} className={cx('tl', st.k, i < n && 'done', i === n && 'now')} style={vars({ '--tc': st.team != null ? TEAMC[st.team] : GOLD })}>
+          <div key={i} className={cx('tl', st.k, i < n && 'done', i === n && 'now')} style={vars({ '--tc': st.team != null ? TEAMC[st.team] : DECIDER })}>
             <span><i />{st.k.toUpperCase()}</span>
             <em key={sub}>{sub}</em>
           </div>

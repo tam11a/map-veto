@@ -1,0 +1,86 @@
+/* ============================================================
+   Map Veto — glass layer for the app and content pages.
+   Loaded last: brings the lobby, veto board, plan, maps, guide and
+   404 in line with the home page (frosted surfaces, capsule shapes,
+   heavier condensed display type).
+   ============================================================ */
+
+/* ---------- frosted surfaces ---------- */
+:where(.card, .versus, .order, .sheet, .tmc, .turn-in, .tl, .actions, .facts > div, .gloss > div, details.faq, .toc, .log-item, .md-nav a, .sides button, .order-result) {
+  backdrop-filter: var(--frost-blur);
+  -webkit-backdrop-filter: var(--frost-blur);
+}
+:where(.card, .versus, .order, .sheet, .actions, .toc, .gloss > div, details.faq) {
+  box-shadow: var(--frost-hi), var(--frost-shadow);
+}
+:where(.tmc, .turn-in, .tl, .log-item, .facts > div, .sides button) { box-shadow: var(--frost-hi); }
+
+/* ---------- capsule shapes ---------- */
+input { padding-inline: 16px; border-radius: var(--r-pill); }
+textarea { border-radius: var(--r-md); }
+.card { border-radius: var(--r-xl); }
+.tmc, .turn-in { border-radius: var(--r-lg); }
+.tl, .facts div, .order-result { border-radius: var(--r-md); }
+.team-chip, .act, .act button, .log-item, .log-item b, .srow div, .srow em, .game .badge,
+.map-tile .tags span, .map-tile .inpool, .mcard .det span, .mcard .stamp, .vs-tag, .ptile .ck, .pill, .lobby-meta { border-radius: var(--r-pill); }
+.mcard .info, .ptile .pi, .ptile .x, .game .note-btn, .close, .rail-del { border-radius: 50%; }
+.vs-tag { clip-path: none; }
+.mcard .stamp { padding-inline: 14px; }
+.actions { border-radius: var(--r-xl); }
+
+/* ---------- display type: heavier and larger for the condensed face ---------- */
+.page-hero h1 { font-size: clamp(var(--fs-49), 7.4vw, var(--fs-76)); font-weight: 800; line-height: 0.9; }
+.rhead h1 { font-size: clamp(var(--fs-39), 6vw, var(--fs-61)); font-weight: 800; line-height: 0.95; }
+.lobby-h h2, .card h2 { font-size: var(--fs-31); font-weight: 800; }
+.vs-name input { font-size: clamp(var(--fs-31), 4.4vw, var(--fs-49)); font-weight: 800; }
+.vs-tag { font-weight: 800; }
+.fmt-tab b { font-size: var(--fs-39); font-weight: 800; }
+.res-num b { font-weight: 800; }
+.tmc b, .turn-in .who { font-size: var(--fs-25); font-weight: 800; }
+.mcard h3 { font-size: var(--fs-31); font-weight: 800; }
+.mcard .stamp, .mcard .by, .tl span, .rail-no, .chip, .game .badge, .log-item b, .srow em { font-weight: 800; }
+.game h3 { font-size: var(--fs-39); font-weight: 800; }
+.sheet h2 { font-size: var(--fs-49); font-weight: 800; line-height: 1; }
+.sides button b { font-size: var(--fs-31); font-weight: 800; }
+.coinwrap h3 { font-size: var(--fs-31); font-weight: 800; }
+.map-tile h3 { font-size: var(--fs-39); font-weight: 800; line-height: 0.95; }
+.md-nav a b { font-size: var(--fs-31); font-weight: 800; }
+.gsec > h2 { font-size: var(--fs-39); font-weight: 800; }
+.gfmt .card h3, .gloss dt { font-weight: 800; }
+.gfmt .card h3 { font-size: var(--fs-31); }
+.nf h1 { font-size: var(--fs-39); font-weight: 800; }
+.nf .code { font-weight: 900; }
+
+/* ---------- map pool page: frosted labels over the art (outer 28 = 18 + 10) ---------- */
+.map-tile { padding: 10px; border-radius: var(--r-xl); border-color: var(--frost-line); }
+.map-tile::before { background: linear-gradient(0deg, rgb(8 10 14 / 0.55), transparent 55%); }
+.mt-label { padding: 12px 14px; border-radius: 18px; border: 1px solid var(--frost-line); background: rgb(12 15 20 / 0.45); backdrop-filter: var(--frost-blur); -webkit-backdrop-filter: var(--frost-blur); box-shadow: var(--frost-hi); }
+.map-tile .inpool { top: var(--s-3); right: var(--s-3); }
+@media (hover: hover) { .map-tile:hover { border-color: rgb(255 255 255 / 0.28); } }
+
+/* ---------- map page ---------- */
+.md-nav a { border-radius: var(--r-xl); border-color: var(--frost-line); }
+.md-body .card .kicker { font-weight: 600; }
+
+/* ---------- guide: a frosted pill index ---------- */
+.toc { gap: 2px; padding: 8px; border: 1px solid var(--frost-line); border-radius: var(--r-lg); background: var(--frost); }
+.toc a { margin-left: 0; padding: 8px 14px; border-left: 0; border-radius: var(--r-pill); }
+.toc a.on { color: var(--signal); background: rgb(255 255 255 / 0.09); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.08); }
+details.faq { border-radius: var(--r-lg); }
+.gloss div { border-radius: var(--r-lg); }
+
+/* ---------- overlays & feedback ---------- */
+.overlay { background: rgb(8 10 14 / 0.55); backdrop-filter: blur(10px) saturate(140%); -webkit-backdrop-filter: blur(10px) saturate(140%); }
+.sheet { border-color: var(--frost-line); border-radius: var(--r-xl); }
+#toast {
+  border-radius: var(--r-pill); border: 1px solid var(--frost-line);
+  background: rgb(20 24 33 / 0.82); color: var(--signal);
+  backdrop-filter: var(--frost-blur); -webkit-backdrop-filter: var(--frost-blur);
+  box-shadow: var(--frost-hi), var(--frost-shadow);
+}
+.replaying { border-color: var(--frost-line); background: var(--frost-strong); backdrop-filter: var(--frost-blur); -webkit-backdrop-filter: var(--frost-blur); box-shadow: var(--frost-hi), var(--frost-shadow); }
+
+/* filters need room for pill padding */
+.toolbar .seg { min-width: 380px; }
+@media (max-width: 560px) { .toolbar .seg { min-width: 0; } }
+.gfmt .card .btn { margin-top: var(--s-3); }

@@ -55,7 +55,7 @@ export function MapDetail() {
               <div><small>Released</small><b>{m.year}</b></div>
               <div><small>Signature</small><b style={{ fontSize: 14 }}>{m.tag}</b></div>
             </div>
-            <div className="label">Team notes <span style={{ color: 'var(--dim)' }}>— saved in this browser, shown on your plan &amp; export</span></div>
+            <div className="label">Team notes <span style={{ color: 'var(--dim)' }}>(saved in this browser, shown on your plan and export)</span></div>
             <textarea value={setup.notes[m.id] ?? ''} onChange={e => setNote(e.target.value)} placeholder="Comp, default setups, anti-strat reminders…" maxLength={280} />
           </div>
           <div className="card">

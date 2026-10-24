@@ -96,11 +96,11 @@ export function VetoView({ veto, updateHist, replay, onFinish, onSkip, onExit }:
     if (step.k === 'side') {
       const sd: Side = Math.random() < 0.5 ? 'atk' : 'def';
       chooseSide(sd);
-      toast(`Time's up — ${sideLabel(sd)} picked at random`);
+      toast(`Time’s up. ${sideLabel(sd)} was picked at random.`);
     } else if (live) {
       const r = remaining(S, hist), m = r[Math.floor(Math.random() * r.length)];
       act(m);
-      toast(`Time's up — random ${step.k}: ${getMap(S, m).name}`);
+      toast(`Time’s up. ${getMap(S, m).name} was ${step.k === 'ban' ? 'banned' : 'picked'} at random.`);
     }
   }, [now, deadline]); // eslint-disable-line react-hooks/exhaustive-deps
 

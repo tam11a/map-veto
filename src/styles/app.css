@@ -90,7 +90,7 @@ input::placeholder, textarea::placeholder { color: var(--dim); }
 /* optical alignment: 2px less padding on the icon side */
 .btn:has(> .ico:first-child) { padding-left: calc(var(--px) - 2px); }
 @media (hover: hover) {
-  .btn:not(:disabled):hover { background: #243042; }
+  .btn:not(:disabled):hover { background: rgb(255 255 255 / 0.1); }
   .btn.primary:not(:disabled):hover { background: color-mix(in srgb, var(--ban) 86%, #fff); }
   .btn.mint:not(:disabled):hover { background: color-mix(in srgb, var(--pick) 86%, #fff); }
   .btn.ghost:not(:disabled):hover { background: var(--glass-2); }
@@ -248,7 +248,7 @@ input::placeholder, textarea::placeholder { color: var(--dim); }
 .rail { position: relative; list-style: none; display: grid; gap: 6px; }
 .rail::before { content: ""; position: absolute; left: 15px; top: 12px; bottom: 12px; width: 2px; background: var(--line); }
 .rail-row { position: relative; display: grid; grid-template-columns: 32px minmax(0, 1fr) auto auto; align-items: center; gap: var(--s-2); animation: fade-in-up var(--dur-base) var(--ease-out) both; }
-.rail-no { position: relative; z-index: 1; width: 32px; height: 32px; display: grid; place-items: center; border-radius: 50%; border: 2px solid var(--line-2); background: var(--glass); font-family: var(--fd); font-size: var(--fs-12); font-weight: 700; color: var(--mute); font-variant-numeric: tabular-nums; }
+.rail-no { position: relative; z-index: 1; width: 32px; height: 32px; display: grid; place-items: center; border-radius: 50%; border: 2px solid var(--line-2); background: var(--solid); font-family: var(--fd); font-size: var(--fs-12); font-weight: 700; color: var(--mute); font-variant-numeric: tabular-nums; }
 .rail-row.ban .rail-no { border-color: var(--ban); color: var(--ban); }
 .rail-row.pick .rail-no { border-color: var(--decider); color: var(--decider); }
 .rail-row.decider .rail-no { border-color: var(--decider); background: var(--decider); color: var(--on-accent); }

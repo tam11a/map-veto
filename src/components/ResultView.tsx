@@ -24,9 +24,9 @@ export function ResultView({ veto, onReplay, onNew }: { veto: VetoState; onRepla
     try {
       const blob = await canvasBlob(await buildPNG(S, veto));
       await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
-      toast('Image copied — paste it in Discord');
+      toast('Image copied. Paste it into Discord.');
     } catch {
-      toast('Clipboard images not supported here — use Download');
+      toast('This browser can’t copy images. Use Download image instead.');
     }
   };
   const copyLink = async () => toast((await copyText(shareLink(S, veto))) ? 'Share link copied' : 'Could not copy link');

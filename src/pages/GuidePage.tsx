@@ -24,9 +24,9 @@ const FORMAT_RULES: Record<Format, string> = {
 };
 
 const FAQ: [string, string][] = [
-  ['Is Map Veto free?', 'Yes. There are no accounts, no ads and nothing to install — everything runs in your browser.'],
+  ['Is Map Veto free?', 'Yes. There are no accounts, no ads and nothing to install. Everything runs in your browser.'],
   ['Where is my data stored?', 'Your setup and map notes are saved in your browser’s local storage. Share links carry the whole plan inside the URL itself, so nothing is uploaded to a server.'],
-  ['Can two captains veto from different devices?', 'Not live yet — one person runs the veto (on stream or in a call) and shares the result. Real-time multi-device vetoes are on the roadmap.'],
+  ['Can two captains veto from different devices?', 'Not live yet. One person runs the veto (on stream or in a call) and shares the result. Real-time multi-device vetoes are on the roadmap.'],
   ['What happens if the turn timer runs out?', 'A random valid choice is made for that step: a random remaining map for bans and picks, or a random side for side selection.'],
   ['Can I use it for other games or custom maps?', 'Yes. Add custom maps in the setup with a name and an optional image URL. The veto logic works for any map pool.'],
   ['Why does a share link open the plan only on this site?', 'The link stores the plan after a # in the URL, so it needs Map Veto to read it. Anyone who opens it sees the same plan and can replay it.'],
@@ -53,7 +53,7 @@ export function GuidePage() {
     <div className="container">
       <section className="page-hero">
         <h1>How the veto works</h1>
-        <p>Everything you need to run a fair map veto — the default orders {BRAND.name} uses, how sides are decided and how to adapt it to your own rules.</p>
+        <p>Everything you need to run a fair map veto: the default orders {BRAND.name} uses, how sides are decided, and how to adapt it to your own rules.</p>
       </section>
       <div className="guide">
         <nav className="toc">
@@ -62,7 +62,7 @@ export function GuidePage() {
         <div>
           <section className="gsec" id="basics">
             <h2>Veto basics</h2>
-            <p>A map veto decides which maps a series is played on. Two teams take turns removing maps from the pool (<b>bans</b>) and choosing maps they want to play (<b>picks</b>). When only one map is left and the series still needs a map, it becomes the <b>decider</b>. Team A always acts first — choose who that is in setup, or settle it with a coin toss.</p>
+            <p>A map veto decides which maps a series is played on. Two teams take turns removing maps from the pool (<b>bans</b>) and choosing maps they want to play (<b>picks</b>). When only one map is left and the series still needs a map, it becomes the <b>decider</b>. Team A always acts first. Choose who that is in setup, or settle it with a coin toss.</p>
           </section>
 
           <section className="gsec" id="formats">
@@ -82,12 +82,12 @@ export function GuidePage() {
 
           <section className="gsec" id="sides">
             <h2>Side selection</h2>
-            <p>With side selection on, every pick is followed by a side choice from the <b>other</b> team: if Team A picks a map, Team B chooses whether to start on Attack or Defense there. For the decider, the side goes to the team that did <b>not</b> make the last ban — so the last ban is never a free advantage. You can turn side selection off in setup if your event uses knife rounds or fixed sides.</p>
+            <p>With side selection on, every pick is followed by a side choice from the <b>other</b> team: if Team A picks a map, Team B chooses whether to start on Attack or Defense there. For the decider, the side goes to the team that did <b>not</b> make the last ban, so the last ban is never a free advantage. You can turn side selection off in setup if your event uses knife rounds or fixed sides.</p>
           </section>
 
           <section className="gsec" id="custom">
             <h2>Custom orders</h2>
-            <p>Leagues often tweak the order — two bans each up front, a pick-ban-pick pattern, and so on. In setup, click a step’s team badge to swap teams, click its action to switch between ban and pick, remove steps or add new ones. {BRAND.name} shows whether your order produces the number of maps the format needs and how many maps would be left unplayed.</p>
+            <p>Leagues often tweak the order, with two bans each up front or a pick-ban-pick pattern. In setup, click a step’s team badge to swap teams, click its action to switch between ban and pick, remove steps or add new ones. {BRAND.name} shows whether your order produces the number of maps the format needs and how many maps would be left unplayed.</p>
           </section>
 
           <section className="gsec" id="glossary">

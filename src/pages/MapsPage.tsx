@@ -44,12 +44,14 @@ export function MapsPage() {
             <Link to={`/maps/${m.id}`} key={m.id} className="map-tile" style={vars({ '--i': i })}>
               <MapArt map={m} kind="tall" watermark={false} />
               {setup.pool.includes(m.id) && <span className="inpool"><Icon.check /> In pool</span>}
-              <div className="loc">{m.loc}</div>
-              <h3>{m.name}</h3>
-              <div className="tags">
-                <span>Sites {m.sites}</span>
-                <span>{m.tag}</span>
-                {setup.notes[m.id] && <span><Icon.note /> Notes</span>}
+              <div className="mt-label">
+                <div className="loc">{m.loc}</div>
+                <h3>{m.name}</h3>
+                <div className="tags">
+                  <span>Sites {m.sites}</span>
+                  <span>{m.tag}</span>
+                  {setup.notes[m.id] && <span><Icon.note /> Notes</span>}
+                </div>
               </div>
             </Link>
           ))}

@@ -8,11 +8,13 @@
 
   /* colour — named palette */
   --range: #0f1218;      /* page */
-  --glass: #171c25;      /* panels */
-  --glass-2: #1d2430;    /* raised controls */
-  --well: #12161d;       /* inputs, tracks */
-  --line: #273041;
-  --line-2: #344056;
+  /* surfaces are translucent so the ambient light reads through them as glass */
+  --glass: rgb(26 31 42 / 0.6);      /* panels */
+  --glass-2: rgb(40 47 62 / 0.62);   /* raised controls */
+  --well: rgb(8 11 16 / 0.42);       /* inputs, tracks */
+  --solid: #1a1f29;                  /* opaque panel colour, for masks */
+  --line: rgb(255 255 255 / 0.09);
+  --line-2: rgb(255 255 255 / 0.15);
   --signal: #e6e9ef;     /* text */
   --mute: #a0a9ba;       /* secondary text, 7.6:1 on range */
   --dim: #7d879a;        /* tertiary text, 5.2:1 on range */

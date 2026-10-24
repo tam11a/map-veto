@@ -24,7 +24,7 @@ export function InfoSheet({ mapId, onClose }: { mapId: string; onClose: () => vo
           <div><small>Signature</small><b style={{ fontSize: 14 }}>{m.tag || '—'}</b></div>
         </div>
         {m.desc && <p>{m.desc}</p>}
-        <div className="label">Team notes for this map <span style={{ color: 'var(--dim)' }}>— shown on the plan &amp; export</span></div>
+        <div className="label">Team notes for this map <span style={{ color: 'var(--dim)' }}>(shown on the plan and export)</span></div>
         <textarea
           value={setup.notes[mapId] ?? ''}
           onChange={e => setNote(e.target.value)}

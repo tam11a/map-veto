@@ -121,9 +121,25 @@ details.faq { border-radius: var(--r-lg); }
   .filter-toggle { width: 100%; justify-content: center; }
 }
 
-/* where the competitive rotation came from */
-.page-hero .rot-source { display: inline-flex; align-items: center; gap: var(--s-2); margin-top: var(--s-3); padding: 6px 14px 6px 12px; border-radius: var(--r-pill); border: 1px solid var(--frost-line); background: var(--frost); font-size: var(--fs-14); color: var(--mute); }
-.rot-source i { width: 8px; height: 8px; border-radius: 50%; background: var(--dim); }
+/* where the competitive rotation came from: dot | main line | muted note */
+.page-hero .rot-source {
+  display: inline-flex; flex-wrap: wrap; align-items: flex-start; gap: 4px var(--s-3);
+  max-width: 100%; margin-top: var(--s-3); padding: 7px 16px 7px 12px;
+  border-radius: 20px; border: 1px solid var(--frost-line); background: var(--frost);
+  backdrop-filter: var(--frost-blur); -webkit-backdrop-filter: var(--frost-blur);
+  font-size: var(--fs-14); line-height: 1.35; color: var(--mute);
+}
+.rot-source i { flex: none; width: 8px; height: 8px; margin-top: 6px; border-radius: 50%; background: var(--dim); }
 .rot-source.live i { background: var(--pick); box-shadow: 0 0 0 4px color-mix(in srgb, var(--pick) 20%, transparent); }
 .rot-source.snapshot i { background: var(--decider); }
+/* the main line shrinks and wraps its own text instead of jumping to a new row */
+.rs-main { flex: 1 1 0; min-width: 0; }
+.rs-main b { font-weight: 600; color: var(--signal); }
+.rs-date { display: inline-block; margin-left: var(--s-2); padding-left: var(--s-2); border-left: 1px solid var(--line-2); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.rs-note { align-self: center; padding-left: var(--s-3); border-left: 1px solid var(--line-2); font-size: var(--fs-12); color: var(--dim); white-space: nowrap; }
 .rot-source a { color: var(--signal); text-decoration: underline; text-decoration-color: var(--line-2); text-underline-offset: 3px; }
+@media (max-width: 560px) {
+  /* on phones the note sits under the main line, aligned with it */
+  .rs-date { display: block; margin: 2px 0 0; padding-left: 0; border-left: 0; font-size: var(--fs-12); color: var(--dim); }
+  .rs-note { flex-basis: 100%; margin: -2px 0 0 20px; padding-left: 0; border-left: 0; }
+}

@@ -155,13 +155,19 @@ const fmtDate = (iso: string | null) =>
 
 /** Says where the competitive rotation came from, so a stale list is never mistaken for a live one. */
 function RotationSource({ info }: { info: RotationInfo }) {
-  const when = info.source === 'live' ? `checked ${fmtDate(info.updated)}` : `as of ${fmtDate(info.updated)}`;
+  const label = info.source === 'live' ? 'Live rotation' : info.source === 'snapshot' ? 'Rotation snapshot' : 'Built-in rotation';
+  const from = info.origin === 'wiki'
+    ? <> from the <a href={WIKI_PAGE} target="_blank" rel="noreferrer">Valorant Wiki</a></>
+    : info.origin === 'henrikdev' ? ' from Riot’s queue data' : null;
+  const note = info.source === 'built-in' ? 'May be out of date'
+    : info.origin === 'wiki' ? 'Community-edited, CC BY-SA'
+    : 'Via HenrikDev';
+  // two text blocks only, so the pill never splits the sentence into columns
   return (
     <p className={`rot-source ${info.source}`}>
-      <i />
-      {info.source === 'built-in' ? 'Competitive rotation is the built-in list and may be out of date.'
-        : info.origin === 'wiki' ? <>Competitive rotation from the <a href={WIKI_PAGE} target="_blank" rel="noreferrer">Valorant Wiki</a> (community-edited, CC BY-SA), {when}.</>
-        : `Competitive rotation from Riot's queue data via HenrikDev, ${when}.`}
+      <i aria-hidden="true" />
+      <span className="rs-main"><b>{label}</b>{from}{info.updated && <span className="rs-date">{fmtDate(info.updated)}</span>}</span>
+      <span className="rs-note">{note}</span>
     </p>
   );
 }

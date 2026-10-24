@@ -123,3 +123,21 @@
     @apply font-sans;
     }
 }
+/* motion used by the veto board; components apply these with motion-safe: so they stop for people who ask for less */
+@theme {
+  --animate-shake: shake 450ms cubic-bezier(0.2, 0, 0, 1);
+  --animate-pop: pick-pop 450ms cubic-bezier(0.2, 0, 0, 1);
+  --animate-decider-glow: decider-glow 2s ease-in-out infinite;
+  --animate-blink: blink 0.55s infinite alternate;
+  --animate-rise: rise 300ms cubic-bezier(0.2, 0, 0, 1) both;
+  --animate-pulse-line: pulse-line 1.2s ease-in-out infinite;
+  --animate-toss: toss 2.2s cubic-bezier(0.2, 0, 0, 1) both;
+
+  @keyframes shake { 20% { translate: -6px 0; } 40% { translate: 6px 0; } 60% { translate: -3px 0; } 80% { translate: 2px 0; } }
+  @keyframes pick-pop { 40% { scale: 1.03; } }
+  @keyframes decider-glow { 50% { box-shadow: 0 0 0 2px var(--decider), 0 0 56px -6px var(--decider); } }
+  @keyframes blink { to { opacity: 0.35; } }
+  @keyframes rise { from { opacity: 0; translate: 0 10px; } }
+  @keyframes pulse-line { 50% { opacity: 0.3; } }
+  @keyframes toss { 0% { translate: 0 60px; } 35% { translate: 0 -70px; } 70% { translate: 0 10px; } 100% { translate: 0 0; } }
+}

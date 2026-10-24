@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useBlocker, useNavigate, useSearchParams } from 'react-router-dom';
 import { CoinToss } from '../components/CoinToss';
-import { Overlay } from '../components/Overlay';
+import { ConfirmDialog } from '../components/kit';
+import { Dialog, DialogContent } from '../components/ui/dialog';
 import { RecentVetoes } from '../components/RecentVetoes';
 import { ResultView } from '../components/ResultView';
 import { IMPORT_ERROR, SetupView } from '../components/SetupView';
@@ -108,8 +109,12 @@ export function VetoPage() {
     if (replay) updateHist(() => replay);
     finish(false);
   };
+  const [backAsk, setBackAsk] = useState(false);
   const toSetup = () => {
-    if (phase === 'veto' && !replay && veto?.hist.length && !confirm('Leave this veto and go back to setup?')) return;
+    if (phase === 'veto' && !replay && veto?.hist.length) return setBackAsk(true);
+    backToSetup();
+  };
+  const backToSetup = () => {
     clearHash();
     clearLive();
     setReplay(null);
@@ -130,7 +135,7 @@ export function VetoPage() {
 
   if (!ready) return null;
   return (
-    <div className={`container page-app ph-${phase} enter`}>
+    <div className={`container pt-8 pb-16 ph-${phase}`}>
       {phase === 'setup' && (
         <>
           <SetupView onStart={start} onRoom={startRoom} onImport={json => openPlan(json, 'Plan imported')} />
@@ -141,19 +146,26 @@ export function VetoPage() {
         <VetoView veto={veto} updateHist={updateHist} replay={replay} onFinish={finish} onSkip={skipReplay} onExit={toSetup} />
       )}
       {phase === 'result' && veto && <ResultView veto={veto} onEdit={setVeto} onReplay={startReplay} onNew={toSetup} />}
-      <Overlay open={coin} label="Coin toss">
-        {coin && <CoinToss teams={setup.teams} onDone={bWon => { setCoin(false); begin(bWon); }} />}
-      </Overlay>
-      <Overlay open={blocker.state === 'blocked'} onClose={() => blocker.reset?.()} labelledBy="leave-title">
-        <div className="confirm">
-          <h2 id="leave-title">Leave the veto?</h2>
-          <p>Your progress is saved on this device. Use <b>Resume veto</b> in the header to pick up where you left off.</p>
-          <div className="confirm-actions">
-            <button className="btn ghost" onClick={() => blocker.proceed?.()}>Leave</button>
-            <button className="btn primary" onClick={() => blocker.reset?.()} autoFocus>Stay on the veto</button>
-          </div>
-        </div>
-      </Overlay>
+      <Dialog open={coin}>
+        <DialogContent showCloseButton={false} onEscapeKeyDown={e => e.preventDefault()} onPointerDownOutside={e => e.preventDefault()} aria-describedby={undefined}>
+          {coin && <CoinToss teams={setup.teams} onDone={bWon => { setCoin(false); begin(bWon); }} />}
+        </DialogContent>
+      </Dialog>
+      <ConfirmDialog open={backAsk} onOpenChange={setBackAsk} title="Back to setup?" confirmLabel="Leave the veto" cancelLabel="Keep vetoing" onConfirm={backToSetup}>
+        This veto ends and its progress is cleared. Finished vetoes stay in your recent list.
+      </ConfirmDialog>
+      <ConfirmDialog
+        open={blocker.state === 'blocked'}
+        onOpenChange={o => { if (!o) blocker.reset?.(); }}
+        title="Leave the veto?"
+        confirmLabel="Stay on the veto"
+        cancelLabel="Leave"
+        onConfirm={() => blocker.reset?.()}
+        onCancel={() => blocker.proceed?.()}
+        focusConfirm
+      >
+        Your progress is saved on this device. Use <b className="text-foreground">Resume veto</b> in the header to pick up where you left off.
+      </ConfirmDialog>
     </div>
   );
 }

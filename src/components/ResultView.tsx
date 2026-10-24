@@ -1,13 +1,24 @@
-import { useRef, useState } from 'react';
-import { FORMATS, DECIDER, TEAMC } from '../data/maps';
-import { buildPNG, buildStory, canvasBlob, matchLine } from '../lib/exportPng';
-import { cx, vars } from '../lib/fx';
-import { shortLink } from '../lib/rooms';
-import { copyText, download, fileBase, payload, shareLink, textSummary } from '../lib/share';
-import { flip, games, getMap, sideFor } from '../lib/veto';
-import { useApp } from '../state';
-import type { TeamIdx, VetoState } from '../types';
-import { Icon } from './Icons';
+import { Fragment, useRef, useState } from 'react';
+import {
+  ArrowLeftRightIcon, CheckIcon, ChevronDownIcon, DownloadIcon, FileJsonIcon, ImageIcon, LinkIcon, NotebookPenIcon,
+  PencilIcon, PlayIcon, ShareIcon, SmartphoneIcon, TextIcon,
+} from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
+import { Separator } from '@/components/ui/separator';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { FORMATS, DECIDER, TEAMC } from '@/data/maps';
+import { buildPNG, buildStory, canvasBlob, matchLine } from '@/lib/exportPng';
+import { vars } from '@/lib/fx';
+import { shortLink } from '@/lib/rooms';
+import { copyText, download, fileBase, payload, shareLink, textSummary } from '@/lib/share';
+import { cn } from '@/lib/utils';
+import { flip, games, getMap, sideFor } from '@/lib/veto';
+import { useApp } from '@/state';
+import type { TeamIdx, VetoState } from '@/types';
+import { Field, Panel } from './kit';
 import { MapArt } from './MapArt';
 import { CompRow } from './MapNotes';
 import { TeamMark } from './TeamMark';
@@ -72,107 +83,135 @@ export function ResultView({ veto, onEdit, onReplay, onNew }: Props) {
 
   return (
     <>
-      <div className="rhead rise" style={vars({ '--i': 0 })}>
-        <div className="kicker">{FORMATS[S.format].name} match plan{details && <span className="rh-details">{details}</span>}</div>
+      <header className="grid justify-items-center gap-2 pb-8 text-center motion-safe:animate-rise">
+        <p className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
+          {FORMATS[S.format].name} match plan
+          {details && <><span className="h-3.5 w-px bg-white/20" aria-hidden="true" /><span className="font-medium text-foreground">{details}</span></>}
+        </p>
         {editing
-          ? <input className="rh-title-input" value={S.title} onChange={e => patch({ title: e.target.value })} placeholder={`${t[0]} vs ${t[1]}`} maxLength={60} aria-label="Match title" />
-          : <h1>{S.title || `${t[0]} vs ${t[1]}`}</h1>}
-        <div className="vs">
+          ? <Input value={S.title} onChange={e => patch({ title: e.target.value })} placeholder={`${t[0]} vs ${t[1]}`} maxLength={60} aria-label="Match title" className="h-14 max-w-xl text-center text-3xl! font-extrabold" />
+          : <h1 className="text-4xl font-extrabold tracking-[-0.03em] text-balance sm:text-5xl lg:text-6xl">{S.title || `${t[0]} vs ${t[1]}`}</h1>}
+        <div className="flex flex-wrap items-center justify-center gap-3 text-xl font-bold tracking-[-0.02em]">
           {([0, 1] as const).map(i => (
-            <span key={i} className={cx('rh-team', i === 1 && 'b')} style={vars({ '--tc': TEAMC[i] })}>
-              {logo(i) && <span className="rh-logo"><TeamMark i={i} url={logo(i)} /></span>}
-              {editing
-                ? <input value={t[i]} onChange={e => rename(i, e.target.value)} onBlur={e => { if (!e.target.value.trim()) rename(i, i ? 'Team B' : 'Team A'); }} maxLength={24} aria-label={`Team ${i ? 'B' : 'A'} name`} />
-                : t[i]}
-              {i === 0 && <i>VS</i>}
-            </span>
+            <Fragment key={i}>
+              {i === 1 && <span className="text-sm font-semibold tracking-[0.2em] text-dim">VS</span>}
+              <span className="inline-flex items-center gap-2 text-(--tc)" style={vars({ '--tc': TEAMC[i] })}>
+                {logo(i) && <span className="grid size-8 place-items-center overflow-hidden rounded-md border border-(--tc) bg-black/40 text-sm"><TeamMark i={i} url={logo(i)} /></span>}
+                {editing
+                  ? <Input value={t[i]} onChange={e => rename(i, e.target.value)} onBlur={e => { if (!e.target.value.trim()) rename(i, i ? 'Team B' : 'Team A'); }} maxLength={24} aria-label={`Team ${i ? 'B' : 'A'} name`} className="w-44 text-center text-lg! font-bold text-(--tc)" />
+                  : t[i]}
+              </span>
+            </Fragment>
           ))}
         </div>
         {editing && (
-          <div className="rh-edit">
-            <label><span className="vs-label">Event</span><input value={S.event} onChange={e => patch({ event: e.target.value })} maxLength={40} placeholder="Optional" /></label>
-            <label><span className="vs-label">Date and time</span><input type="datetime-local" value={S.date} onChange={e => patch({ date: e.target.value })} /></label>
+          <div className="mt-2 flex flex-wrap justify-center gap-3 text-left">
+            <Field label="Event" htmlFor="p-event" className="w-60"><Input id="p-event" value={S.event} onChange={e => patch({ event: e.target.value })} maxLength={40} placeholder="Optional" /></Field>
+            <Field label="Date and time" htmlFor="p-date" className="w-60"><Input id="p-date" type="datetime-local" value={S.date} onChange={e => patch({ date: e.target.value })} className="scheme-dark" /></Field>
           </div>
         )}
-      </div>
+      </header>
 
-      <div className="games" style={vars({ '--n': Math.max(1, g.length) })}>
+      <div className={cn('grid gap-4', g.length <= 1 ? 'mx-auto max-w-md' : g.length === 2 ? 'md:grid-cols-2' : g.length === 3 ? 'md:grid-cols-3' : 'md:grid-cols-2 xl:grid-cols-5')}>
         {g.map((gm, i) => {
           const m = getMap(S, gm.map), color = gm.by != null ? TEAMC[gm.by] : DECIDER;
           const knife = !gm.side && gm.decider && S.sidePick && S.deciderRule === 'knife';
           const atk = S.notesAtk[gm.map], def = S.notesDef[gm.map], comp = S.comps[gm.map] ?? [];
           return (
-            <div className="game" key={gm.map} style={vars({ '--i': i, '--mc': color })}>
-              <MapArt map={m} kind={g.length >= 4 ? 'tall' : 'splash'} watermark={false} />
-              <span className="badge">MAP {i + 1}{gm.decider ? ' DECIDER' : ''}</span>
-              <button className="note-btn" aria-label={`${m.name} details and team prep`} onClick={() => openInfo(gm.map)}><Icon.note /></button>
-              <div className="gb">
-                <div className="loc"><span>{m.loc}</span><span>Sites {m.sites}</span></div>
-                <h3>{m.name}</h3>
-                <div className="pickby">{gm.by == null ? 'Decider, the last map standing' : <>Picked by <b>{t[gm.by]}</b></>}</div>
-                <div className="srow">
+            <article
+              key={gm.map}
+              data-game
+              className="relative flex min-h-100 flex-col justify-end overflow-hidden rounded-xl border border-(--mc) shadow-[0_24px_60px_-28px_var(--mc)] motion-safe:animate-rise"
+              style={vars({ '--mc': color, animationDelay: `${120 + i * 90}ms` })}
+            >
+              <MapArt map={m} kind={g.length >= 4 ? 'tall' : 'splash'} watermark={false} className="absolute inset-0" />
+              <div className="absolute inset-0 bg-linear-to-t from-[rgb(9_6_13/0.97)] from-35% via-[rgb(9_6_13/0.55)] via-60% to-[rgb(9_6_13/0.1)]" />
+              <span className="absolute top-3 left-3 z-[2] rounded-md bg-(--mc) px-2.5 py-1 text-xs font-bold tracking-[0.08em] text-ink">MAP {i + 1}{gm.decider ? ' DECIDER' : ''}</span>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button size="icon-sm" variant="glass" className="absolute top-3 right-3 z-[2] rounded-full" aria-label={`${m.name} details and team prep`} onClick={() => openInfo(gm.map)}>
+                    <NotebookPenIcon />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Team prep</TooltipContent>
+              </Tooltip>
+              <div className="relative z-[2] grid gap-2 p-4">
+                <p className="flex gap-3 text-xs text-white/70"><span>{m.loc}</span><span>Sites {m.sites}</span></p>
+                <h3 className="text-3xl leading-none font-extrabold tracking-[-0.03em]">{m.name}</h3>
+                <p className="text-sm text-muted-foreground">{gm.by == null ? 'Decider, the last map standing' : <>Picked by <b className="font-semibold text-(--mc)">{t[gm.by]}</b></>}</p>
+                <div className="grid gap-1.5">
                   {([0, 1] as const).map(team => {
                     const sd = sideFor(gm, team);
                     return (
-                      <div key={team}>
-                        <span><i style={{ background: TEAMC[team] }} />{t[team]}</span>
-                        {sd ? <em className={sd}>{sd === 'atk' ? 'ATTACK' : 'DEFENSE'}</em> : <em style={{ color: 'var(--dim)' }}>{knife ? 'KNIFE' : 'TBD'}</em>}
+                      <div key={team} data-side-row className="flex items-center justify-between gap-2 rounded-md bg-white/6 px-2.5 py-1.5 text-sm font-semibold">
+                        <span className="flex min-w-0 items-center gap-2"><i className="size-2 shrink-0 rounded-[2px]" style={{ background: TEAMC[team] }} /><span className="truncate">{t[team]}</span></span>
+                        {sd ? <Badge variant={sd} className="tracking-[0.08em]">{sd === 'atk' ? 'ATTACK' : 'DEFENSE'}</Badge> : <Badge variant="outline" className="text-dim">{knife ? 'KNIFE' : 'TBD'}</Badge>}
                       </div>
                     );
                   })}
                 </div>
-                {editing && gm.side && <button className="btn sm flip" onClick={() => flipSide(gm.map)}>Swap starting sides</button>}
+                {editing && gm.side && <Button size="sm" variant="secondary" className="justify-self-start" onClick={() => flipSide(gm.map)}><ArrowLeftRightIcon /> Swap starting sides</Button>}
                 <CompRow names={comp} />
                 {(S.notes[gm.map] || atk || def) && (
-                  <div className="note">
+                  <div className="grid gap-1 rounded-r-md border-l-2 border-(--mc) bg-white/5 px-2.5 py-2 text-sm leading-snug whitespace-pre-wrap text-[#d6cfdd]">
                     {S.notes[gm.map] && <p>{S.notes[gm.map]}</p>}
-                    {atk && <p><b className="atk">Attack</b> {atk}</p>}
-                    {def && <p><b className="def">Defense</b> {def}</p>}
+                    {atk && <p><b className="text-xs font-bold tracking-[0.08em] text-atk uppercase">Attack</b> {atk}</p>}
+                    {def && <p><b className="text-xs font-bold tracking-[0.08em] text-def uppercase">Defense</b> {def}</p>}
                   </div>
                 )}
               </div>
-            </div>
+            </article>
           );
         })}
       </div>
 
-      <div className="logbox rise" style={vars({ '--i': 3 })}>
-        <div className="kicker">Veto log</div>
-        <div className="log">
+      <section className="mt-10 grid gap-3" aria-labelledby="log-h">
+        <h2 id="log-h" className="text-sm font-medium text-muted-foreground">Veto log</h2>
+        <ol className="flex flex-wrap gap-2">
           {veto.hist.map((h, i) => {
             const who = h.team != null ? t[h.team] : 'Auto';
             return (
-              <div key={i} className={`log-item k-${h.k}`} style={vars({ '--i': i })}>
-                <b style={{ background: h.team != null ? TEAMC[h.team] : DECIDER }}>{h.k.toUpperCase()}</b>
-                {h.k === 'ban' ? <>{who} banned <s>{name(h.map)}</s></>
-                  : h.k === 'pick' ? <>{who} picked <strong>{name(h.map)}</strong></>
-                  : h.k === 'side' ? <>{who} starts {h.side === 'atk' ? 'Attack' : 'Defense'} on {name(h.map)}</>
-                  : <>{name(h.map)} is the decider</>}
-              </div>
+              <li key={i} className="flex items-center gap-2.5 rounded-full border border-white/10 bg-card py-1 pr-3.5 pl-1 text-sm backdrop-blur-xl motion-safe:animate-rise" style={{ animationDelay: `${300 + i * 40}ms` }}>
+                <b className="rounded-full px-2 py-0.5 text-xs font-bold text-ink" style={{ background: h.team != null ? TEAMC[h.team] : DECIDER }}>{h.k.toUpperCase()}</b>
+                <span className={cn(h.k === 'ban' && 'text-muted-foreground')}>
+                  {h.k === 'ban' ? <>{who} banned <s>{name(h.map)}</s></>
+                    : h.k === 'pick' ? <>{who} picked <strong>{name(h.map)}</strong></>
+                    : h.k === 'side' ? <>{who} starts {h.side === 'atk' ? 'Attack' : 'Defense'} on {name(h.map)}</>
+                    : <>{name(h.map)} is the decider</>}
+                </span>
+              </li>
             );
           })}
-          {unplayed.map((id, i) => (
-            <div key={id} className="log-item" style={vars({ '--i': veto.hist.length + i, opacity: 0.6 })}>
-              <b style={{ background: 'var(--dim)' }}>UNPLAYED</b>{name(id)}
-            </div>
+          {unplayed.map(id => (
+            <li key={id} className="flex items-center gap-2.5 rounded-full border border-white/10 bg-card py-1 pr-3.5 pl-1 text-sm opacity-60">
+              <b className="rounded-full bg-dim px-2 py-0.5 text-xs font-bold text-ink">UNPLAYED</b>{name(id)}
+            </li>
           ))}
-        </div>
-      </div>
+        </ol>
+      </section>
 
-      <div className="actions rise" style={vars({ '--i': 4 })}>
-        <button className="btn primary" onClick={() => exportImage(false)}><Icon.dl /> Download image</button>
-        <button className="btn" onClick={() => exportImage(true)}><Icon.dl /> Story image</button>
-        <button className="btn" onClick={copyImage}><Icon.img /> Copy image</button>
-        <button className="btn" onClick={copyLink}><Icon.link /> Copy share link</button>
-        <button className="btn" onClick={copySummary}><Icon.txt /> Copy as text</button>
-        <button className="btn" onClick={exportJson}><Icon.dl /> Export JSON</button>
-        <span className="sep" />
-        <button className={cx('btn', editing && 'mint')} onClick={() => setEditing(e => !e)} aria-pressed={editing}>
-          {editing ? <><Icon.check /> Done editing</> : <><Icon.edit /> Edit plan</>}
-        </button>
-        <button className="btn" onClick={onReplay}><Icon.play /> Replay</button>
-        <button className="btn ghost" onClick={onNew}>New veto</button>
-      </div>
+      <Panel className="mt-8 flex flex-wrap items-center justify-center gap-2 p-2.5">
+        <Button onClick={() => exportImage(false)}><DownloadIcon /> Download image</Button>
+        <Button variant="secondary" onClick={copyLink}><LinkIcon /> Copy share link</Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="secondary"><ShareIcon /> More exports <ChevronDownIcon className="size-3.5 opacity-70" /></Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="center" className="w-60">
+            <DropdownMenuItem onSelect={() => exportImage(true)}><SmartphoneIcon /> Story image <span className="ml-auto text-xs text-dim">1080×1920</span></DropdownMenuItem>
+            <DropdownMenuItem onSelect={copyImage}><ImageIcon /> Copy image</DropdownMenuItem>
+            <DropdownMenuItem onSelect={copySummary}><TextIcon /> Copy as text</DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onSelect={exportJson}><FileJsonIcon /> Export JSON</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        <Separator orientation="vertical" className="mx-1 hidden h-6! sm:block" />
+        <Button variant={editing ? 'pick' : 'secondary'} onClick={() => setEditing(e => !e)} aria-pressed={editing}>
+          {editing ? <><CheckIcon /> Done editing</> : <><PencilIcon /> Edit plan</>}
+        </Button>
+        <Button variant="secondary" onClick={onReplay}><PlayIcon /> Replay</Button>
+        <Button variant="ghost" onClick={onNew}>New veto</Button>
+      </Panel>
     </>
   );
 }

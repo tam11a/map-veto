@@ -1,10 +1,12 @@
 import { useState } from 'react';
-import { FORMATS, TEAMC } from '../data/maps';
-import { removeHistory, useHistory } from '../lib/session';
-import type { Payload } from '../lib/share';
-import { getMap } from '../lib/veto';
-import { useApp } from '../state';
-import { Icon } from './Icons';
+import { XIcon } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { FORMATS, TEAMC } from '@/data/maps';
+import { removeHistory, useHistory } from '@/lib/session';
+import type { Payload } from '@/lib/share';
+import { getMap } from '@/lib/veto';
+import { useApp } from '@/state';
+import { Panel, SectionTitle } from './kit';
 import { MapArt } from './MapArt';
 
 const SHOWN = 4;
@@ -25,43 +27,44 @@ export function RecentVetoes({ onOpen }: { onOpen: (plan: Payload) => void }) {
   const list = all ? items : items.slice(0, SHOWN);
 
   return (
-    <section className="recent rise" style={{ ['--i' as string]: 3 }} aria-labelledby="recent-h">
-      <header className="lobby-h">
-        <h2 id="recent-h">Recent vetoes</h2>
-        <span className="lobby-meta">Saved on this device</span>
-      </header>
-      <ul className="recent-list">
+    <section className="mt-12 grid gap-3" aria-labelledby="recent-h">
+      <SectionTitle id="recent-h" aside={<span className="text-sm text-muted-foreground">Saved on this device</span>}>Recent vetoes</SectionTitle>
+      <ul className="grid gap-3 md:grid-cols-2">
         {list.map(e => (
-          <li key={e.id} className="recent-item frost">
-            <div className="recent-maps" aria-hidden="true">
-              {e.maps.slice(0, 5).map(id => <MapArt key={id} map={getMap(setup, id)} kind="tall" watermark={false} />)}
-            </div>
-            <div className="recent-text">
-              <b>
-                <span style={{ color: TEAMC[0] }}>{e.teams[0]}</span> vs <span style={{ color: TEAMC[1] }}>{e.teams[1]}</span>
-              </b>
-              <small>
-                {e.title ? `${e.title}, ` : ''}{FORMATS[e.format].name.toLowerCase()}, {e.maps.map(id => getMap(setup, id).name).join(', ')}
-              </small>
-              <small className="recent-when">{when(e.savedAt)}</small>
-            </div>
-            <div className="recent-actions">
-              <button className="btn glassy sm" onClick={() => onOpen(e.plan)}>Open plan</button>
-              <button
-                className="btn ghost sm recent-del"
-                aria-label={`Remove ${e.teams[0]} vs ${e.teams[1]} from recent vetoes`}
-                onClick={() => { removeHistory(e.id); toast('Removed from recent vetoes'); }}
-              >
-                <Icon.close />
-              </button>
-            </div>
+          <li key={e.id}>
+            <Panel className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 py-2.5 pr-3 pl-2.5">
+              <div className="flex h-16 gap-0.75" aria-hidden="true">
+                {e.maps.slice(0, 5).map(id => <MapArt key={id} map={getMap(setup, id)} kind="tall" watermark={false} className="relative h-16 w-6.5 rounded-md first:rounded-l-lg last:rounded-r-lg" />)}
+              </div>
+              <div className="flex min-w-0 flex-col gap-0.5">
+                <b className="truncate font-bold">
+                  <span style={{ color: TEAMC[0] }}>{e.teams[0]}</span> <span className="font-medium text-dim">vs</span> <span style={{ color: TEAMC[1] }}>{e.teams[1]}</span>
+                </b>
+                <small className="truncate text-sm text-muted-foreground">
+                  {e.title ? `${e.title}, ` : ''}{FORMATS[e.format].name.toLowerCase()}, {e.maps.map(id => getMap(setup, id).name).join(', ')}
+                </small>
+                <small className="text-xs text-dim">{when(e.savedAt)}</small>
+              </div>
+              <div className="flex items-center gap-1">
+                <Button size="sm" variant="secondary" onClick={() => onOpen(e.plan)}>Open plan</Button>
+                <Button
+                  size="icon-sm"
+                  variant="ghost"
+                  className="text-dim hover:text-foreground"
+                  aria-label={`Remove ${e.teams[0]} vs ${e.teams[1]} from recent vetoes`}
+                  onClick={() => { removeHistory(e.id); toast('Removed from recent vetoes'); }}
+                >
+                  <XIcon />
+                </Button>
+              </div>
+            </Panel>
           </li>
         ))}
       </ul>
       {items.length > SHOWN && (
-        <button className="btn ghost sm recent-more" onClick={() => setAll(a => !a)}>
+        <Button size="sm" variant="ghost" className="justify-self-center" onClick={() => setAll(a => !a)}>
           {all ? 'Show fewer' : `Show all ${items.length}`}
-        </button>
+        </Button>
       )}
     </section>
   );

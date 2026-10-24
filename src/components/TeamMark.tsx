@@ -5,7 +5,7 @@ import type { TeamIdx } from '../types';
 export function TeamMark({ i, url }: { i: TeamIdx; url: string }) {
   const [failed, setFailed] = useState('');
   if (url && failed !== url) {
-    return <img className="team-logo" src={url} alt="" referrerPolicy="no-referrer" onError={() => setFailed(url)} />;
+    return <img className="size-full object-contain p-[12%]" src={url} alt="" referrerPolicy="no-referrer" onError={() => setFailed(url)} />;
   }
   return <>{i ? 'B' : 'A'}</>;
 }

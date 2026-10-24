@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 
@@ -92,5 +94,37 @@ export function SectionTitle({ children, aside, className, id }: { children: Rea
       <h2 id={id} className="text-xl font-bold tracking-tight">{children}</h2>
       {aside}
     </div>
+  );
+}
+
+/** A yes/no question in a dialog: "Start anyway?", "Leave the veto?"… */
+export function ConfirmDialog({
+  open, onOpenChange, title, children, confirmLabel, cancelLabel = 'Cancel', onConfirm, onCancel, focusConfirm,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  title: ReactNode;
+  children?: ReactNode;
+  confirmLabel: ReactNode;
+  cancelLabel?: ReactNode;
+  onConfirm: () => void;
+  /** what the cancel button does, when it's more than closing the dialog */
+  onCancel?: () => void;
+  /** put focus on the confirm button instead of cancel (when confirming is the safe choice) */
+  focusConfirm?: boolean;
+}) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent showCloseButton={false} onOpenAutoFocus={focusConfirm ? undefined : e => { e.preventDefault(); (e.currentTarget as HTMLElement).querySelector<HTMLElement>('[data-cancel]')?.focus(); }}>
+        <DialogHeader>
+          <DialogTitle className="text-2xl font-extrabold tracking-tight">{title}</DialogTitle>
+          {children && <DialogDescription className="text-sm leading-relaxed text-muted-foreground">{children}</DialogDescription>}
+        </DialogHeader>
+        <DialogFooter>
+          <Button variant="ghost" data-cancel onClick={() => (onCancel ? onCancel() : onOpenChange(false))}>{cancelLabel}</Button>
+          <Button onClick={() => { onOpenChange(false); onConfirm(); }}>{confirmLabel}</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

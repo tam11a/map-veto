@@ -10,6 +10,7 @@ const buttonVariants = cva(
       variant: {
         default: "bg-(image:--grad-strike) text-primary-foreground shadow-[inset_0_1px_0_rgb(255_255_255/0.22),0_12px_32px_-12px_rgb(255_42_54/0.85)] hover:brightness-110 hover:shadow-[inset_0_1px_0_rgb(255_255_255/0.25),0_16px_40px_-10px_rgb(255_42_54/0.95)]",
         pick: "bg-pick text-ink hover:brightness-110",
+        glass: "border-white/10 bg-black/55 text-foreground backdrop-blur-md hover:bg-white/15",
         outline:
           "border-border bg-background hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
         secondary:

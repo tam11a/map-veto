@@ -1,16 +1,12 @@
 import { useApp } from '../state';
 import { getMap } from '../lib/veto';
 import { MapArt } from './MapArt';
+import { MapNotes } from './MapNotes';
 
 /** Map details plus the team's notes for that map. */
 export function InfoSheet({ mapId, onClose }: { mapId: string; onClose: () => void }) {
-  const { setup, patch } = useApp();
+  const { setup } = useApp();
   const m = getMap(setup, mapId);
-  const setNote = (v: string) => patch(s => {
-    const notes = { ...s.notes };
-    if (v.trim()) notes[mapId] = v; else delete notes[mapId];
-    return { notes };
-  });
   return (
     <>
       <button className="close" onClick={onClose} aria-label="Close">×</button>
@@ -24,13 +20,7 @@ export function InfoSheet({ mapId, onClose }: { mapId: string; onClose: () => vo
           <div><small>Signature</small><b style={{ fontSize: 14 }}>{m.tag || '—'}</b></div>
         </div>
         {m.desc && <p>{m.desc}</p>}
-        <div className="label">Team notes for this map <span style={{ color: 'var(--dim)' }}>(shown on the plan and export)</span></div>
-        <textarea
-          value={setup.notes[mapId] ?? ''}
-          onChange={e => setNote(e.target.value)}
-          placeholder="Comp, default setups, anti-strat reminders…"
-          maxLength={280}
-        />
+        <MapNotes mapId={mapId} hint="shown on the plan and export" />
       </div>
     </>
   );

@@ -127,7 +127,7 @@ export function VetoPage() {
       {phase === 'veto' && veto && (
         <VetoView veto={veto} updateHist={updateHist} replay={replay} onFinish={finish} onSkip={skipReplay} onExit={toSetup} />
       )}
-      {phase === 'result' && veto && <ResultView veto={veto} onReplay={startReplay} onNew={toSetup} />}
+      {phase === 'result' && veto && <ResultView veto={veto} onEdit={setVeto} onReplay={startReplay} onNew={toSetup} />}
       <Overlay open={coin} label="Coin toss">
         {coin && <CoinToss teams={setup.teams} onDone={bWon => { setCoin(false); begin(bWon); }} />}
       </Overlay>

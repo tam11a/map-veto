@@ -1,6 +1,7 @@
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Icon } from '../components/Icons';
 import { MapArt } from '../components/MapArt';
+import { MapNotes } from '../components/MapNotes';
 import { MAPS } from '../data/maps';
 import { useTitle } from '../lib/useTitle';
 import { useApp } from '../state';
@@ -28,11 +29,6 @@ export function MapDetail() {
     if (!inPool) patch(s => ({ pool: addToPool(s), seq: null }));
     navigate('/veto');
   };
-  const setNote = (v: string) => patch(s => {
-    const notes = { ...s.notes };
-    if (v.trim()) notes[m.id] = v; else delete notes[m.id];
-    return { notes };
-  });
 
   return (
     <>
@@ -55,8 +51,7 @@ export function MapDetail() {
               <div><small>Released</small><b>{m.year ?? '—'}</b></div>
               <div><small>Signature</small><b style={{ fontSize: 14 }}>{m.tag}</b></div>
             </div>
-            <div className="label">Team notes <span style={{ color: 'var(--dim)' }}>(saved in this browser, shown on your plan and export)</span></div>
-            <textarea value={setup.notes[m.id] ?? ''} onChange={e => setNote(e.target.value)} placeholder="Comp, default setups, anti-strat reminders…" maxLength={280} />
+            <MapNotes mapId={m.id} hint="saved in this browser, shown on your plan and export" />
           </div>
           <div className="card">
             <div className="kicker">Plan around {m.name}</div>

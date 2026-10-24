@@ -52,6 +52,20 @@ Every step is a click (or a key: `1`–`9` choose a map, `A`/`D` choose a side).
 <img src="docs/media/room.jpg" alt="Host view of an online room with the invite links" width="100%">
 <img src="docs/media/overlay.jpg" alt="Broadcast overlay: team names, current turn, timer and map strip" width="100%">
 
+The overlay link takes layout options, so each OBS scene can use its own. The host picks them in the room's invite panel, and the copied link includes them:
+
+| Option | Effect |
+| --- | --- |
+| `?pos=top` | Anchor to the top edge (default: bottom) |
+| `?compact=1` | One slim row: teams, map chips and the current turn |
+| `?maps=0` | Hide the maps |
+| `?title=0` | Hide the match title or event line |
+| `?bg=1` | Dark backdrop for previewing in a normal browser (leave it off in OBS) |
+
+Combine them with `&`, for example `/overlay/<room-id>?pos=top&compact=1`.
+
+<img src="docs/media/overlay-compact.jpg" alt="One-row overlay on a game scene" width="100%">
+
 ### The match plan
 
 Maps in order, who picked them, starting sides, and your team's prep: general notes, attack and defense notes, and a five-agent comp per map. Fix a side or rename a team without replaying.

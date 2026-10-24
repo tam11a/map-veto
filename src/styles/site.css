@@ -431,3 +431,27 @@ html.overlay-bg body { background: #0b0e14 !important; }
 .ov-map-in small { display: grid; gap: 1px; font-size: 12px; font-weight: 700; }
 .ov-map-in small .atk { color: var(--atk); }
 .ov-map-in small .def { color: var(--def); }
+
+/* overlay options: ?pos=top and ?compact=1 */
+.ov.top { inset: 0 0 auto; padding: 40px 48px 0; }
+.ov-wait.top { position: fixed; inset: 0 0 auto; }
+.ov.compact .ov-row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: stretch; gap: 10px; }
+.ov.compact .ov-mid { justify-content: center; }
+.ov.compact .ov-team b { max-width: 340px; }
+.ov.compact .ov-team { padding: 8px 14px; border-radius: 14px; gap: 10px; }
+.ov.compact .ov-team b { font-size: 28px; }
+.ov.compact .ov-logo { width: 40px; height: 40px; border-radius: 10px; font-size: 20px; }
+.ov-mid { display: flex; align-items: stretch; gap: 10px; min-width: 0; }
+.ov.compact .ov-turn { padding: 6px 60px 6px 22px; border-radius: 14px; border-bottom-width: 3px; text-align: left; place-content: center start; }
+.ov.compact .ov-turn small { font-size: 12px; }
+.ov.compact .ov-turn b { font-size: 24px; white-space: nowrap; }
+.ov.compact .ov-clock { width: 36px; height: 36px; right: 12px; font-size: 18px; }
+.ov-chips { display: flex; align-items: center; gap: 6px; padding: 0 12px; border-radius: 14px; background: rgb(12 15 22 / 0.86); }
+.ov-chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 11px; border-radius: 999px; border: 2px solid rgb(255 255 255 / 0.14); background: rgb(255 255 255 / 0.04); font-family: var(--fd); font-size: 18px; font-weight: 800; white-space: nowrap; transition: opacity var(--dur-slow) ease-out, border-color var(--dur-base) ease-out; }
+.ov-chip.played { border-color: var(--mc); background: color-mix(in srgb, var(--mc) 16%, transparent); }
+.ov-chip.banned { opacity: 0.42; text-decoration: line-through; text-decoration-color: var(--mc); text-decoration-thickness: 2px; }
+.ov-chip i { display: grid; place-items: center; min-width: 20px; height: 20px; padding: 0 4px; border-radius: 6px; background: var(--mc); color: #06100e; font-style: normal; font-size: 13px; }
+.invite li.ov-opts { grid-template-columns: minmax(0, 220px) minmax(0, 1fr); border-radius: var(--r-lg); padding-block: 8px; }
+.ov-opts-in { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2); }
+.ov-opts-in .seg button { flex: none; }
+@media (max-width: 700px) { .invite li.ov-opts { grid-template-columns: 1fr; } }

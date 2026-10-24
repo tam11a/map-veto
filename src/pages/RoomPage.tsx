@@ -6,6 +6,7 @@ import { Overlay } from '../components/Overlay';
 import { MapCard, type Rec, TeamCard, Timeline, TurnBanner } from '../components/VetoView';
 import { GOLD, TEAMC } from '../data/maps';
 import { confetti, cx, vars } from '../lib/fx';
+import { OVERLAY_DEFAULTS, type OverlayOptions, overlayQuery } from '../lib/overlay';
 import { type Role, roomLinks, rememberToken, savedInvite, savedToken, useRoom } from '../lib/rooms';
 import { copyText, payload, planPath } from '../lib/share';
 import { cue, setSound, useSound } from '../lib/sound';
@@ -183,6 +184,7 @@ export function RoomPage() {
 function Invite({ id, teams }: { id: string; teams: [string, string] }) {
   const { toast } = useApp();
   const [open, setOpen] = useState(true);
+  const [ov, setOv] = useState<OverlayOptions>(OVERLAY_DEFAULTS);
   const tokens = savedInvite(id);
   const links = tokens ? roomLinks(id, tokens) : null;
   if (!links) return null;
@@ -191,8 +193,10 @@ function Invite({ id, teams }: { id: string; teams: [string, string] }) {
     [`${teams[0]} captain`, links.a, TEAMC[0]],
     [`${teams[1]} captain`, links.b, TEAMC[1]],
     ['Spectators', links.watch, 'var(--mute)'],
-    ['Stream overlay for OBS', links.overlay, GOLD],
+    ['Stream overlay for OBS', links.overlay + overlayQuery(ov), GOLD],
   ];
+  const set = (p: Partial<OverlayOptions>) => setOv(o => ({ ...o, ...p }));
+  const preview = links.overlay + overlayQuery(ov) + (overlayQuery(ov) ? '&' : '?') + 'bg=1';
   return (
     <section className={cx('invite', !open && 'closed')} aria-label="Invite links">
       <header>
@@ -209,6 +213,20 @@ function Invite({ id, teams }: { id: string; teams: [string, string] }) {
               <button className="btn sm" onClick={() => copy(label + ' link', url)}><Icon.link /> Copy</button>
             </li>
           ))}
+          <li className="ov-opts" style={vars({ '--tc': GOLD })} aria-label="Overlay layout">
+            <span>Overlay layout</span>
+            <div className="ov-opts-in">
+              <div className="seg" role="group" aria-label="Position">
+                {(['bottom', 'top'] as const).map(p => <button key={p} className={cx(ov.pos === p && 'on')} aria-pressed={ov.pos === p} onClick={() => set({ pos: p })}>{p === 'bottom' ? 'Bottom' : 'Top'}</button>)}
+              </div>
+              <div className="seg" role="group" aria-label="Style">
+                {([false, true] as const).map(c => <button key={String(c)} className={cx(ov.compact === c && 'on')} aria-pressed={ov.compact === c} onClick={() => set({ compact: c })}>{c ? 'One row' : 'Full'}</button>)}
+              </div>
+              <button className={cx('filter-toggle', ov.maps && 'on')} aria-pressed={ov.maps} onClick={() => set({ maps: !ov.maps })}><span className="ft-box">{ov.maps && <Icon.check />}</span>Maps</button>
+              <button className={cx('filter-toggle', ov.title && 'on')} aria-pressed={ov.title} onClick={() => set({ title: !ov.title })}><span className="ft-box">{ov.title && <Icon.check />}</span>Title</button>
+              <a className="btn ghost sm" href={preview} target="_blank" rel="noreferrer">Preview</a>
+            </div>
+          </li>
         </ul>
       )}
     </section>

@@ -69,6 +69,7 @@ src/
     agents.ts            playable agents for comps (cached a week)
     exportPng.ts         canvas renderers for the landscape and story images
     sound.ts             WebAudio cues (no audio files)
+    overlay.ts           stream overlay link options (?pos, ?compact, ?maps, ?title)
     fx.ts                cx(), vars(), confetti, reduced-motion check
 
   data/

@@ -12,6 +12,7 @@
     "typecheck": "tsc",
     "rotation": "node scripts/fetch-rotation.mjs",
     "test": "vitest run",
+    "precheck": "node scripts/fetch-rotation.mjs",
     "check": "tsc && vitest run"
   },
   "dependencies": {

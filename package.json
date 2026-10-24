@@ -8,7 +8,7 @@
     "type": "git",
     "url": "https://github.com/tam11a/map-veto.git"
   },
-  "homepage": "https://map-veto.netlify.app",
+  "homepage": "https://map-veto.tam11a.dev",
   "type": "module",
   "scripts": {
     "predev": "node scripts/fetch-rotation.mjs",

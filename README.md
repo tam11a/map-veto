@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <a href="https://map-veto.netlify.app"><b>map-veto.netlify.app</b></a>
+  <a href="https://map-veto.tam11a.dev"><b>map-veto.tam11a.dev</b></a>
   &nbsp;·&nbsp;
   <a href="#features">Features</a>
   &nbsp;·&nbsp;

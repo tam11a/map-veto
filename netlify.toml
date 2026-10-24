@@ -11,6 +11,14 @@
   directory = "netlify/functions"
   node_bundler = "esbuild"
 
+# The custom domain is the canonical address: send the old netlify.app address there,
+# keeping the path and query (share links, rooms and overlays keep working).
+[[redirects]]
+  from = "https://map-veto.netlify.app/*"
+  to = "https://map-veto.tam11a.dev/:splat"
+  status = 301
+  force = true
+
 # Single-page app: every route serves index.html
 [[redirects]]
   from = "/*"

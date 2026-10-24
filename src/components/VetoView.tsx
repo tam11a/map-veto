@@ -1,12 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { GOLD, TEAMC } from '../data/maps';
 import { cx, vars } from '../lib/fx';
+import { cue, setSound, useSound } from '../lib/sound';
 import { type Step, curStep, games, getMap, plan, remaining, sideLabel } from '../lib/veto';
 import { useApp } from '../state';
 import type { Action, ActionKind, MapInfo, Side, TeamIdx, VetoState } from '../types';
 import { Icon } from './Icons';
 import { MapArt } from './MapArt';
 import { Overlay } from './Overlay';
+import { TeamMark } from './TeamMark';
 
 type HistUpdate = (fn: (h: Action[]) => Action[]) => void;
 export interface Rec { k: ActionKind; team: TeamIdx | null; g?: number }
@@ -77,14 +79,42 @@ export function VetoView({ veto, updateHist, replay, onFinish, onSkip, onExit }:
     return () => clearTimeout(t);
   }, [replay, hist.length, push]);
 
-  // turn timer
+  // turn timer; pausing keeps the time that was left
   const [deadline, setDeadline] = useState(0);
+  const [paused, setPaused] = useState<number | null>(null);
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     const s = curStep(S, hist);
+    setPaused(null);
     setDeadline(S.timer && s && s.k !== 'decider' && !replay ? Date.now() + S.timer * 1000 : 0);
     setNow(Date.now());
   }, [hist.length]); // eslint-disable-line react-hooks/exhaustive-deps
+  const timed = S.timer > 0 && !replay && !!step && step.k !== 'decider';
+  const togglePause = () => {
+    if (!timed) return;
+    if (paused != null) {
+      setDeadline(Date.now() + paused);
+      setPaused(null);
+      toast('Timer resumed');
+    } else if (deadline) {
+      setPaused(Math.max(0, deadline - Date.now()));
+      setDeadline(0);
+      toast('Timer paused');
+    }
+  };
+  const pauseRef = useRef(togglePause);
+  pauseRef.current = togglePause;
+
+  // sound: a cue for each move, and a tick for the last five seconds
+  const sound = useSound();
+  useEffect(() => {
+    const h = hist[hist.length - 1];
+    if (!h) return;
+    cue(h.k === 'ban' ? 'ban' : h.k === 'pick' ? 'pick' : h.k === 'decider' ? 'decider' : 'side');
+  }, [hist.length]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (!step && hist.length) cue('done'); }, [!step]); // eslint-disable-line react-hooks/exhaustive-deps
+  const secLeft = deadline ? Math.ceil((deadline - now) / 1000) : 0;
+  useEffect(() => { if (secLeft > 0 && secLeft <= 5) cue('tick'); }, [secLeft]);
   useEffect(() => {
     if (!deadline) return;
     const id = setInterval(() => setNow(Date.now()), 100);
@@ -104,17 +134,39 @@ export function VetoView({ veto, updateHist, replay, onFinish, onSkip, onExit }:
     }
   }, [now, deadline]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // keyboard: 1-9 and 0 act on the available maps in order, A/D choose a side, P pauses, M mutes
+  const open = live ? S.pool.filter(id => remaining(S, hist).includes(id)) : [];
+  const keys = useRef({ open, act, chooseSide, side: step?.k === 'side' });
+  keys.current = { open, act, chooseSide, side: step?.k === 'side' };
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const tag = (document.activeElement as HTMLElement | null)?.tagName ?? '';
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z' && !/INPUT|TEXTAREA/.test(tag)) {
+      if (/INPUT|TEXTAREA|SELECT/.test(tag)) return;
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
         e.preventDefault();
         undoRef.current();
+        return;
+      }
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+      const k = keys.current, key = e.key.toLowerCase();
+      if (/^[0-9]$/.test(key) && k.open.length) {
+        const map = k.open[key === '0' ? 9 : Number(key) - 1];
+        if (map) { e.preventDefault(); k.act(map); }
+      } else if (k.side && (key === 'a' || key === 'd')) {
+        e.preventDefault();
+        k.chooseSide(key === 'a' ? 'atk' : 'def');
+      } else if (key === 'p') {
+        pauseRef.current();
+      } else if (key === 'm') {
+        setSound(!soundRef.current);
       }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, []);
+  const soundRef = useRef(sound);
+  soundRef.current = sound;
+  const logoOf = (i: TeamIdx) => S.logos[S.teams[0] === teams[i] ? 0 : S.teams[1] === teams[i] ? 1 : i];
 
   const rec = useMemo(() => {
     const r: Record<string, Rec> = {};
@@ -138,8 +190,8 @@ export function VetoView({ veto, updateHist, replay, onFinish, onSkip, onExit }:
   return (
     <>
       <div className="vbar rise" style={vars({ '--i': 0 })}>
-        {([0, 1] as const).map(t => <TeamCard key={t} team={t} name={teams[t]} hist={hist} active={step?.team === t} />)}
-        <TurnBanner step={step} teams={teams} timer={S.timer} deadline={deadline} now={now} />
+        {([0, 1] as const).map(t => <TeamCard key={t} team={t} name={teams[t]} hist={hist} active={step?.team === t} logo={logoOf(t)} />)}
+        <TurnBanner step={step} teams={teams} timer={S.timer} deadline={deadline} now={now} paused={paused} />
       </div>
       <div className="rise" style={vars({ '--i': 1 })}><Timeline teams={teams} hist={hist} /></div>
       <div className="grid rise" data-mode={live ? step!.k : 'idle'} style={vars({ '--i': 2, '--tc': step?.team != null ? TEAMC[step.team] : GOLD })}>
@@ -152,7 +204,8 @@ export function VetoView({ veto, updateHist, replay, onFinish, onSkip, onExit }:
             done={!step}
             fresh={fresh === id}
             teams={teams}
-            hasNotes={!!S.notes[id]}
+            hasNotes={!!(S.notes[id] || S.notesAtk[id] || S.notesDef[id] || S.comps[id]?.length)}
+            hotkey={open.indexOf(id) < 10 && open.includes(id) ? String((open.indexOf(id) + 1) % 10) : undefined}
             action={step?.k === 'pick' ? 'Pick' : 'Ban'}
             onAct={() => act(id)}
             onInfo={() => openInfo(id)}
@@ -162,10 +215,20 @@ export function VetoView({ veto, updateHist, replay, onFinish, onSkip, onExit }:
       <div className="vfoot">
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
           <button className="btn" onClick={undo} disabled={!hist.length || !!replay}><Icon.undo /> Undo</button>
+          {S.timer > 0 && (
+            <button className={cx('btn', paused != null && 'mint')} onClick={togglePause} disabled={!timed} aria-pressed={paused != null}>
+              {paused != null ? <><Icon.play /> Resume timer</> : <><Icon.pause /> Pause timer</>}
+            </button>
+          )}
+          <button className="btn ghost" onClick={() => setSound(!sound)} aria-pressed={sound} aria-label={sound ? 'Sound on. Turn off' : 'Sound off. Turn on'} title={sound ? 'Sound on (M)' : 'Sound off (M)'}>
+            {sound ? <Icon.sound /> : <Icon.mute />}
+          </button>
           <button className="btn ghost" disabled={!!replay} onClick={() => { if (confirm('Restart the veto from the first step?')) updateHist(() => []); }}>Restart</button>
           <button className="btn ghost" onClick={onExit}>Back to setup</button>
         </div>
-        <div className="hint" style={{ alignSelf: 'center' }}>Press <kbd>Ctrl</kbd> + <kbd>Z</kbd> to undo. Use <kbd>i</kbd> on a card for map details.</div>
+        <div className="hint keys-hint" style={{ alignSelf: 'center' }}>
+          <Icon.keys /> <kbd>1</kbd>–<kbd>9</kbd> choose a map, <kbd>A</kbd>/<kbd>D</kbd> pick a side, {S.timer > 0 && <><kbd>P</kbd> pause, </>}<kbd>M</kbd> sound, <kbd>Ctrl</kbd> + <kbd>Z</kbd> undo
+        </div>
       </div>
       {replay && (
         <div className="replaying" role="status"><i />REPLAYING VETO
@@ -183,8 +246,8 @@ export function VetoView({ veto, updateHist, replay, onFinish, onSkip, onExit }:
                 Map {games(hist).findIndex(g => g.map === sideStep.map) + 1} in {getMap(S, sideStep.map).loc}, sites {getMap(S, sideStep.map).sites}
               </div>
               <div className="sides">
-                <button className="atk" disabled={!!replay} onClick={() => chooseSide('atk')}><b>ATTACK</b><small>Start on offense and plant the spike</small></button>
-                <button className="def" disabled={!!replay} onClick={() => chooseSide('def')}><b>DEFENSE</b><small>Start holding the sites</small></button>
+                <button className="atk" disabled={!!replay} onClick={() => chooseSide('atk')}><b>ATTACK</b><small>Start on offense and plant the spike</small><kbd>A</kbd></button>
+                <button className="def" disabled={!!replay} onClick={() => chooseSide('def')}><b>DEFENSE</b><small>Start holding the sites</small><kbd>D</kbd></button>
               </div>
             </div>
           </>
@@ -202,13 +265,15 @@ interface MapCardProps {
   fresh: boolean;
   teams: [string, string];
   hasNotes: boolean;
+  /** keyboard shortcut shown while the card can be chosen */
+  hotkey?: string;
   action: 'Ban' | 'Pick';
   onAct?: () => void;
   onInfo?: () => void;
 }
 
 /** A map on the veto board. State lives in classes driven by transitions; the action is a real button. */
-export function MapCard({ map: m, rec: r, live, done, fresh, teams, hasNotes, action, onAct, onInfo }: MapCardProps) {
+export function MapCard({ map: m, rec: r, live, done, fresh, teams, hasNotes, hotkey, action, onAct, onInfo }: MapCardProps) {
   const color = r?.team != null ? TEAMC[r.team] : r ? GOLD : 'var(--dim)';
   const stamp = r ? (r.k === 'ban' ? 'BANNED' : r.k === 'pick' ? `MAP ${r.g} PICK` : `MAP ${r.g} DECIDER`) : done ? 'UNPLAYED' : '';
   const status = r ? (r.k === 'ban' ? `banned by ${teams[r.team!]}` : r.k === 'pick' ? `map ${r.g}, picked by ${teams[r.team!]}` : `map ${r.g}, decider`) : done ? 'unplayed' : 'available';
@@ -231,26 +296,27 @@ export function MapCard({ map: m, rec: r, live, done, fresh, teams, hasNotes, ac
         </div>
       </div>
       <div className="stamp" aria-hidden="true">{stamp}</div>
+      {live && hotkey && <kbd className="hotkey" aria-hidden="true">{hotkey}</kbd>}
       {onAct && (
-        <button className="mcard-hit" disabled={!live} onClick={onAct} aria-label={live ? `${action} ${m.name}` : `${m.name}, ${status}`} />
+        <button className="mcard-hit" disabled={!live} onClick={onAct} aria-label={live ? `${action} ${m.name}` : `${m.name}, ${status}`} aria-keyshortcuts={live && hotkey ? hotkey : undefined} />
       )}
       {onInfo && <button className="info" onClick={onInfo} aria-label={`${m.name} details`}>i</button>}
     </div>
   );
 }
 
-export function TeamCard({ team, name, hist, active }: { team: TeamIdx; name: string; hist: Action[]; active: boolean }) {
+export function TeamCard({ team, name, hist, active, logo = '' }: { team: TeamIdx; name: string; hist: Action[]; active: boolean; logo?: string }) {
   const bans = hist.filter(h => h.k === 'ban' && h.team === team).length;
   const picks = hist.filter(h => h.k === 'pick' && h.team === team).length;
   return (
     <div className={cx('tmc', team === 1 && 'r', active && 'active')} style={vars({ '--tc': TEAMC[team], order: team ? 3 : 1 })}>
-      <span className="tag" style={{ background: TEAMC[team] }}>{team ? 'B' : 'A'}</span>
+      <span className={cx('tag', logo && 'has-logo')} style={{ background: TEAMC[team] }}><TeamMark i={team} url={logo} /></span>
       <div><b>{name}</b><small>{bans} ban{bans === 1 ? '' : 's'}, {picks} pick{picks === 1 ? '' : 's'}</small></div>
     </div>
   );
 }
 
-function TurnBanner({ step, teams, timer, deadline, now }: { step: Step | null; teams: [string, string]; timer: number; deadline: number; now: number }) {
+function TurnBanner({ step, teams, timer, deadline, now, paused }: { step: Step | null; teams: [string, string]; timer: number; deadline: number; now: number; paused: number | null }) {
   const { setup } = useApp();
   let who: string, what: string, color: string;
   if (!step) { who = 'Veto complete'; what = 'Building your match plan…'; color = GOLD; }
@@ -260,7 +326,7 @@ function TurnBanner({ step, teams, timer, deadline, now }: { step: Step | null; 
     color = TEAMC[step.team];
     what = step.k === 'ban' ? 'Ban a map' : step.k === 'pick' ? 'Pick a map' : `Choose starting side on ${getMap(setup, step.map).name}`;
   }
-  const left = deadline ? Math.max(0, deadline - now) : timer * 1000;
+  const left = paused != null ? paused : deadline ? Math.max(0, deadline - now) : timer * 1000;
   return (
     <div id="turn" className={cx(timer > 0 && 'timed')} style={{ order: 2 }}>
       <div className="turn-in" key={`${step?.i ?? 'done'}:${step?.k}`} style={vars({ '--tc': color })}>
@@ -269,9 +335,9 @@ function TurnBanner({ step, teams, timer, deadline, now }: { step: Step | null; 
             <circle className="trk" cx="22" cy="22" r="18" />
             <circle className="prog" cx="22" cy="22" r="18" style={{ strokeDashoffset: timer ? 113.1 * (1 - left / (timer * 1000)) : 0 }} />
           </svg>
-          <span className="sec">{deadline ? Math.ceil(left / 1000) : timer}</span>
+          <span className="sec">{paused != null ? <Icon.pause /> : deadline ? Math.ceil(left / 1000) : timer}</span>
         </div>
-        <div style={{ minWidth: 0 }}><div className="who">{who}</div><div className="what">{what}</div></div>
+        <div style={{ minWidth: 0 }}><div className="who">{who}</div><div className="what">{paused != null ? 'Timer paused' : what}</div></div>
         <div className="stepno">{step ? `STEP ${step.i + 1}/${step.total}` : 'DONE'}</div>
       </div>
     </div>

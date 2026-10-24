@@ -709,3 +709,15 @@ button.vs-tag:active { scale: var(--press); }
 .game .note b.atk { color: var(--atk); }
 .game .note b.def { color: var(--def); }
 @media (max-width: 560px) { .rh-details { display: block; margin: 4px 0 0; padding: 0; border: 0; } }
+
+/* ---------- live veto: shortcuts, pause, logos ---------- */
+.mcard .hotkey { position: absolute; top: 8px; left: 8px; z-index: var(--z-ctl); min-width: 24px; height: 24px; display: grid; place-items: center; padding: 0 6px; border-radius: var(--r-xs); background: rgb(0 0 0 / 0.6); border: 1px solid rgb(255 255 255 / 0.2); font-family: var(--fd); font-size: var(--fs-14); font-weight: 700; pointer-events: none; }
+.sides button { position: relative; }
+.sides button kbd { position: absolute; top: 12px; right: 12px; padding: 1px 7px; border-radius: var(--r-xs); border: 1px solid var(--line-2); font-family: var(--fd); font-size: var(--fs-12); color: var(--mute); }
+.keys-hint { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+.keys-hint .ico { color: var(--dim); }
+.tmc .tag { overflow: hidden; }
+.tmc .tag.has-logo { background: var(--well) !important; clip-path: none; }
+.tmc .tag .team-logo { padding: 3px; background: none; }
+.ring .sec .ico { width: 14px; height: 14px; }
+@media (hover: none) { .mcard .hotkey, .sides button kbd, .keys-hint { display: none; } }

@@ -93,6 +93,9 @@ export function readHashPlan(): Payload | null {
   return m ? (JSON.parse(b64d(m[1])) as Payload) : null;
 }
 
+/** The /veto#plan=… path for a payload (used by short links and rooms). */
+export const planPath = (p: Payload) => '/veto#plan=' + b64e(JSON.stringify(p));
+
 export function shareLink(s: Setup, v: VetoState) {
   const url = location.origin + '/veto#plan=' + b64e(JSON.stringify(payload(s, v)));
   try { history.replaceState(null, '', url); } catch { /* ignore */ }
@@ -157,10 +160,16 @@ export async function copyText(t: string) {
 const STORE = 'mapveto.setup';
 /** Reads the saved setup field by field; anything missing or malformed falls back to the default. */
 export function loadSetup(): Setup {
-  const d = defaultSetup();
-  let o: Record<string, unknown> | null = null;
+  let o: unknown = null;
   try { o = JSON.parse(localStorage.getItem(STORE) ?? 'null'); } catch { /* corrupt JSON */ }
-  if (!o || typeof o !== 'object') return d;
+  return normalizeSetup(o);
+}
+
+/** Validates a setup from storage (or an older save), filling anything missing with defaults. */
+export function normalizeSetup(raw: unknown): Setup {
+  const d = defaultSetup();
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return d;
+  const o = raw as Record<string, unknown>;
   const strs = (v: unknown) => Array.isArray(v) && v.every(x => typeof x === 'string');
   const teams = o.teams as unknown[];
   return {

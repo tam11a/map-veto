@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'react';
-import { type Payload, payload } from './share';
+import { type Payload, normalizeSetup, payload } from './share';
 import { games } from './veto';
 import type { Format, Phase, Setup, VetoState } from '../types';
 
@@ -53,7 +53,8 @@ export function loadLive(): LiveSession | null {
   const s = read<LiveSession>(LIVE_KEY);
   if (!s || s.v !== LIVE_V || !s.veto?.teams || !Array.isArray(s.veto.hist) || !s.setup?.pool) return null;
   if (Date.now() - s.savedAt > LIVE_MAX_AGE) return null;
-  return s;
+  // saves from older versions lack newer fields; fill them in
+  return { ...s, setup: normalizeSetup(s.setup) };
 }
 export function saveLive(phase: LiveSession['phase'], setup: Setup, veto: VetoState) {
   write(LIVE_KEY, { v: LIVE_V, phase, setup, veto, savedAt: Date.now() } satisfies LiveSession);

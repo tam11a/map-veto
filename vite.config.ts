@@ -2,6 +2,7 @@ import { writeFileSync } from 'node:fs';
 import { defineConfig, loadEnv, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import { resolveRotation } from './scripts/rotation-core.mjs';
+import { handleApi, memoryStore } from './src/lib/room-core';
 
 /** Serves /api/rotation during `npm run dev`, mirroring netlify/functions/rotation.mjs. */
 function devRotationApi(env: Record<string, string>): Plugin {
@@ -17,6 +18,31 @@ function devRotationApi(env: Record<string, string>): Plugin {
           res.statusCode = 502;
           res.end(JSON.stringify({ error: String((err as Error)?.message ?? err) }));
         }
+      });
+    },
+  };
+}
+
+/** Serves /api/rooms and /api/links during `npm run dev` with an in-memory store (netlify/functions/rooms.mts in production). */
+function devRoomsApi(): Plugin {
+  const store = memoryStore();
+  return {
+    name: 'dev-rooms-api',
+    configureServer(server) {
+      server.middlewares.use(async (req, res, next) => {
+        if (!req.url?.startsWith('/api/rooms') && !req.url?.startsWith('/api/links')) return next();
+        const chunks: Buffer[] = [];
+        for await (const c of req) chunks.push(c as Buffer);
+        const request = new Request('http://localhost' + req.url, {
+          method: req.method,
+          headers: { 'Content-Type': 'application/json' },
+          body: req.method === 'GET' || req.method === 'HEAD' ? undefined : Buffer.concat(chunks),
+        });
+        const out = await handleApi(request, store);
+        if (!out) return next();
+        res.statusCode = out.status;
+        out.headers.forEach((v, k) => res.setHeader(k, v));
+        res.end(await out.text());
       });
     },
   };
@@ -52,6 +78,6 @@ function siteUrl(env: Record<string, string>): Plugin {
 
 export default defineConfig(({ mode }) => ({
   // load every variable (not only VITE_*) for the dev route; none of them reach the client bundle
-  plugins: [react(), devRotationApi(loadEnv(mode, process.cwd(), '')), devSaveOgImage(), siteUrl({ ...process.env, ...loadEnv(mode, process.cwd(), '') } as Record<string, string>)],
+  plugins: [react(), devRotationApi(loadEnv(mode, process.cwd(), '')), devRoomsApi(), devSaveOgImage(), siteUrl({ ...process.env, ...loadEnv(mode, process.cwd(), '') } as Record<string, string>)],
   base: '/',
 }));

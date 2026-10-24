@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useBlocker, useSearchParams } from 'react-router-dom';
+import { useBlocker, useNavigate, useSearchParams } from 'react-router-dom';
 import { CoinToss } from '../components/CoinToss';
 import { Overlay } from '../components/Overlay';
 import { RecentVetoes } from '../components/RecentVetoes';
@@ -7,6 +7,7 @@ import { ResultView } from '../components/ResultView';
 import { IMPORT_ERROR, SetupView } from '../components/SetupView';
 import { VetoView } from '../components/VetoView';
 import { confetti } from '../lib/fx';
+import { createRoom } from '../lib/rooms';
 import { addHistory, clearLive, loadLive, saveLive } from '../lib/session';
 import { type Payload, clearHash, loadPayload, readHashPlan, shareLink } from '../lib/share';
 import { useTitle } from '../lib/useTitle';
@@ -22,6 +23,7 @@ type Boot =
 export function VetoPage() {
   const { setup, patch, replaceSetup, toast } = useApp();
   const [params, setParams] = useSearchParams();
+  const navigate = useNavigate();
 
   // a #plan=… share link wins; otherwise pick up a veto saved on this device
   const [boot] = useState<Boot>(() => {
@@ -77,6 +79,17 @@ export function VetoPage() {
     setPhase('veto');
   };
   const start = () => (setup.first === 'coin' ? setCoin(true) : begin(setup.first === 'b'));
+  const startRoom = async () => {
+    const swap = setup.first === 'b' || (setup.first === 'coin' && Math.random() < 0.5);
+    const teams: [string, string] = swap ? [setup.teams[1], setup.teams[0]] : [setup.teams[0], setup.teams[1]];
+    try {
+      const { id } = await createRoom(setup, teams);
+      if (setup.first === 'coin') toast(`Coin toss: ${teams[0]} acts first`);
+      navigate(`/room/${id}`);
+    } catch (e) {
+      toast((e as Error).message);
+    }
+  };
   const finish = (celebrate: boolean) => {
     if (celebrate) {
       confetti();
@@ -120,7 +133,7 @@ export function VetoPage() {
     <div className={`container page-app ph-${phase} enter`}>
       {phase === 'setup' && (
         <>
-          <SetupView onStart={start} onImport={json => openPlan(json, 'Plan imported')} />
+          <SetupView onStart={start} onRoom={startRoom} onImport={json => openPlan(json, 'Plan imported')} />
           <RecentVetoes onOpen={plan => openPlan(plan, 'Plan opened from history')} />
         </>
       )}

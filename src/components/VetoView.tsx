@@ -4,7 +4,7 @@ import { cx, vars } from '../lib/fx';
 import { cue, setSound, useSound } from '../lib/sound';
 import { type Step, curStep, games, getMap, plan, remaining, sideLabel } from '../lib/veto';
 import { useApp } from '../state';
-import type { Action, ActionKind, MapInfo, Side, TeamIdx, VetoState } from '../types';
+import type { Action, ActionKind, MapInfo, Setup, Side, TeamIdx, VetoState } from '../types';
 import { Icon } from './Icons';
 import { MapArt } from './MapArt';
 import { Overlay } from './Overlay';
@@ -316,10 +316,11 @@ export function TeamCard({ team, name, hist, active, logo = '' }: { team: TeamId
   );
 }
 
-function TurnBanner({ step, teams, timer, deadline, now, paused }: { step: Step | null; teams: [string, string]; timer: number; deadline: number; now: number; paused: number | null }) {
-  const { setup } = useApp();
+export function TurnBanner({ step, teams, timer, deadline, now, paused, setup: given, waiting, doneText = 'Building your match plan…' }: { step: Step | null; teams: [string, string]; timer: number; deadline: number; now: number; paused: number | null; setup?: Setup; waiting?: boolean; doneText?: string }) {
+  const app = useApp();
+  const setup = given ?? app.setup;
   let who: string, what: string, color: string;
-  if (!step) { who = 'Veto complete'; what = 'Building your match plan…'; color = GOLD; }
+  if (!step) { who = 'Veto complete'; what = doneText; color = GOLD; }
   else if (step.k === 'decider' || step.team == null) { who = 'Decider'; what = `${getMap(setup, step.map).name} is the last map standing`; color = GOLD; }
   else {
     who = teams[step.team];
@@ -337,15 +338,16 @@ function TurnBanner({ step, teams, timer, deadline, now, paused }: { step: Step 
           </svg>
           <span className="sec">{paused != null ? <Icon.pause /> : deadline ? Math.ceil(left / 1000) : timer}</span>
         </div>
-        <div style={{ minWidth: 0 }}><div className="who">{who}</div><div className="what">{paused != null ? 'Timer paused' : what}</div></div>
+        <div style={{ minWidth: 0 }}><div className="who">{who}</div><div className="what">{paused != null ? 'Timer paused' : waiting && step?.team != null ? `Waiting for ${teams[step.team]}: ${what.toLowerCase()}` : what}</div></div>
         <div className="stepno">{step ? `STEP ${step.i + 1}/${step.total}` : 'DONE'}</div>
       </div>
     </div>
   );
 }
 
-function Timeline({ teams, hist }: { teams: [string, string]; hist: Action[] }) {
-  const { setup } = useApp();
+export function Timeline({ teams, hist, setup: given }: { teams: [string, string]; hist: Action[]; setup?: Setup }) {
+  const app = useApp();
+  const setup = given ?? app.setup;
   const ref = useRef<HTMLDivElement>(null);
   const p = plan(setup), n = hist.length;
 

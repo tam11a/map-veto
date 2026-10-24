@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { FORMATS, GOLD, TEAMC } from '../data/maps';
 import { buildPNG, buildStory, canvasBlob, matchLine } from '../lib/exportPng';
 import { cx, vars } from '../lib/fx';
+import { shortLink } from '../lib/rooms';
 import { copyText, download, fileBase, payload, shareLink, textSummary } from '../lib/share';
 import { flip, games, getMap, sideFor } from '../lib/veto';
 import { useApp } from '../state';
@@ -43,7 +44,16 @@ export function ResultView({ veto, onEdit, onReplay, onNew }: Props) {
       toast('This browser can’t copy images. Use Download image instead.');
     }
   };
-  const copyLink = async () => toast((await copyText(shareLink(S, veto))) ? 'Share link copied' : 'Could not copy link');
+  // a short /p/… link when the server is there, otherwise the long self-contained one
+  const shorts = useRef(new Map<string, string>());
+  const copyLink = async () => {
+    const long = shareLink(S, veto), key = JSON.stringify(payload(S, veto));
+    let url = shorts.current.get(key);
+    if (!url) {
+      try { url = await shortLink(S, veto); shorts.current.set(key, url); } catch { url = long; }
+    }
+    toast((await copyText(url)) ? 'Share link copied' : 'Could not copy link');
+  };
   const copySummary = async () => toast((await copyText(textSummary(S, veto))) ? 'Plan copied as text' : 'Could not copy');
   const exportJson = () => {
     download(new Blob([JSON.stringify(payload(S, veto), null, 2)], { type: 'application/json' }), fileBase(S, veto) + '.json');

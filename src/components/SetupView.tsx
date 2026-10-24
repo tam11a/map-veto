@@ -14,13 +14,16 @@ const TIMERS = [0, 20, 45, 60];
 export const IMPORT_ERROR = 'This file isn’t a Map Veto plan. Export one from a finished veto and try again.';
 
 /** The pre-match lobby: who's playing, the format, the pool, and the exact veto order. */
-export function SetupView({ onStart, onImport }: { onStart: () => void; onImport: (json: unknown) => void }) {
+export function SetupView({ onStart, onRoom, onImport }: { onStart: () => void; onRoom: () => Promise<void>; onImport: (json: unknown) => void }) {
   const { setup: S, patch, toast } = useApp();
   const seq = getSeq(S), sim = simulate(S, seq);
   const canStart = !sim.overflow && sim.games > 0;
   const [confirm, setConfirm] = useState(false);
   const [logoFor, setLogoFor] = useState<TeamIdx | null>(null);
-  const start = () => (sim.valid ? onStart() : setConfirm(true));
+  const [mode, setMode] = useState<'local' | 'room'>('local');
+  const [creating, setCreating] = useState(false);
+  const go = (m: 'local' | 'room') => { if (m === 'local') return onStart(); setCreating(true); onRoom().finally(() => setCreating(false)); };
+  const start = (m: 'local' | 'room') => { setMode(m); if (sim.valid) go(m); else setConfirm(true); };
 
   const setTeam = (i: TeamIdx, v: string) => patch(s => {
     const teams: [string, string] = [...s.teams];
@@ -104,7 +107,10 @@ export function SetupView({ onStart, onImport }: { onStart: () => void; onImport
           <div className="order-foot">
             <OrderResult />
             <div className="order-go">
-              <button className="btn primary lg" onClick={start} disabled={!canStart}>Start the veto</button>
+              <button className="btn primary lg" onClick={() => start('local')} disabled={!canStart}>Start the veto</button>
+              <button className="btn lg" onClick={() => start('room')} disabled={!canStart || creating} title="Each captain vetoes from their own device">
+                {creating ? 'Creating room…' : 'Start an online room'}
+              </button>
               <ImportButton onImport={onImport} onError={() => toast(IMPORT_ERROR)} />
             </div>
           </div>
@@ -120,7 +126,7 @@ export function SetupView({ onStart, onImport }: { onStart: () => void; onImport
           </p>
           <div className="confirm-actions">
             <button className="btn ghost" onClick={() => setConfirm(false)} autoFocus>Keep editing</button>
-            <button className="btn primary" onClick={() => { setConfirm(false); onStart(); }}>Start anyway</button>
+            <button className="btn primary" onClick={() => { setConfirm(false); go(mode); }}>Start anyway</button>
           </div>
         </div>
       </Overlay>

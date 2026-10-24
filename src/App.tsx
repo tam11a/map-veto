@@ -6,6 +6,9 @@ import { Landing } from './pages/Landing';
 import { MapDetail } from './pages/MapDetail';
 import { MapsPage } from './pages/MapsPage';
 import { NotFound } from './pages/NotFound';
+import { OverlayPage } from './pages/OverlayPage';
+import { RoomPage } from './pages/RoomPage';
+import { ShortLinkPage } from './pages/ShortLinkPage';
 import { VetoPage } from './pages/VetoPage';
 
 // a data router, so pages can block navigation (the live veto's leave guard uses useBlocker)
@@ -21,9 +24,13 @@ const router = createBrowserRouter([
           { path: 'maps', element: <MapsPage /> },
           { path: 'maps/:id', element: <MapDetail /> },
           { path: 'guide', element: <GuidePage /> },
+          { path: 'room/:id', element: <RoomPage /> },
+          { path: 'p/:id', element: <ShortLinkPage /> },
           { path: '*', element: <NotFound /> },
         ],
       },
+      // chrome-free broadcast view, no header or footer
+      { path: 'overlay/:id', element: <OverlayPage /> },
     ],
   },
 ]);

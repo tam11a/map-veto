@@ -499,7 +499,7 @@ export function TurnBanner({ step, teams, timer, deadline, now, paused, setup: g
         )}
         <div className="min-w-0">
           <div className="truncate text-lg font-bold tracking-[-0.02em] text-(--tc) sm:text-xl">{who}</div>
-          <div className="mt-0.5 text-sm text-muted-foreground">{paused != null ? 'Timer paused' : waiting && step?.team != null ? `Waiting for ${teams[step.team]}: ${what.toLowerCase()}` : what}</div>
+          <div data-turn className="mt-0.5 text-sm text-muted-foreground">{paused != null ? 'Timer paused' : waiting && step?.team != null ? `Waiting for ${teams[step.team]}: ${what.toLowerCase()}` : what}</div>
         </div>
         <div className="ml-auto pl-2 text-xs tracking-[0.12em] whitespace-nowrap text-dim tabular-nums">{step ? `STEP ${step.i + 1}/${step.total}` : 'DONE'}</div>
       </div>

@@ -22,4 +22,3 @@ export function confetti() {
 /** Typed helper for inline CSS custom properties. */
 export const vars = (o: Record<string, string | number>) => o as CSSProperties;
 
-export const cx = (...c: (string | false | null | undefined)[]) => c.filter(Boolean).join(' ');

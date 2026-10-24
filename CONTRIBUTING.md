@@ -33,7 +33,8 @@ Requirements: Node 20 or newer. No environment variables are needed. `HENRIK_API
 ```
 src/
   main.tsx               entry: styles, React root, service worker (production only)
-  App.tsx                routes (react-router data router)
+  index.css              Tailwind, the shadcn theme (Ember & Velvet), brand animations, the page background
+  App.tsx                routes (react-router data router; every page but the landing loads on demand)
   AppProvider.tsx        global state: the saved setup, toasts, the map info sheet, catalog/rotation
   state.ts               AppContext type and the useApp() hook
   types.ts               shared types: Setup, VetoState, Action, RulePreset, ...
@@ -49,14 +50,17 @@ src/
     GuidePage.tsx        /guide       rules, examples, glossary, FAQ
 
   components/
+    ui/                  shadcn/ui primitives (Button, Dialog, Select, Card, Badge…), themed for the brand
+    kit.tsx              app building blocks on top of ui/: Segmented, Field, PageHeader, Panel,
+                         SectionTitle, ConfirmDialog
     SetupView.tsx        the lobby (teams, rules, rule sets, pool, veto order)
-    VetoView.tsx         the live board; also exports MapCard, TeamCard, TurnBanner, Timeline
+    VetoView.tsx         the live board; also exports Board, MapCard, TeamCard, TurnBanner, Timeline,
+                         SideDialog and SoundButton (rooms reuse them)
     ResultView.tsx       the match plan, exports and edit mode
-    Overlay.tsx          the one modal dialog primitive (portal, focus trap, inert background)
     MapNotes.tsx         notes + agent comp editor, and the read-only CompRow
     Minimap.tsx          minimap with callouts
-    MapArt.tsx, TeamMark.tsx, Icons.tsx, ...
-    layout/Layout.tsx    header, footer, skip link, error boundary per route
+    MapArt.tsx, TeamMark.tsx, CoinToss.tsx, RecentVetoes.tsx, ...
+    layout/Layout.tsx    header, mobile menu, footer, skip link, error boundary per route
 
   lib/                   logic with no JSX
     veto.ts              the veto rules: order generation, side rules, plan, current step, games
@@ -78,7 +82,7 @@ src/
     examples.ts          the guide's example plans
     rotation.generated.json   build-time snapshot (gitignored, written by scripts/fetch-rotation.mjs)
 
-  styles/                tokens.css -> app.css -> site.css -> glass.css (in that order)
+  styles/tokens.css      brand colours and gradients (the raw palette under the shadcn theme)
 
 netlify/functions/
   rooms.mts              /api/rooms, /api/links -> room-core.ts on Netlify Blobs
@@ -125,17 +129,30 @@ Map art, minimaps, callouts and agents come from valorant-api.com at runtime and
 
 ## Styling
 
-- Plain CSS with design tokens. No CSS-in-JS, no utility framework. Colours, type sizes, spacing, radii, motion and z-index are tokens in `src/styles/tokens.css`; use them instead of raw values.
-- The look is "Ember & Velvet": a red-to-violet night (ember glow on the left, velvet on the right, film grain) with teal map lines. Strike red `--ban` is the call to action and Team B; teal `--pick` is picks and Team A; violet `--decider` is the decider; `--atk` and `--def` are sides. Team colours come from `TEAMC` and the decider colour from `DECIDER` in `data/maps.ts`.
-- Font: Poppins everywhere (`--fd` and `--fb`), heavy (700–800) with tight tracking for display text.
-- Interaction rules the codebase follows:
-  - Put hover styles inside `@media (hover: hover)` so they don't stick on touch screens.
-  - Transition named properties, never `all`.
-  - Use `scale: var(--press)` for the pressed state.
-  - Give icons a non-scaling 2px stroke (use `Icons.tsx`).
-  - Make nested radii concentric (outer = inner + padding).
-- Motion tokens are zeroed under `prefers-reduced-motion`. New animations should use them so they stop for people who asked for less motion.
-- **Class names are global.** Before adding a short, generic class (`.empty`, `.lg`, `.setup`), search the stylesheets. Collisions have caused real bugs here. Prefer a component prefix (`.mm-`, `.ov-`, `.rh-`).
+The UI is built with **Tailwind CSS v4** and **shadcn/ui** (Radix primitives). There are no hand-written stylesheets for components.
+
+- **Reach for the shared pieces first.** Buttons, inputs, selects, dialogs, menus, badges, switches, checkboxes, tooltips and toasts come from `src/components/ui/`. App-level patterns live in `src/components/kit.tsx`:
+  - `Segmented`: one choice out of a few (format, timer, filters);
+  - `Field`: label, control and hint;
+  - `Panel`: a frosted surface;
+  - `PageHeader`, `SectionTitle`;
+  - `ConfirmDialog`: any yes/no question. Never use `window.confirm`.
+
+  If two screens need the same thing, add it to the kit rather than styling it twice.
+- **Adding a shadcn component:** `npx shadcn@latest add <name>`, then align it with the others: square-ish corners (`rounded-md`), `h-10` controls, `bg-black/25` fields, frosted popovers. Variants that carry meaning already exist: `Button` has `default` (strike-red gradient), `secondary` (frosted), `ghost`, `pick`, `glass`; `Badge` has `pick`, `ban`, `decider`, `atk`, `def`, `glass`.
+- **Colour carries meaning.** Use the brand utilities, not raw hex:
+  - `pick` (teal): picks and Team A;
+  - `ban` (strike red): bans and Team B;
+  - `decider` (violet): the decider;
+  - `atk` and `def`: starting sides;
+  - `dim` and `muted-foreground`: secondary text.
+
+  Team colours come from `TEAMC` and the decider colour from `DECIDER` in `data/maps.ts`. Pass them in through a CSS variable (`style={vars({ '--tc': TEAMC[i] })}`, then `bg-(--tc)`) instead of building class names.
+- **Theme:** the shadcn variables (`--background`, `--primary`, `--card`…) are defined in `src/index.css` on top of the raw palette in `styles/tokens.css`. The site is dark only.
+- **Type:** Poppins everywhere. Display text is heavy (700–800) with tight tracking (`tracking-[-0.03em]`).
+- **Motion:** brand animations (`animate-rise`, `animate-shake`, `animate-pop`, `animate-decider-glow`, `animate-blink`, `animate-toss`) are defined in `index.css`. Apply looping or decorative motion with `motion-safe:` so it stops for people who ask for less.
+- **Hover** that matters on touch screens goes behind `[@media(hover:hover)]:`. Everything must also work by keyboard and focus.
+- **Test hooks are data attributes** (`data-game`, `data-turn`, `data-invite`…), never class names, so styling changes can't break tests.
 - Check every UI change at 375px, 768px and desktop width. The page must never scroll sideways.
 
 ## Common changes
@@ -147,9 +164,9 @@ Map art, minimaps, callouts and agents come from valorant-api.com at runtime and
 
 **Add a rule set:** add an entry to `BUILTIN_PRESETS` in `src/data/presets.ts`. The order is written as `bA bB pA pB` (ban or pick, team A or B). `veto.test.ts` checks that every built-in set fits its format.
 
-**Add a page:** create it in `src/pages/`, register the route in `App.tsx` inside the `Layout` children (or beside it for chrome-free pages like the overlay), call `useTitle()`, and add it to the sitemap list in `vite.config.ts` if search engines should find it.
+**Add a page:** create it in `src/pages/`, register the route in `App.tsx` (with `lazy`, like the others) inside the `Layout` children (or beside it for chrome-free pages like the overlay), call `useTitle()`, and add it to the sitemap list in `vite.config.ts` if search engines should find it.
 
-**Add a dialog:** use `<Overlay open onClose labelledBy>` with a heading whose `id` matches `labelledBy`. It handles the portal, focus trap, inert background, Escape and focus return.
+**Add a dialog:** use shadcn's `Dialog` with a `DialogTitle` (Radix handles the focus trap, inert background, Escape and focus return). For a yes/no question use `ConfirmDialog` from the kit.
 
 **Add an API route:** add it to `handleApi()` in `room-core.ts` (or a new pure module with the same shape), list its path in the function's `config.path`, and cover it in tests. The dev server picks it up automatically through `devRoomsApi()` in `vite.config.ts`.
 

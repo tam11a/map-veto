@@ -1,134 +1,26 @@
 /* ============================================================
-   Map Veto — design tokens ("Ember & Velvet")
-   A red-to-violet night: ember red on the left, velvet violet on the right,
-   teal map lines between them. Colour still carries meaning:
-   pick = Team A (teal), ban = Team B / primary action (strike red), decider = violet.
+   Map Veto — brand tokens ("Ember & Velvet")
+   A red-to-violet night: ember red on the left, velvet violet on the right, teal map lines between.
+   Colour carries meaning: pick = Team A (teal), ban = Team B and the call to action (strike red),
+   decider = violet; atk and def are the starting sides.
+   The shadcn/ui theme (background, primary, card…) is defined in index.css on top of these.
    ============================================================ */
 :root {
   color-scheme: dark;
 
-  /* colour — named palette */
-  --range: #0d0a12;      /* ink: page, a violet-black */
+  --range: #0d0a12;      /* ink: the page */
   --ember: #7a160f;      /* left glow */
   --velvet: #2c1257;     /* right glow */
-  /* surfaces are translucent so the ember/velvet light reads through them */
-  --glass: rgb(26 19 34 / 0.62);     /* panels */
-  --glass-2: rgb(48 37 60 / 0.62);   /* raised controls */
-  --well: rgb(9 6 13 / 0.45);        /* inputs, tracks */
-  --solid: #1b1424;                  /* opaque panel colour, for masks */
-  --line: rgb(255 255 255 / 0.09);
-  --line-2: rgb(255 255 255 / 0.16);
-  --signal: #f3eff6;     /* text */
-  --mute: #b7adc2;       /* secondary text, 8.9:1 on ink */
-  --dim: #8d8399;        /* tertiary text, 5.4:1 on ink */
-  --pick: #2bd4c8;       /* teal, the map lines */
-  --ban: #ff2a36;        /* strike red, the call to action */
-  --decider: #a97cff;    /* velvet violet */
+  --pick: #2bd4c8;
+  --ban: #ff2a36;
+  --decider: #a97cff;
   --atk: #ff8a4c;
   --def: #8ea3ff;
-  --on-accent: #0d0a12;
+  --mute: #b7adc2;       /* secondary text, 9.1:1 on ink */
+  --dim: #8d8399;        /* tertiary text, 5.5:1 on ink */
+  --line: rgb(255 255 255 / 0.09);
 
-  /* aliases used by inline styles in components */
-  --bg: var(--range);
-  --bg2: var(--well);
-  --panel: var(--glass);
-  --panel2: var(--glass-2);
-  --line2: var(--line-2);
-  --text: var(--signal);
-  --a: var(--pick);
-  --b: var(--ban);
-  --gold: var(--decider);
-
-  /* type — Poppins throughout: geometric, heavy for display (700-800), regular for body */
-  --fd: 'Poppins', system-ui, sans-serif;
-  --fb: 'Poppins', system-ui, sans-serif;
-  /* 1.25 scale on a 16px base */
-  --fs-12: 0.75rem;
-  --fs-14: 0.875rem;
-  --fs-16: 1rem;
-  --fs-20: 1.25rem;
-  --fs-25: 1.5625rem;
-  --fs-31: 1.9375rem;
-  --fs-39: 2.4375rem;
-  --fs-49: 3.0625rem;
-  --fs-61: 3.8125rem;
-  --fs-76: 4.75rem;
-  --lh-tight: 1.05;
-  --lh-body: 1.55;
-  --measure: 68ch;
-
-  /* radius — nested surfaces follow outer = inner + padding (+ border) */
-  --r-xs: 4px;
-  --r-sm: 6px;
-  --r-md: 10px;
-  --r-lg: 14px;
-  --r-xl: 18px;
-  --r-pill: 999px;
-
-  /* space */
-  --s-1: 4px;
-  --s-2: 8px;
-  --s-3: 12px;
-  --s-4: 16px;
-  --s-5: 24px;
-  --s-6: 32px;
-  --s-7: 48px;
-  --s-8: 64px;
-  --s-9: 96px;
-
-  /* motion */
-  --dur-fast: 150ms;
-  --dur-base: 300ms;
-  --ease-out: cubic-bezier(0.2, 0, 0, 1);
-  --ease-spring: cubic-bezier(0.2, 1.4, 0.4, 1);
-  /* movement distances — zeroed under reduced motion so every enter becomes a fade */
-  --rise: 12px;
-  --blur: 4px;
-  --press: 0.96;
-  --lift: -6px;
-
-  /* layers */
-  --z-raise: 2;
-  --z-hit: 3;
-  --z-ctl: 4;
-  --z-nav: 40;
-  --z-overlay: 50;
-  --z-fx: 90;
-  --z-toast: 100;
-
-  /* surfaces (dark mode keeps a single white ring) */
-  --ring: 0 0 0 1px oklch(1 0 0 / 0.08);
-  --ring-hover: 0 0 0 1px oklch(1 0 0 / 0.13);
-  --image-outline: oklch(1 0 0 / 0.1);
-  --depth: 0 24px 48px -24px rgb(0 0 0 / 0.8);
-
-  /* signature gradients */
   /* white text stays at 4.6:1 or better across the whole fill */
   --grad-strike: linear-gradient(180deg, #e8131f 0%, #c90c18 100%);
-  --grad-night: radial-gradient(70% 90% at 0% 30%, var(--ember), transparent 70%),
-    radial-gradient(70% 90% at 100% 70%, var(--velvet), transparent 70%),
-    linear-gradient(90deg, #170a0c, var(--range) 45%, #120b1f);
   --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-
-  /* frosted glass — needs colour behind it (see .ambient) */
-  --frost: rgb(255 255 255 / 0.055);
-  --frost-strong: rgb(22 16 30 / 0.6);
-  --frost-line: rgb(255 255 255 / 0.12);
-  --frost-hi: inset 0 1px 0 rgb(255 255 255 / 0.14);
-  --frost-shadow: 0 24px 60px -24px rgb(0 0 0 / 0.75);
-  --frost-blur: blur(22px) saturate(160%);
-}
-
-/* without backdrop-filter, glass falls back to a solid tint */
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  :root { --frost: rgb(36 27 46 / 0.92); --frost-strong: rgb(24 18 32 / 0.96); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  :root {
-    --rise: 0px;
-    --blur: 0px;
-    --press: 1;
-    --lift: 0px;
-  }
 }

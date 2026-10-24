@@ -1,8 +1,16 @@
 import { Link, useSearchParams } from 'react-router-dom';
-import { Icon } from '../components/Icons';
+import { CheckIcon, NotebookPenIcon, SearchIcon } from 'lucide-react';
+import { PageHeader, Panel, Segmented } from '../components/kit';
 import { MapArt } from '../components/MapArt';
+import { Badge } from '../components/ui/badge';
+import { Button } from '../components/ui/button';
+import { Checkbox } from '../components/ui/checkbox';
+import { Input } from '../components/ui/input';
+import { Label } from '../components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { COMPETITIVE_POOL, MAPS } from '../data/maps';
-import { cx, vars } from '../lib/fx';
+import { vars } from '../lib/fx';
+import { cn } from '../lib/utils';
 import { useTitle } from '../lib/useTitle';
 import { poolPreset, sortPool } from '../lib/veto';
 import { WIKI_PAGE } from '../../scripts/rotation-core.mjs';
@@ -85,72 +93,70 @@ export function MapsPage() {
 
   return (
     <div className="container">
-      <section className="page-hero">
-        <h1>Map pool</h1>
+      <PageHeader title="Map pool" className="pb-6">
         <p>Sites, the signature mechanic and how each map plays. Open a map to add notes for your team.</p>
         <RotationSource info={rotation} />
-      </section>
+      </PageHeader>
 
-      <section className="filters frost" aria-label="Filter maps">
-        <label className="filter-search">
-          <Icon.search />
-          <input value={f.q} onChange={e => f.setQ(e.target.value)} placeholder="Search maps, locations, mechanics" aria-label="Search maps" type="search" />
-        </label>
-        <div className="filter-group">
-          <span className="filter-label" id="rot-label">Rotation</span>
-          <div className="seg" role="group" aria-labelledby="rot-label">
-            {([['competitive', 'Competitive'], ['all', 'All maps']] as [Rotation, string][]).map(([k, l]) => (
-              <button key={k} className={cx(f.rotation === k && 'on')} aria-pressed={f.rotation === k} onClick={() => f.setRotation(k)}>{l}</button>
-            ))}
-          </div>
+      <Panel className="flex flex-wrap items-center gap-x-6 gap-y-3 p-3" aria-label="Filter maps">
+        <div className="relative min-w-60 flex-1">
+          <SearchIcon className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-dim" />
+          <Input value={f.q} onChange={e => f.setQ(e.target.value)} placeholder="Search maps, locations, mechanics" aria-label="Search maps" type="search" className="pl-9" />
         </div>
-        <div className="filter-group">
-          <span className="filter-label" id="sites-label">Sites</span>
-          <div className="seg" role="group" aria-labelledby="sites-label">
-            {([['any', 'Any'], ['2', '2'], ['3', '3']] as [Sites, string][]).map(([k, l]) => (
-              <button key={k} className={cx(f.sites === k && 'on')} aria-pressed={f.sites === k} onClick={() => f.setSites(k)}>{l}</button>
-            ))}
-          </div>
+        <div className="flex items-center gap-2.5">
+          <span className="text-sm text-muted-foreground">Rotation</span>
+          <Segmented<Rotation> label="Rotation" value={f.rotation} onChange={f.setRotation} options={[{ value: 'competitive', label: 'Competitive' }, { value: 'all', label: 'All maps' }]} />
         </div>
-        <button className={cx('filter-toggle', f.mine && 'on')} aria-pressed={f.mine} onClick={() => f.setMine(!f.mine)}>
-          <span className="ft-box">{f.mine && <Icon.check />}</span>My veto pool
-        </button>
-      </section>
+        <div className="flex items-center gap-2.5">
+          <span className="text-sm text-muted-foreground">Sites</span>
+          <Segmented<Sites> label="Sites" value={f.sites} onChange={f.setSites} options={[{ value: 'any', label: 'Any' }, { value: '2', label: '2' }, { value: '3', label: '3' }]} />
+        </div>
+        <div className="flex items-center gap-2">
+          <Checkbox id="mine" checked={f.mine} onCheckedChange={v => f.setMine(v === true)} />
+          <Label htmlFor="mine">My veto pool</Label>
+        </div>
+      </Panel>
 
-      <div className="results-bar" role="status">
-        <span className="results-text"><b>{count}</b>{quals.length > 0 && <span className="mute">: {quals.join(', ')}</span>}</span>
-        <div className="results-actions">
-          <label className="results-sort">
-            <span className="filter-label">Sort</span>
-            <select value={f.sort} onChange={e => f.setSort(e.target.value as Sort)}>
-              {SORTS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}
-            </select>
-          </label>
-          {f.active && <button className="btn ghost sm" onClick={f.clear}>Clear filters</button>}
+      <div className="my-4 flex flex-wrap items-center justify-between gap-3 px-1" role="status">
+        <p className="text-sm"><b className="font-semibold">{count}</b>{quals.length > 0 && <span className="text-muted-foreground">: {quals.join(', ')}</span>}</p>
+        <div className="flex flex-wrap items-center gap-2">
+          <Label htmlFor="sort" className="text-sm text-muted-foreground">Sort</Label>
+          <Select value={f.sort} onValueChange={v => f.setSort(v as Sort)}>
+            <SelectTrigger id="sort" size="sm" className="min-w-32"><SelectValue /></SelectTrigger>
+            <SelectContent>{SORTS.map(([k, l]) => <SelectItem key={k} value={k}>{l}</SelectItem>)}</SelectContent>
+          </Select>
+          {f.active && <Button size="sm" variant="ghost" onClick={f.clear}>Clear filters</Button>}
           {list.length >= 2 && (
-            <button className="btn glassy sm" onClick={usePool} disabled={isCurrentPool} title={isCurrentPool ? 'These maps are already your veto pool' : undefined}>
-              {isCurrentPool ? <><Icon.check /> Your veto pool</> : `Use as veto pool`}
-            </button>
+            <Button size="sm" variant="secondary" onClick={usePool} disabled={isCurrentPool} title={isCurrentPool ? 'These maps are already your veto pool' : undefined}>
+              {isCurrentPool ? <><CheckIcon /> Your veto pool</> : 'Use as veto pool'}
+            </Button>
           )}
         </div>
       </div>
 
       {list.length ? (
-        <div className="map-grid">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {list.map((m, i) => {
             const comp = COMPETITIVE_POOL.includes(m.id);
             return (
-              <Link to={`/maps/${m.id}`} key={m.id} className="map-tile" style={vars({ '--i': i })}>
-                <MapArt map={m} kind="tall" watermark={false} />
-                {setup.pool.includes(m.id) && <span className="inpool"><Icon.check /> In pool</span>}
-                <div className="mt-label">
-                  <div className="loc">{m.loc}</div>
-                  <h3>{m.name}</h3>
-                  <div className="tags">
-                    <span className={cx('rot', comp ? 'comp' : 'off')}>{comp ? 'Competitive' : 'Not in rotation'}</span>
-                    <span>Sites {m.sites}</span>
-                    <span>{m.tag}</span>
-                    {setup.notes[m.id] && <span><Icon.note /> Notes</span>}
+              <Link
+                to={`/maps/${m.id}`}
+                key={m.id}
+                data-map-tile
+                className="group relative flex h-80 flex-col justify-end overflow-hidden rounded-xl border border-white/12 p-2.5 transition-[border-color,translate] duration-200 hover:border-white/30 motion-safe:animate-rise motion-safe:hover:-translate-y-1"
+                style={{ animationDelay: `${Math.min(i, 12) * 40}ms` }}
+              >
+                <MapArt map={m} kind="tall" watermark={false} className="absolute inset-0 transition-[scale] duration-500 group-hover:scale-105" />
+                <div className="absolute inset-0 bg-linear-to-t from-black/55 to-transparent to-55%" />
+                {setup.pool.includes(m.id) && <Badge className="absolute top-3 right-3 z-[2] bg-pick text-ink"><CheckIcon /> In pool</Badge>}
+                <div className="relative z-[2] rounded-lg border border-white/12 bg-[rgb(14_10_20/0.5)] px-3.5 py-3 shadow-[inset_0_1px_0_rgb(255_255_255/0.1)] backdrop-blur-xl">
+                  <p className="text-sm text-white/80">{m.loc}</p>
+                  <h3 className="text-3xl leading-none font-extrabold tracking-[-0.03em]">{m.name}</h3>
+                  <div className="mt-2.5 flex flex-wrap gap-1.5">
+                    <Badge variant={comp ? 'pick' : 'glass'} className={cn(!comp && 'text-dim')}>{comp ? 'Competitive' : 'Not in rotation'}</Badge>
+                    <Badge variant="glass">Sites {m.sites}</Badge>
+                    <Badge variant="glass">{m.tag}</Badge>
+                    {setup.notes[m.id] && <Badge variant="glass"><NotebookPenIcon /> Notes</Badge>}
                   </div>
                 </div>
               </Link>
@@ -158,11 +164,11 @@ export function MapsPage() {
           })}
         </div>
       ) : (
-        <div className="empty frost">
-          <h2>No maps match these filters</h2>
-          <p>Active filters: {quals.join(', ')}. Turn one off, or clear them all.</p>
-          <button className="btn primary" onClick={f.clear}>Clear filters</button>
-        </div>
+        <Panel className="grid justify-items-center gap-3 px-6 py-16 text-center">
+          <h2 className="text-2xl font-extrabold tracking-tight">No maps match these filters</h2>
+          <p className="text-muted-foreground">Active filters: {quals.join(', ')}. Turn one off, or clear them all.</p>
+          <Button onClick={f.clear}>Clear filters</Button>
+        </Panel>
       )}
     </div>
   );
@@ -176,22 +182,30 @@ const fmtDate = (iso: string | null) =>
 /** Says where the competitive rotation came from, so a stale list is never mistaken for a live one. */
 function RotationSource({ info }: { info: RotationInfo }) {
   const label = info.source === 'live' ? 'Live rotation' : info.source === 'snapshot' ? 'Rotation snapshot' : 'Built-in rotation';
+  const link = 'underline decoration-white/30 underline-offset-2 hover:text-foreground';
   const from = info.origin === 'wiki'
-    ? <> from the <a href={WIKI_PAGE} target="_blank" rel="noreferrer">Valorant Wiki</a></>
+    ? <> from the <a href={WIKI_PAGE} target="_blank" rel="noreferrer" className={link}>Valorant Wiki</a></>
     : info.origin === 'henrikdev' ? ' from Riot’s queue data' : null;
   const note = info.source === 'built-in' ? 'May be out of date'
     : info.origin === 'wiki' ? 'Community-edited, CC BY-SA'
-    : <>Via the <a href="https://docs.henrikdev.xyz/" target="_blank" rel="noreferrer">HenrikDev API</a></>;
+    : <>Via the <a href="https://docs.henrikdev.xyz/" target="_blank" rel="noreferrer" className={link}>HenrikDev API</a></>;
   // the ranked pool is 7 maps; a different count usually means the source is mid-update
   const odd = info.source !== 'built-in' && COMPETITIVE_POOL.length !== RANKED_POOL_SIZE;
-  // two text blocks only, so the pill never splits the sentence into columns
+  const tone = info.source === 'live' ? 'var(--pick)' : info.source === 'snapshot' ? 'var(--decider)' : 'var(--ban)';
   return (
-    <p className={`rot-source ${info.source}`}>
-      <i aria-hidden="true" />
-      <span className="rs-main"><b>{label}</b>{from}{info.updated && <span className="rs-date">{fmtDate(info.updated)}</span>}</span>
-      <span className="rs-note">{note}</span>
+    <p
+      data-rotation={info.source}
+      className="mt-5 inline-flex max-w-full flex-wrap items-center gap-x-3 gap-y-1 rounded-xl border border-(--tc)/35 bg-(--tc)/8 px-3.5 py-2 text-sm"
+      style={vars({ '--tc': tone })}
+    >
+      <i className="size-2 shrink-0 rounded-full bg-(--tc) shadow-[0_0_0_3px_color-mix(in_srgb,var(--tc)_25%,transparent)]" aria-hidden="true" />
+      <span className="min-w-0 text-muted-foreground">
+        <b className="font-semibold text-foreground">{label}</b>{from}
+        {info.updated && <span className="ml-2 border-l border-white/15 pl-2 tabular-nums">{fmtDate(info.updated)}</span>}
+      </span>
+      <span className="border-l border-white/15 pl-3 text-xs text-dim">{note}</span>
       {odd && (
-        <span className="rs-warn">
+        <span className="basis-full text-xs text-decider">
           Lists {COMPETITIVE_POOL.length} maps; the ranked pool is usually {RANKED_POOL_SIZE}, so this may be mid-update.
         </span>
       )}

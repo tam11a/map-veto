@@ -1,12 +1,5 @@
-/* Pre-Tailwind styles sit in a lower layer than Tailwind's components and utilities, so any element
-   rebuilt with utilities wins over them. They are removed screen by screen as the migration lands. */
-@layer theme, base, legacy, components, utilities;
-
 @import "tailwindcss";
-@import "./styles/tokens.css" layer(legacy);
-@import "./styles/app.css" layer(legacy);
-@import "./styles/site.css" layer(legacy);
-@import "./styles/glass.css" layer(legacy);
+@import "./styles/tokens.css";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
@@ -121,7 +114,40 @@
     }
   html {
     @apply font-sans;
+    -webkit-text-size-adjust: 100%;
     }
+  body {
+    @apply min-h-screen overflow-x-hidden leading-relaxed antialiased;
+  }
+  ::selection {
+    background: color-mix(in srgb, var(--pick) 35%, transparent);
+  }
+}
+
+/* ember on the left, velvet on the right, with film grain; the glows drift slowly */
+.ambient { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; background: var(--range); }
+.ambient::before {
+  content: ""; position: absolute; inset: -20%;
+  background:
+    radial-gradient(48% 60% at 8% 32%, color-mix(in srgb, var(--ember) 92%, transparent), transparent 70%),
+    radial-gradient(52% 64% at 94% 70%, color-mix(in srgb, var(--velvet) 95%, transparent), transparent 72%),
+    radial-gradient(30% 40% at 52% 110%, color-mix(in srgb, var(--ban) 10%, transparent), transparent 70%);
+  animation: night-drift 36s ease-in-out infinite alternate;
+}
+.ambient::after { content: ""; position: absolute; inset: 0; opacity: 0.11; mix-blend-mode: overlay; background-image: var(--grain); }
+@keyframes night-drift {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(2%, -2%, 0) scale(1.04); }
+  100% { transform: translate3d(-2%, 1.5%, 0) scale(1.02); }
+}
+
+/* finish celebration (lib/fx.ts builds the pieces) */
+.confetti { position: fixed; inset: 0; z-index: 90; overflow: hidden; pointer-events: none; }
+.confetti i { position: absolute; top: -20px; width: 8px; height: 14px; border-radius: 2px; animation: fall linear forwards; }
+@keyframes fall { to { transform: translate(var(--dx), 110vh) rotate(var(--r)); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .ambient::before { animation: none; }
 }
 /* motion used by the veto board; components apply these with motion-safe: so they stop for people who ask for less */
 @theme {

@@ -1,15 +1,12 @@
 import { Outlet, RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { AppProvider } from './AppProvider';
 import { Layout } from './components/layout/Layout';
-import { GuidePage } from './pages/GuidePage';
 import { Landing } from './pages/Landing';
-import { MapDetail } from './pages/MapDetail';
-import { MapsPage } from './pages/MapsPage';
 import { NotFound } from './pages/NotFound';
-import { OverlayPage } from './pages/OverlayPage';
-import { RoomPage } from './pages/RoomPage';
-import { ShortLinkPage } from './pages/ShortLinkPage';
-import { VetoPage } from './pages/VetoPage';
+
+// routes other than the landing page load on demand, so the first visit stays small
+const page = <T extends Record<string, unknown>>(load: () => Promise<T>, name: keyof T) =>
+  async () => ({ Component: (await load())[name] as React.ComponentType });
 
 // a data router, so pages can block navigation (the live veto's leave guard uses useBlocker)
 const router = createBrowserRouter([
@@ -20,17 +17,17 @@ const router = createBrowserRouter([
         element: <Layout />,
         children: [
           { index: true, element: <Landing /> },
-          { path: 'veto', element: <VetoPage /> },
-          { path: 'maps', element: <MapsPage /> },
-          { path: 'maps/:id', element: <MapDetail /> },
-          { path: 'guide', element: <GuidePage /> },
-          { path: 'room/:id', element: <RoomPage /> },
-          { path: 'p/:id', element: <ShortLinkPage /> },
+          { path: 'veto', lazy: page(() => import('./pages/VetoPage'), 'VetoPage') },
+          { path: 'maps', lazy: page(() => import('./pages/MapsPage'), 'MapsPage') },
+          { path: 'maps/:id', lazy: page(() => import('./pages/MapDetail'), 'MapDetail') },
+          { path: 'guide', lazy: page(() => import('./pages/GuidePage'), 'GuidePage') },
+          { path: 'room/:id', lazy: page(() => import('./pages/RoomPage'), 'RoomPage') },
+          { path: 'p/:id', lazy: page(() => import('./pages/ShortLinkPage'), 'ShortLinkPage') },
           { path: '*', element: <NotFound /> },
         ],
       },
       // chrome-free broadcast view, no header or footer
-      { path: 'overlay/:id', element: <OverlayPage /> },
+      { path: 'overlay/:id', lazy: page(() => import('./pages/OverlayPage'), 'OverlayPage') },
     ],
   },
 ]);

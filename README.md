@@ -189,7 +189,8 @@ The license covers this repository's code and its own assets (the Map Veto logo 
 - Map art, minimaps, callouts and agent portraits: [valorant-api.com](https://valorant-api.com)
 - Live competitive rotation: the [HenrikDev API](https://docs.henrikdev.xyz/), which reads Riot's queue data. Thanks to HenrikDev for running it.
 - Rotation fallback: the [Valorant Wiki](https://valorant.fandom.com) (CC BY-SA)
-- Fonts: Big Shoulders Display and Barlow, from Google Fonts
+- Font: Poppins, from Google Fonts
+- UI components: [shadcn/ui](https://ui.shadcn.com) on Radix, styled with Tailwind CSS
 
 Designed and built by [Tam](https://tam11a.dev).
 

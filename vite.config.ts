@@ -106,4 +106,16 @@ export default defineConfig(({ mode }) => ({
   plugins: [react(), tailwindcss(), devRotationApi(loadEnv(mode, process.cwd(), '')), devRoomsApi(), devSaveOgImage(), siteUrl({ ...process.env, ...loadEnv(mode, process.cwd(), '') } as Record<string, string>), seoFiles({ ...process.env, ...loadEnv(mode, process.cwd(), '') } as Record<string, string>)],
   base: '/',
   resolve: { alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) } },
+  build: {
+    rollupOptions: {
+      output: {
+        // framework and UI libraries change rarely: keep them in their own long-cached chunks
+        manualChunks(id) {
+          if (!id.includes('node_modules')) return;
+          if (/[\/](react|react-dom|scheduler|react-router|react-router-dom|@remix-run)[\/]/.test(id)) return 'react';
+          if (/[\/](@radix-ui|radix-ui|@floating-ui|sonner|cn|lucide-react|class-variance-authority|tslib|aria-hidden|react-remove-scroll[^\/]*|use-callback-ref|use-sidecar|detect-node-es|get-nonce)[\/]/.test(id)) return 'ui';
+        },
+      },
+    },
+  },
 }));

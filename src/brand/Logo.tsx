@@ -28,9 +28,9 @@ export function LogoMark({ size = 36, className }: { size?: number; className?: 
       </defs>
       <path d={MARK.badge} fill={`url(#${id})`} />
       <path d={MARK.badge} fill="none" stroke="#fff" strokeOpacity=".12" strokeWidth="1.5" />
-      <path className="mk-pick" d={MARK.pick} fill="var(--a)" />
-      <path className="mk-ban" d={MARK.ban} fill="var(--b)" />
-      <path className="mk-dec" d={MARK.decider} fill="var(--gold)" />
+      <path d={MARK.pick} fill="var(--pick)" />
+      <path d={MARK.ban} fill="var(--ban)" />
+      <path d={MARK.decider} fill="var(--decider)" />
     </svg>
   );
 }

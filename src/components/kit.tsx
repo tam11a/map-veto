@@ -68,9 +68,9 @@ export function Field({ label, htmlFor, hint, error, className, children }: {
 /** The heading block at the top of a content page. */
 export function PageHeader({ title, children, className }: { title: ReactNode; children?: ReactNode; className?: string }) {
   return (
-    <header className={cn('pt-32 pb-10 sm:pt-36', className)}>
+    <header className={cn('pt-10 pb-10 sm:pt-14', className)}>
       <h1 className="max-w-[18ch] text-4xl font-extrabold tracking-[-0.03em] text-balance sm:text-5xl lg:text-6xl">{title}</h1>
-      {children && <div className="mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">{children}</div>}
+      {children && <div className="mt-4 max-w-3xl text-base leading-relaxed text-muted-foreground sm:text-lg">{children}</div>}
     </header>
   );
 }

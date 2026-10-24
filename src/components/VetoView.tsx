@@ -194,7 +194,7 @@ export function VetoView({ veto, updateHist, replay, onFinish, onSkip, onExit }:
         <TurnBanner step={step} teams={teams} timer={S.timer} deadline={deadline} now={now} paused={paused} />
       </div>
       <div className="rise" style={vars({ '--i': 1 })}><Timeline teams={teams} hist={hist} /></div>
-      <div className="grid rise" data-mode={live ? step!.k : 'idle'} style={vars({ '--i': 2, '--tc': step?.team != null ? TEAMC[step.team] : DECIDER })}>
+      <div className="board rise" data-mode={live ? step!.k : 'idle'} style={vars({ '--i': 2, '--tc': step?.team != null ? TEAMC[step.team] : DECIDER })}>
         {S.pool.map(id => (
           <MapCard
             key={id}
@@ -331,7 +331,7 @@ export function TurnBanner({ step, teams, timer, deadline, now, paused, setup: g
   return (
     <div id="turn" className={cx(timer > 0 && 'timed')} style={{ order: 2 }}>
       <div className="turn-in" key={`${step?.i ?? 'done'}:${step?.k}`} style={vars({ '--tc': color })}>
-        <div className={cx('ring', deadline > 0 && left < 5000 && 'low')}>
+        <div className={cx('t-ring', deadline > 0 && left < 5000 && 'low')}>
           <svg viewBox="0 0 44 44">
             <circle className="trk" cx="22" cy="22" r="18" />
             <circle className="prog" cx="22" cy="22" r="18" style={{ strokeDashoffset: timer ? 113.1 * (1 - left / (timer * 1000)) : 0 }} />

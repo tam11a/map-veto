@@ -128,7 +128,7 @@ export function RoomPage() {
         <TurnBanner step={step} teams={teams} timer={S.timer} deadline={room.deadline} now={now} paused={null} setup={S} waiting={!!step && !mine} doneText="The match plan is ready to open" />
       </div>
       <Timeline teams={teams} hist={hist} setup={S} />
-      <div className="grid" data-mode={live ? step!.k : 'idle'} style={vars({ '--tc': step?.team != null ? TEAMC[step.team] : DECIDER })}>
+      <div className="board" data-mode={live ? step!.k : 'idle'} style={vars({ '--tc': step?.team != null ? TEAMC[step.team] : DECIDER })}>
         {S.pool.map(mapId => (
           <MapCard
             key={mapId}

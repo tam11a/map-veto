@@ -1,4 +1,6 @@
 import { writeFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import tailwindcss from '@tailwindcss/vite';
 import { defineConfig, loadEnv, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import { resolveRotation } from './scripts/rotation-core.mjs';
@@ -101,6 +103,7 @@ function siteUrl(env: Record<string, string>): Plugin {
 
 export default defineConfig(({ mode }) => ({
   // load every variable (not only VITE_*) for the dev route; none of them reach the client bundle
-  plugins: [react(), devRotationApi(loadEnv(mode, process.cwd(), '')), devRoomsApi(), devSaveOgImage(), siteUrl({ ...process.env, ...loadEnv(mode, process.cwd(), '') } as Record<string, string>), seoFiles({ ...process.env, ...loadEnv(mode, process.cwd(), '') } as Record<string, string>)],
+  plugins: [react(), tailwindcss(), devRotationApi(loadEnv(mode, process.cwd(), '')), devRoomsApi(), devSaveOgImage(), siteUrl({ ...process.env, ...loadEnv(mode, process.cwd(), '') } as Record<string, string>), seoFiles({ ...process.env, ...loadEnv(mode, process.cwd(), '') } as Record<string, string>)],
   base: '/',
+  resolve: { alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) } },
 }));

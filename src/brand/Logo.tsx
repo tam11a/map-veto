@@ -37,11 +37,11 @@ export function LogoMark({ size = 36, className }: { size?: number; className?: 
 
 export function Logo({ size = 36, tagline = true }: { size?: number; tagline?: boolean }) {
   return (
-    <span className="brand">
-      <LogoMark size={size} />
-      <span className="brand-text">
-        <b>MAP<em>VETO</em></b>
-        {tagline && <small>{BRAND.tagline}</small>}
+    <span className="inline-flex items-center gap-2.5">
+      <LogoMark size={size} className="shrink-0" />
+      <span className="flex flex-col leading-none">
+        <b className="text-[1.375rem] font-extrabold tracking-[-0.01em] leading-[0.95]">MAP <em className="text-ban not-italic">VETO</em></b>
+        {tagline && <small className="mt-1 text-[9px] font-semibold tracking-[0.24em] text-muted-foreground uppercase">{BRAND.tagline}</small>}
       </span>
     </span>
   );

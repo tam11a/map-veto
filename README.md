@@ -1,114 +1,172 @@
-<p align="center"><img src="public/logo.svg" alt="Map Veto — Valorant Map Picker" width="360"></p>
+<p align="center"><img src="public/logo.svg" alt="Map Veto: Valorant Map Picker" width="360"></p>
 
-# Map Veto: Valorant Map Picker
+<p align="center">
+  Run a pro-style Valorant map veto for Bo1, Bo2, Bo3 and Bo5, then share the plan with your team.
+</p>
 
-Run a pro-style map veto for **Bo1, Bo2, Bo3 and Bo5** — bans, picks, side selection, turn timers and map intel — then share the final plan as an image, story image, link, text or JSON. Captains can veto from their own devices in an online room, with a transparent stream overlay for OBS. Free, no sign-up.
+<p align="center">
+  <a href="https://map-veto.netlify.app"><b>map-veto.netlify.app</b></a>
+  &nbsp;·&nbsp;
+  <a href="#features">Features</a>
+  &nbsp;·&nbsp;
+  <a href="#run-it-locally">Run it locally</a>
+  &nbsp;·&nbsp;
+  <a href="CONTRIBUTING.md">Contributing</a>
+</p>
 
-## Pages
+<p align="center">
+  <a href="https://github.com/tam11a/map-veto/actions/workflows/ci.yml"><img src="https://github.com/tam11a/map-veto/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://app.netlify.com/projects/map-veto/deploys"><img src="https://api.netlify.com/api/v1/badges/7f0568e6-605e-4205-9c32-9460e0bfd226/deploy-status" alt="Netlify status"></a>
+</p>
 
-| Route        | What it is                                                      |
-| ------------ | --------------------------------------------------------------- |
-| `/`          | Landing page with a self-playing veto demo                      |
-| `/veto`      | The veto app: setup → live veto → match plan (`?format=1/2/3/5`) |
-| `/veto#plan=…` | Shared plan link — opens straight into the result             |
-| `/maps`      | Map pool with search & filters                                  |
-| `/maps/:id`  | Map detail: minimap with callouts, team prep (notes per side, agent comp) |
-| `/guide`     | How the veto works, formats with example replays, sides, glossary, FAQ |
-| `/room/:id`  | Online captain room (`?t=` seat token from the invite links)    |
-| `/overlay/:id` | Transparent 1920×1080 broadcast view of a room (`?bg=1` to preview) |
-| `/p/:id`     | Short share link                                                |
+<p align="center"><img src="docs/media/demo-veto.gif" alt="A Bo3 veto played with keyboard shortcuts: two bans, a pick with side selection, and the decider" width="720"></p>
 
-## Develop
+Map Veto handles bans, picks, starting sides and the decider, with turn timers, rule presets and map intel. Captains can veto from their own devices in an online room, and casters can put the veto on stream with a transparent overlay. When it's done, the plan goes out as an image, a story image, a short link, text or JSON.
+
+Free, no accounts, no ads.
+
+## Features
+
+### The lobby
+
+Teams, first turn (or a coin toss), format, map pool and the exact ban/pick order, all on one screen. Start from a built-in rule set or save your own; choose who picks sides after a pick (the opponent or the picker) and how the decider's side is settled (the team that didn't ban last, a fixed team, or a knife round in game). Add an event, a date and team logos.
+
+<img src="docs/media/lobby.jpg" alt="The lobby: team banner, format tabs, rule set and side rules, map pool and veto order" width="100%">
+
+### The live veto
+
+Every step is a click (or a key: `1`–`9` choose a map, `A`/`D` choose a side). Optional turn timer with pause, sound cues, undo, and progress saved after every step, so a refresh never loses a veto.
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/media/veto.jpg" alt="Live veto board mid-way: bans, picks and the timeline"></td>
+    <td width="50%"><img src="docs/media/veto-side.jpg" alt="Side selection sheet with attack and defense"></td>
+  </tr>
+</table>
+
+### Online rooms and the stream overlay
+
+**Start an online room** and the host gets one link per captain, a watch-only link and an overlay link. Each captain can only act on their own turn; every move is checked on the server and appears on every screen within about a second. The overlay is a transparent 1920×1080 view for an OBS browser source.
+
+<img src="docs/media/room.jpg" alt="Host view of an online room with the invite links" width="100%">
+<img src="docs/media/overlay.jpg" alt="Broadcast overlay: team names, current turn, timer and map strip" width="100%">
+
+### The match plan
+
+Maps in order, who picked them, starting sides, and your team's prep: general notes, attack and defense notes, and a five-agent comp per map. Fix a side or rename a team without replaying.
+
+<img src="docs/media/plan.jpg" alt="Match plan with three maps, sides, agent comp and notes" width="100%">
+
+Export it as a landscape image for Discord or a 1080×1920 story image for phones:
+
+<table>
+  <tr>
+    <td width="66%"><img src="docs/media/export-landscape.jpg" alt="Landscape plan image"></td>
+    <td width="34%"><img src="docs/media/export-story.jpg" alt="Story plan image"></td>
+  </tr>
+</table>
+
+### Maps and callouts
+
+Filter and sort the pool, see the live competitive rotation, and open any map for its minimap with every callout pinned.
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/media/maps.jpg" alt="Map pool page with filters"></td>
+    <td width="50%"><img src="docs/media/minimap.jpg" alt="Haven minimap with callouts"></td>
+  </tr>
+</table>
+
+### Everywhere else
+
+<table>
+  <tr>
+    <td width="66%"><img src="docs/media/demo-hero.gif" alt="Landing page veto wall playing a demo veto"></td>
+    <td width="34%"><img src="docs/media/mobile-veto.jpg" alt="Live veto on a phone"></td>
+  </tr>
+</table>
+
+- A landing page where visitors can try a veto by clicking the maps.
+- A guide covering every format, with an example plan you can replay for each one.
+- Works on phones, tablets and desktops, and by keyboard: dialogs are labelled, trap focus and hand it back when they close.
+- Works offline once loaded, through a service worker.
+
+## Run it locally
+
+You need Node 20 or newer.
 
 ```bash
+git clone https://github.com/tam11a/map-veto.git
+cd map-veto
 npm install
-npm run dev        # http://localhost:5173
-npm run build      # type-check + production build to dist/
-npm run preview    # serve the production build locally
-npm test           # Vitest: veto rules, share links, rooms, rotation parsers
-npm run check      # type-check + tests (what CI runs before the build)
+npm run dev
 ```
 
-`npm run dev` also serves `/api/rooms`, `/api/links` and `/api/rotation`, so online rooms work locally (rooms live in memory until the dev server restarts).
+Open http://localhost:5173. The dev server also runs the API (`/api/rooms`, `/api/links`, `/api/rotation`), so online rooms work locally; local rooms are kept in memory until the server restarts.
 
-## Deploy to Netlify
+| Command | What it does |
+| --- | --- |
+| `npm run dev` | Dev server with hot reload |
+| `npm test` | Vitest suite: veto rules, share links, rooms, rotation parsers |
+| `npm run check` | Type-check and tests, the same as CI |
+| `npm run build` | Production build to `dist/` |
+| `npm run preview` | Serve the production build |
+| `npm run rotation` | Refresh the competitive rotation snapshot |
 
-**Git-connected (recommended):** push this repo and import it in Netlify. `netlify.toml` already sets the build command (`npm run build`), publish directory (`dist`), Node 20, the functions directory, SPA redirects and caching headers. Netlify sets `URL` during the build, which makes the social image, `robots.txt` and `sitemap.xml` use absolute links.
+No environment variables are required. See [Competitive rotation](#competitive-rotation) for the optional API key.
 
-Two functions deploy with the site:
+## Deploy your own
 
-- `netlify/functions/rotation.mjs` → `/api/rotation`, the CDN-cached competitive rotation
-- `netlify/functions/rooms.mts` → `/api/rooms` and `/api/links`, online rooms and short links stored in [Netlify Blobs](https://docs.netlify.com/blobs/overview/) (no setup needed, Blobs is on for every site)
+The live site runs on Netlify. `netlify.toml` sets everything: the build, Node 20, the functions, SPA routing and caching headers.
 
-**Drag & drop:** run `npm run build` and drop the `dist/` folder on [app.netlify.com/drop](https://app.netlify.com/drop). This uploads static files only, so **functions are not deployed**: online rooms and short links are unavailable (share links fall back to the long self-contained form) and the rotation is read from the wiki in the browser. Use Git or the CLI for the full app.
+**From Git (recommended):** in Netlify choose **Add new project → Import an existing project**, pick your fork, and deploy. Netlify sets `URL` during the build, which gives the social image, `robots.txt` and `sitemap.xml` absolute links.
 
-**CLI:**
+**From the CLI:**
 
 ```bash
 npx netlify-cli deploy --build --prod
 ```
 
-## Live competitive rotation
+Two functions deploy with the site:
 
-The competitive map pool comes from one of two upstreams, and new maps are discovered from [valorant-api.com](https://valorant-api.com):
-
-- **No key (default):** the "Current" rotation section of the [Valorant Wiki](https://valorant.fandom.com/wiki/Maps#Map_rotations) via its MediaWiki API. Community-edited and CC BY-SA, so the Maps page credits it and labels it as such.
-- **With `HENRIK_API_KEY`:** [HenrikDev's unofficial API](https://docs.henrikdev.xyz/) (`/valorant/v1/queue-status`), which reads Riot's queue data. Used first when a key is set; the wiki is the fallback if it fails.
-
-Three layers, so the site always has an answer:
-
-| Layer | Where | Refreshes |
+| Function | Routes | What it does |
 | --- | --- | --- |
-| Live | `netlify/functions/rotation.mjs` at `/api/rotation`, cached on Netlify's CDN for 24h (stale-while-revalidate 7 days) and in the browser for 24h. Without the function, the browser reads the wiki directly | about once a day |
-| Snapshot | `scripts/fetch-rotation.mjs` runs before `dev` and `build`, writing `src/data/rotation.generated.json` (gitignored) | every deploy |
-| Built-in | `COMPETITIVE_POOL` and `MAPS` in `src/data/maps.ts` | when you edit it |
+| `netlify/functions/rooms.mts` | `/api/rooms`, `/api/links` | Online rooms and short links, stored in [Netlify Blobs](https://docs.netlify.com/blobs/overview/). Nothing to set up. |
+| `netlify/functions/rotation.mjs` | `/api/rotation` | The competitive rotation, cached on Netlify's CDN for a day |
 
-Optional setup for the HenrikDev source:
+> Drag-and-drop deploys upload static files only, without the functions. The veto, plans and exports still work, but online rooms and short links don't.
 
-1. Create a key at [api.henrikdev.xyz/dashboard](https://api.henrikdev.xyz/dashboard/).
-2. Copy `.env.example` to `.env.local` and set `HENRIK_API_KEY` (local dev uses a matching `/api/rotation` route in `vite.config.ts`).
-3. Add `HENRIK_API_KEY` (and optionally `HENRIK_REGION`) in Netlify → Site configuration → Environment variables.
+## Competitive rotation
 
-Without a key everything still works from the wiki; the built-in list is only used if both upstreams are unreachable. The Maps page shows which layer is in use. `npm run rotation` refreshes the snapshot by hand.
+The competitive pool comes from the best source available, in this order:
 
-> Drag-and-drop deploys don't include functions; the browser then reads the wiki directly (still key-free and cached for 24h).
+1. **HenrikDev API**, when `HENRIK_API_KEY` is set. It reads Riot's live queue data.
+2. **The [Valorant Wiki](https://valorant.fandom.com/wiki/Maps#Map_rotations)**, with no key needed. The page is community-edited and often half-updated around a new act, so its list is only used when it names exactly 7 maps.
+3. **The built-in list** in `src/data/maps.ts`, checked by hand. Currently Abyss, Bind, Corrode, Haven, Lotus, Summit and Sunset.
 
-## Brand
+The Maps page always says which source is in use. To add the key:
 
-- **Mark** — an angular V: the mint arm is the *pick*, the red arm the *ban*, the gold diamond the *decider*. Source: `public/favicon.svg`, `public/logo.svg`, `src/brand/Logo.tsx`.
-- **Direction** — "Observer HUD": a tournament broadcast overlay. Colour appears only where it means something.
-- **Colours** — Range `#0F1218`, Glass `#171C25`, Signal `#E6E9EF`, Pick `#2EE6C5`, Ban `#FF4655`, Decider `#FFC861` (sides: Attack `#FF9A62`, Defense `#7FB2FF`).
-- **Type** — Chakra Petch (display & HUD), Barlow (UI/body), on a 1.25 scale from 12 to 76px.
-- **Tokens** — `src/styles/tokens.css` holds colour, type, radius, spacing, motion and z-index. Movement distances are zeroed under `prefers-reduced-motion`.
+1. Get one at [api.henrikdev.xyz/dashboard](https://api.henrikdev.xyz/dashboard/).
+2. Copy `.env.example` to `.env.local` and set `HENRIK_API_KEY`.
+3. In production, add `HENRIK_API_KEY` (and optionally `HENRIK_REGION`) under Netlify → Site configuration → Environment variables.
 
-## Structure
+The key is only read on the server: by the Netlify function, the build-time snapshot and the dev server. It never reaches the browser.
 
-```
-src/
-  brand/Logo.tsx       logo mark, wordmark and brand strings
-  pages/               Landing, VetoPage, MapsPage, MapDetail, GuidePage, NotFound
-  components/          SetupView, VetoView, ResultView, MapArt, Overlay, CoinToss, InfoModal
-  components/layout/   Nav, Footer
-  styles/              tokens.css, app.css (veto app), site.css (chrome, landing, pages)
-  lib/veto.ts          pure veto logic: sequence generation, side rules, plan, current step, games
-  lib/share.ts         share links, JSON payload, text summary, setup validation
-  lib/room-core.ts     server rules for rooms and short links (used by the function and the dev server)
-  lib/rooms.ts         client for rooms: create, poll, send moves, invite links
-  lib/exportPng.ts     canvas renderers for the landscape and story plan images
-  lib/images.ts        official map art, minimaps and callouts, CORS-safe loading for export
-  lib/agents.ts        playable agents for comps (valorant-api.com, cached a week)
-  lib/sound.ts         synthesized WebAudio cues for the live veto
-  data/presets.ts      built-in rule sets
-netlify/functions/     rotation.mjs, rooms.mts
-public/sw.js           service worker for offline use
-  AppProvider.tsx      global setup state, toasts, map info sheet
-```
+## Privacy
 
-## Notes
+- Setups, notes and saved rule sets stay in your browser's local storage.
+- Long share links carry the whole plan inside the URL itself.
+- Online rooms and short links are stored in Netlify Blobs. Rooms close three days after the last move.
+- Room seats are random tokens inside the invite links. Anyone with a captain link can act for that team, so share them privately.
 
-- Map artwork is loaded at runtime from [valorant-api.com](https://valorant-api.com); cards fall back to gradients if it is unavailable. The PNG export fetches art through the `wsrv.nl` image proxy because the media CDN sends no CORS headers.
-- Setup, notes and saved rule sets are stored in `localStorage`. Long share links carry the whole plan in the URL hash. Online rooms and short links are stored in Netlify Blobs; rooms close three days after the last move.
-- Room seats are random tokens in the invite links. Anyone with a captain link can act for that team, so share them privately.
-- Keyboard during a veto: `1`–`9`/`0` choose maps, `A`/`D` sides, `P` pause, `M` sound, `Ctrl+Z` undo.
+## Contributing
+
+Bug reports, ideas and pull requests are welcome. [CONTRIBUTING.md](CONTRIBUTING.md) covers the architecture, code style, testing and how to add maps, rule sets and features.
+
+## Credits
+
+- Map art, minimaps, callouts and agent portraits: [valorant-api.com](https://valorant-api.com)
+- Rotation data: [Valorant Wiki](https://valorant.fandom.com) (CC BY-SA) and [HenrikDev](https://docs.henrikdev.xyz/)
+- Fonts: Big Shoulders Display and Barlow, from Google Fonts
 
 Map Veto is a fan-made tool and is not affiliated with or endorsed by Riot Games. VALORANT and all related names and artwork are trademarks of Riot Games, Inc.

@@ -62,6 +62,7 @@ function Footer() {
             <h4>Product</h4>
             <Link to="/veto">Start a veto</Link>
             <Link to="/maps">Map pool</Link>
+            <Link to="/maps?rotation=competitive">Competitive maps</Link>
             <Link to="/guide">Veto guide</Link>
           </div>
           <div className="foot-col">

@@ -32,6 +32,7 @@ export const Icon = {
   txt: svg(<path d="M4 6h16M4 12h16M4 18h10" />),
   img: svg(<><rect x="3" y="4" width="18" height="16" rx="2" /><circle cx="9" cy="10" r="2" /><path d="M21 16l-5-5-9 9" /></>),
   note: svg(<><path d="M5 4h10l4 4v12H5z" /><path d="M15 4v4h4M9 13h6M9 17h4" /></>),
+  search: svg(<><circle cx="11" cy="11" r="7" /><path d="M20 20l-4-4" /></>),
   info: svg(<><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8h.01" /></>),
   close: svg(<path d="M6 6l12 12M18 6L6 18" />),
   check: svg(<path d="M5 12.5l4.5 4.5L19 7.5" />),

@@ -106,7 +106,9 @@ details.faq { border-radius: var(--r-lg); }
 @media (hover: hover) { .filter-toggle:not(.on):hover { color: var(--signal); background: rgb(255 255 255 / 0.09); } }
 .results-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s-3); min-height: 32px; margin: var(--s-4) 0; padding: 0 var(--s-2); }
 .results-text b { font-weight: 600; }
-.results-actions { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+.results-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2); }
+.results-sort { display: flex; align-items: center; gap: var(--s-2); }
+.results-sort select { padding-block: 5px; font-size: var(--fs-14); }
 .map-tile .tags .rot.comp { background: color-mix(in srgb, var(--pick) 24%, transparent); color: #a6f5e6; }
 .map-tile .tags .rot.off { background: rgb(255 255 255 / 0.06); color: var(--mute); }
 .empty.frost { margin-bottom: var(--s-8); padding: var(--s-7) var(--s-5); border-radius: var(--r-xl); text-align: center; }

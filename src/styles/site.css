@@ -332,3 +332,35 @@ details.faq p { max-width: var(--measure); padding-bottom: var(--s-4); line-heig
   .toolbar .seg { min-width: 0; width: 100%; }
   .toolbar input { max-width: none; }
 }
+
+/* ---------- map detail: minimap & callouts ---------- */
+.minimap-card { margin-top: var(--s-5); }
+.mm-head { display: flex; align-items: baseline; gap: var(--s-3); }
+.mm-head h2 { font-family: var(--fd); font-size: var(--fs-25); }
+.mm-head .btn { margin-left: auto; }
+.mm-regions { display: flex; flex-wrap: wrap; gap: 6px; margin: var(--s-3) 0 var(--s-4); }
+.mm-regions button { padding: 5px 12px; border-radius: var(--r-pill); border: 1px solid var(--line); background: var(--well); font-size: var(--fs-14); font-weight: 600; color: var(--mute); transition-property: color, border-color, background-color; transition-duration: var(--dur-fast); }
+.mm-regions button.on { border-color: var(--pick); color: var(--signal); background: color-mix(in srgb, var(--pick) 12%, transparent); }
+@media (hover: hover) { .mm-regions button:not(.on):hover { color: var(--signal); border-color: var(--line-2); } }
+.mm-body { display: grid; grid-template-columns: minmax(0, 1fr) 240px; gap: var(--s-5); align-items: start; }
+.mm-map { position: relative; aspect-ratio: 1; max-width: 680px; width: 100%; margin: 0 auto; border-radius: var(--r-lg); background: rgb(0 0 0 / 0.25); }
+.mm-map img { width: 100%; height: 100%; object-fit: contain; }
+.mm-pin {
+  position: absolute; translate: -50% -50%; z-index: 1;
+  padding: 1px 6px; border-radius: var(--r-pill);
+  background: rgb(10 12 16 / 0.78); border: 1px solid rgb(255 255 255 / 0.14);
+  font-size: 11px; font-weight: 600; line-height: 1.4; white-space: nowrap; pointer-events: auto; cursor: default;
+  transition-property: background-color, border-color, color; transition-duration: var(--dur-fast);
+}
+.mm-pin.dot { width: 10px; height: 10px; padding: 0; background: var(--pick); border-color: rgb(0 0 0 / 0.5); }
+.mm-pin.hot { z-index: 2; background: var(--pick); border-color: var(--pick); color: var(--on-accent); }
+.mm-list { list-style: none; display: grid; gap: 2px; max-height: 620px; overflow: auto; padding-right: 4px; }
+.mm-list li { display: grid; padding: 6px 10px; border-radius: var(--r-sm); font-weight: 600; font-size: var(--fs-14); cursor: default; }
+.mm-list li small { font-size: 11px; font-weight: 500; color: var(--dim); }
+.mm-list li.hot { background: var(--glass-2); color: var(--pick); }
+.minimap-card .hint { margin-top: var(--s-3); font-size: var(--fs-12); }
+@media (max-width: 860px) {
+  .mm-body { grid-template-columns: 1fr; }
+  .mm-list { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); max-height: 260px; }
+}
+@media (max-width: 560px) { .mm-pin { font-size: 9px; padding: 0 4px; } }

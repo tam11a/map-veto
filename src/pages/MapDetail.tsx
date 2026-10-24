@@ -2,6 +2,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Icon } from '../components/Icons';
 import { MapArt } from '../components/MapArt';
 import { MapNotes } from '../components/MapNotes';
+import { Minimap } from '../components/Minimap';
 import { MAPS } from '../data/maps';
 import { useTitle } from '../lib/useTitle';
 import { useApp } from '../state';
@@ -62,6 +63,7 @@ export function MapDetail() {
             </div>
           </div>
         </div>
+        <Minimap mapId={m.id} name={m.name} />
         <div className="md-nav">
           <Link to={`/maps/${prev.id}`}><MapArt map={prev} kind="wide" watermark={false} /><small>Previous map</small><b>{prev.name}</b></Link>
           <Link to={`/maps/${next.id}`} className="next"><MapArt map={next} kind="wide" watermark={false} /><small>Next map</small><b>{next.name}</b></Link>

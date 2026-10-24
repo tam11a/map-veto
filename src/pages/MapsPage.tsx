@@ -7,12 +7,22 @@ import { useTitle } from '../lib/useTitle';
 import { poolPreset, sortPool } from '../lib/veto';
 import { WIKI_PAGE } from '../../scripts/rotation-core.mjs';
 import type { RotationInfo } from '../lib/rotation';
+import type { MapInfo } from '../types';
 import { useApp } from '../state';
 
 type Rotation = 'all' | 'competitive';
 type Sites = 'any' | '2' | '3';
 
 const siteCount = (sites: string) => sites.split(',').length;
+
+type Sort = 'name' | 'newest' | 'oldest' | 'sites';
+const SORTS: [Sort, string][] = [['name', 'Name'], ['newest', 'Newest'], ['oldest', 'Oldest'], ['sites', 'Most sites']];
+const sorters: Record<Sort, (a: MapInfo, b: MapInfo) => number> = {
+  name: (a, b) => a.name.localeCompare(b.name),
+  newest: (a, b) => (b.year ?? 0) - (a.year ?? 0) || a.name.localeCompare(b.name),
+  oldest: (a, b) => (a.year ?? 9999) - (b.year ?? 9999) || a.name.localeCompare(b.name),
+  sites: (a, b) => siteCount(b.sites) - siteCount(a.sites) || a.name.localeCompare(b.name),
+};
 
 /** Filters live in the URL (?rotation=competitive&sites=3&mine=1&q=door) so a view can be shared. */
 function useFilters() {
@@ -21,19 +31,21 @@ function useFilters() {
   const sites: Sites = params.get('sites') === '2' || params.get('sites') === '3' ? (params.get('sites') as Sites) : 'any';
   const mine = params.get('mine') === '1';
   const q = params.get('q') ?? '';
+  const sort: Sort = SORTS.some(([k]) => k === params.get('sort')) ? (params.get('sort') as Sort) : 'name';
   const set = (key: string, value: string | null) => {
     const next = new URLSearchParams(params);
     if (value == null || value === '') next.delete(key); else next.set(key, value);
     setParams(next, { replace: true });
   };
   return {
-    rotation, sites, mine, q,
+    rotation, sites, mine, q, sort,
+    setSort: (v: Sort) => set('sort', v === 'name' ? null : v),
     active: rotation !== 'all' || sites !== 'any' || mine || q.trim() !== '',
     setRotation: (v: Rotation) => set('rotation', v === 'all' ? null : v),
     setSites: (v: Sites) => set('sites', v === 'any' ? null : v),
     setMine: (v: boolean) => set('mine', v ? '1' : null),
     setQ: (v: string) => set('q', v),
-    clear: () => setParams(new URLSearchParams(), { replace: true }),
+    clear: () => setParams(sort === 'name' ? new URLSearchParams() : new URLSearchParams({ sort }), { replace: true }),
   };
 }
 
@@ -49,7 +61,7 @@ export function MapsPage() {
     if (f.sites !== 'any' && siteCount(m.sites) !== +f.sites) return false;
     if (f.mine && !setup.pool.includes(m.id)) return false;
     return true;
-  });
+  }).sort(sorters[f.sort]);
 
   const ids = list.map(m => m.id);
   const isCurrentPool = ids.length === setup.pool.length && ids.every(id => setup.pool.includes(id));
@@ -108,6 +120,12 @@ export function MapsPage() {
       <div className="results-bar" role="status">
         <span className="results-text"><b>{count}</b>{quals.length > 0 && <span className="mute">: {quals.join(', ')}</span>}</span>
         <div className="results-actions">
+          <label className="results-sort">
+            <span className="filter-label">Sort</span>
+            <select value={f.sort} onChange={e => f.setSort(e.target.value as Sort)}>
+              {SORTS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}
+            </select>
+          </label>
           {f.active && <button className="btn ghost sm" onClick={f.clear}>Clear filters</button>}
           {list.length >= 2 && (
             <button className="btn glassy sm" onClick={usePool} disabled={isCurrentPool} title={isCurrentPool ? 'These maps are already your veto pool' : undefined}>

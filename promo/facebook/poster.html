@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Map Veto posters</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap">
+<style>
+  /* One 1080×1350 slide per render: logo row, headline, a framed product visual, then the link row.
+     Map Veto's own palette: ink ground, strike red for bans, teal for picks, violet for the decider. */
+  :root {
+    --ink: #0d0a12;
+    --raised: #1a1322;
+    --text: #f6f1fa;
+    --muted: #c3b9cd;
+    --dim: #8d8399;
+    --line: rgb(255 255 255 / 0.12);
+    --ban: #e8131f;
+    --pick: #2bd4c8;
+    --decider: #8b5cf6;
+    --atk: #ff8a4c;
+    --def: #7aa2ff;
+    --display: "Poppins", system-ui, sans-serif;
+    --bn: "Hind Siliguri", "Poppins", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 1080px; height: 1350px; overflow: hidden; background: var(--ink); }
+  body { font-family: var(--display); color: var(--text); -webkit-font-smoothing: antialiased; }
+  body.bn .h, body.bn .sub, body.bn .feat li, body.bn .cap { font-family: var(--bn); }
+
+  .slide { position: relative; width: 1080px; height: 1350px; overflow: hidden; isolation: isolate;
+    background:
+      radial-gradient(70% 45% at 0% 0%, rgb(232 19 31 / 0.30), transparent 70%),
+      radial-gradient(60% 45% at 100% 100%, rgb(139 92 246 / 0.30), transparent 70%),
+      var(--ink); }
+  /* film grain so the gradients don't band */
+  .slide::after { content: ""; position: absolute; inset: 0; z-index: 50; pointer-events: none; opacity: 0.09; mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+
+  /* the ban slash from the map cards, used as the poster's one graphic device */
+  .slash { position: absolute; z-index: 1; width: 6px; height: 1900px; transform-origin: top left; box-shadow: 0 0 40px currentColor; }
+
+  .top { position: absolute; z-index: 20; top: 64px; left: 72px; right: 72px; display: flex; align-items: center; justify-content: space-between; }
+  .logo { display: flex; align-items: center; gap: 14px; }
+  .logo b { font-size: 34px; font-weight: 800; letter-spacing: -0.01em; line-height: 0.9; display: block; }
+  .logo b em { color: var(--ban); font-style: normal; }
+  .logo small { display: block; margin-top: 6px; font-size: 12.5px; font-weight: 600; letter-spacing: 0.115em; color: var(--muted); text-transform: uppercase; }
+  .count { font-size: 18px; font-weight: 600; color: var(--dim); font-variant-numeric: tabular-nums; }
+
+  .copy { position: absolute; z-index: 20; left: 72px; right: 72px; top: 170px; }
+  .h { font-size: 92px; line-height: 0.95; font-weight: 800; letter-spacing: -0.035em; text-wrap: balance; }
+  body.bn .h { font-size: 82px; line-height: 1.12; font-weight: 700; letter-spacing: 0; }
+  .h .ban { color: var(--ban); } .h .pick { color: var(--pick); } .h .dec { color: var(--decider); } .h .side { color: var(--atk); }
+  .sub { margin-top: 26px; max-width: 30ch; font-size: 31px; line-height: 1.35; color: var(--muted); font-weight: 500; text-wrap: pretty; }
+  body.bn .sub { font-size: 30px; line-height: 1.5; max-width: 32ch; }
+
+  .foot { position: absolute; z-index: 30; left: 0; right: 0; bottom: 0; padding: 120px 72px 60px;
+    display: flex; align-items: center; justify-content: space-between; gap: 24px;
+    background: linear-gradient(to top, var(--ink) 45%, transparent); }
+  .url { display: flex; align-items: center; gap: 16px; font-size: 34px; font-weight: 700; letter-spacing: -0.01em; }
+  .url i { display: grid; place-items: center; width: 54px; height: 54px; border-radius: 14px; font-style: normal;
+    background: linear-gradient(180deg, #ff2b37, #c90c18); box-shadow: 0 14px 40px -12px rgb(232 19 31 / 0.9), inset 0 1px 0 rgb(255 255 255 / 0.25); }
+  .url i svg { width: 26px; height: 26px; }
+  .formats { display: flex; gap: 8px; }
+  .formats span { padding: 9px 15px; border-radius: 10px; border: 1px solid var(--line); background: rgb(255 255 255 / 0.06); font-size: 20px; font-weight: 700; color: var(--muted); }
+
+  /* frames */
+  .browser { position: absolute; z-index: 10; border-radius: 22px; overflow: hidden; background: #08060b; border: 1px solid rgb(255 255 255 / 0.14);
+    box-shadow: 0 60px 120px -30px rgb(0 0 0 / 0.9), 0 0 0 1px rgb(0 0 0 / 0.6); }
+  .browser .bar { height: 46px; display: flex; align-items: center; gap: 9px; padding: 0 18px; background: #15101c; border-bottom: 1px solid var(--line); }
+  .browser .bar u { width: 12px; height: 12px; border-radius: 50%; background: rgb(255 255 255 / 0.16); text-decoration: none; }
+  .browser .bar span { margin-left: 18px; padding: 6px 18px; border-radius: 999px; background: rgb(255 255 255 / 0.07); font-size: 15px; color: var(--dim); }
+  .browser img { display: block; width: 100%; }
+  .phone { position: absolute; z-index: 10; padding: 11px; border-radius: 58px; background: #050407;
+    box-shadow: 0 0 0 2px rgb(255 255 255 / 0.12), 0 60px 110px -30px rgb(0 0 0 / 0.95); }
+  .phone .screen { border-radius: 47px; overflow: hidden; background: #0d0a12; padding-top: 44px; }
+  .phone img { display: block; width: 100%; }
+  .phone::before { content: ""; position: absolute; top: 24px; left: 50%; width: 118px; height: 32px; margin-left: -59px; border-radius: 99px; background: #050407; z-index: 2; }
+  .cap { position: absolute; z-index: 12; font-size: 23px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+  .cap i { width: 14px; height: 14px; border-radius: 4px; }
+  .glow { position: absolute; z-index: 0; border-radius: 50%; filter: blur(90px); }
+
+  .feat { list-style: none; padding: 0; display: grid; gap: 22px; }
+  .feat li { display: grid; grid-template-columns: 40px 1fr; gap: 16px; align-items: start; font-size: 29px; line-height: 1.3; font-weight: 600; }
+  .feat li i { width: 40px; height: 40px; border-radius: 11px; display: grid; place-items: center; font-style: normal; font-size: 22px; font-weight: 800; color: var(--ink); margin-top: 1px; }
+  .feat li small { display: block; font-size: 22px; font-weight: 500; color: var(--dim); margin-top: 2px; }
+  body.bn .feat li { font-size: 28px; line-height: 1.4; }
+</style>
+</head>
+<body>
+<div class="slide" id="slide"></div>
+<script>
+const MARK = `<svg width="58" height="58" viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2a1622"/><stop offset="1" stop-color="#0d0a12"/></linearGradient></defs>
+  <path d="M12 2h40a10 10 0 0 1 10 10v30L42 62H12A10 10 0 0 1 2 52V12A10 10 0 0 1 12 2z" fill="url(#g)"/>
+  <path d="M12 2h40a10 10 0 0 1 10 10v30L42 62H12A10 10 0 0 1 2 52V12A10 10 0 0 1 12 2z" fill="none" stroke="#fff" stroke-opacity=".14" stroke-width="1.5"/>
+  <path d="M13 12H22.5L32 31V43Z" fill="#2bd4c8"/><path d="M51 12H41.5L32 31V43Z" fill="#e8131f"/><path d="M32 46.5L36.5 51L32 55.5L27.5 51Z" fill="#8b5cf6"/></svg>`;
+const ARROW = `<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>`;
+
+const T = {
+  en: {
+    tag: 'Valorant map picker',
+    cover: { h: 'Run the veto like it’s the grand final.', sub: 'A free map veto tool for Valorant scrims and tournaments.' },
+    veto: { h: '<span class="ban">Bans,</span> <span class="pick">picks,</span> <span class="side">sides,</span> <span class="dec">decider.</span>', sub: 'Every step in the right order, with a turn timer and undo.' },
+    coin: { h: 'Who goes first? Flip for it.', sub: 'A 3D coin toss decides which team acts first.' },
+    rooms: { h: 'Each captain on their own phone.', sub: 'One link per captain. Turns are checked on the server, and everyone else watches live.', a: 'Team Alpha’s phone', b: 'Team Omega’s phone' },
+    plan: { h: 'Share the plan anywhere.', sub: 'Sides, notes and agent comps as an image for Discord or Messenger, or as a link.' },
+    stream: { h: 'Streaming a tournament?', sub: 'Add the transparent overlay to OBS. It follows the veto live.' },
+    free: { h: 'Free. <span style="white-space:nowrap">No sign-up.</span> No ads.', items: [
+      ['Bo1, Bo2, Bo3 and Bo5', 'with the current competitive pool'],
+      ['Coin toss, turn timer and undo', 'progress is saved after every step'],
+      ['Online rooms for captains', 'spectators watch live'],
+      ['Plan image and share link', 'notes and agent comps per map'],
+      ['Works on any phone', 'nothing to install'],
+    ] },
+  },
+  bn: {
+    tag: 'Valorant map picker',
+    cover: { h: 'প্রতিটা ভেটো হোক গ্র্যান্ড ফাইনালের মতো।', sub: 'Valorant স্ক্রিম আর টুর্নামেন্টের জন্য ফ্রি ম্যাপ ভেটো টুল।' },
+    veto: { h: '<span class="ban">ব্যান,</span> <span class="pick">পিক,</span> <span class="side">সাইড,</span> <span class="dec">ডিসাইডার।</span>', sub: 'সব ধাপ সঠিক সিরিয়ালে, টার্ন টাইমার আর আনডু সহ।' },
+    coin: { h: 'কে আগে শুরু করবে? টস করেই ঠিক হোক।', sub: 'থ্রিডি কয়েন টস ঠিক করে দেবে কোন টিম আগে ভেটো দেবে।' },
+    rooms: { h: 'দুই ক্যাপ্টেন, দুই আলাদা ফোন।', sub: 'প্রতিটা ক্যাপ্টেনের নিজের লিংক। সার্ভারে প্রতিটা চাল যাচাই হয়, বাকিরা লাইভ দেখে।', a: 'Team Alpha-র ফোন', b: 'Team Omega-র ফোন' },
+    plan: { h: 'প্ল্যান শেয়ার করুন যেকোনো জায়গায়।', sub: 'সাইড, নোট আর এজেন্ট কম্প সহ ছবি হিসেবে Discord বা Messenger-এ, অথবা লিংক।' },
+    stream: { h: 'টুর্নামেন্ট স্ট্রিম করছেন?', sub: 'OBS-এ ট্রান্সপারেন্ট ওভারলে যোগ করুন, ভেটোর সাথে লাইভ আপডেট হবে।' },
+    free: { h: 'ফ্রি। <span style="white-space:nowrap">সাইন-আপ নেই।</span> অ্যাড নেই।', items: [
+      ['Bo1, Bo2, Bo3 আর Bo5', 'কারেন্ট কম্পিটিটিভ ম্যাপ পুল দিয়ে'],
+      ['কয়েন টস, টার্ন টাইমার আর আনডু', 'প্রতিটা ধাপের পর প্রোগ্রেস সেভ হয়'],
+      ['ক্যাপ্টেনদের জন্য অনলাইন রুম', 'বাকিরা লাইভ দেখতে পারে'],
+      ['প্ল্যানের ছবি আর শেয়ার লিংক', 'প্রতিটা ম্যাপে নোট আর এজেন্ট কম্প'],
+      ['যেকোনো ফোনে চলে', 'কিছু ইনস্টল করতে হয় না'],
+    ] },
+  },
+};
+
+const ORDER = ['cover', 'veto', 'coin', 'rooms', 'plan', 'stream', 'free'];
+const q = new URLSearchParams(location.search);
+const id = q.get('id') || 'cover', lang = q.get('lang') || 'en';
+const t = T[lang], s = t[id];
+document.body.classList.add(lang);
+document.documentElement.lang = lang;
+
+const slash = (left, top, color, deg, op = 1) => `<i class="slash" style="left:${left}px;top:${top}px;color:${color};background:${color};transform:rotate(${deg}deg);opacity:${op}"></i>`;
+const topRow = `<div class="top"><div class="logo">${MARK}<div><b>MAP <em>VETO</em></b><small>${t.tag}</small></div></div><div class="count">${ORDER.indexOf(id) + 1} / ${ORDER.length}</div></div>`;
+const copy = `<div class="copy"><h1 class="h">${s.h}</h1>${s.sub ? `<p class="sub">${s.sub}</p>` : ''}</div>`;
+const foot = `<div class="foot"><div class="url"><i>${ARROW}</i>map-veto.tam11a.dev</div><div class="formats"><span>Bo1</span><span>Bo2</span><span>Bo3</span><span>Bo5</span></div></div>`;
+const browser = (src, style, url = 'map-veto.tam11a.dev/veto') => `<div class="browser" style="${style}"><div class="bar"><u></u><u></u><u></u><span>${url}</span></div><img src="shots/${src}" alt=""></div>`;
+const phone = (src, style, imgStyle = '') => `<div class="phone" style="${style}"><div class="screen"><img src="shots/${src}" alt="" style="${imgStyle}"></div></div>`;
+
+const V = {
+  cover: () => `
+    <img src="shots/wall.png" alt="" style="position:absolute;z-index:2;left:0;top:110px;width:1080px;height:960px">
+    <div style="position:absolute;inset:0;z-index:3;background:linear-gradient(180deg, var(--ink) 0%, var(--ink) 8%, rgb(13 10 18/0) 18%, rgb(13 10 18/0) 46%, rgb(13 10 18/.88) 66%, var(--ink) 76%)"></div>
+    <style>.copy{top:auto;bottom:250px}.h{font-size:104px}body.bn .h{font-size:90px}</style>`,
+  veto: () => `${slash(860, -200, 'var(--pick)', 24, .55)}${slash(1010, -200, 'var(--ban)', 24, .55)}
+    <div class="glow" style="left:180px;top:620px;width:760px;height:500px;background:rgb(43 212 200/.22)"></div>
+    ${browser('board.png', 'left:120px;top:520px;width:1180px;transform:perspective(2200px) rotateY(-16deg) rotateX(6deg) rotateZ(-1deg);transform-origin:left center')}`,
+  coin: () => `
+    <div class="glow" style="left:240px;top:560px;width:600px;height:600px;background:rgb(232 19 31/.35)"></div>
+    <div style="position:absolute;z-index:10;left:90px;top:470px;width:900px;height:760px;border-radius:40px;overflow:hidden;
+      background:url(shots/coin-landed.png) 50% 50%/1500px auto no-repeat;
+      -webkit-mask:radial-gradient(closest-side, #000 72%, transparent 100%);mask:radial-gradient(closest-side, #000 72%, transparent 100%)"></div>
+    <div style="position:absolute;z-index:9;right:30px;top:430px;width:300px;height:300px;opacity:.55;
+      background:url(shots/coin-flight.png) 50% 17%/900px auto no-repeat;
+      -webkit-mask:radial-gradient(closest-side, #000 55%, transparent 100%);mask:radial-gradient(closest-side, #000 55%, transparent 100%);transform:rotate(12deg)"></div>`,
+  rooms: () => `${slash(70, 560, 'var(--pick)', -18, .45)}${slash(1000, 520, 'var(--ban)', 18, .45)}
+    ${phone('room-captain-a.png', 'left:120px;top:650px;width:390px;transform:rotate(-7deg)')}
+    ${phone('room-captain-b.png', 'left:570px;top:610px;width:390px;transform:rotate(6deg)')}
+    <div class="cap" style="left:150px;top:592px;color:var(--pick)"><i style="background:var(--pick)"></i>${s.a}</div>
+    <div class="cap" style="left:610px;top:552px;color:var(--ban)"><i style="background:var(--ban)"></i>${s.b}</div>`,
+  plan: () => `
+    <div class="glow" style="left:420px;top:620px;width:600px;height:600px;background:rgb(139 92 246/.32)"></div>
+    <div style="position:absolute;z-index:8;left:60px;top:560px;width:720px;border-radius:18px;overflow:hidden;transform:rotate(-6deg);
+      box-shadow:0 50px 100px -30px rgb(0 0 0/.9),0 0 0 1px rgb(255 255 255/.12)"><img src="shots/export-landscape.jpg" style="display:block;width:100%" alt=""></div>
+    ${phone('export-story.jpg', 'left:600px;top:470px;width:400px;transform:rotate(5deg)', 'aspect-ratio:390/844;object-fit:cover;object-position:top')}`,
+  stream: () => `${slash(-40, 520, 'var(--decider)', -24, .5)}
+    <div class="glow" style="left:150px;top:700px;width:800px;height:400px;background:rgb(232 19 31/.25)"></div>
+    <div style="position:absolute;z-index:10;left:60px;top:560px;width:960px;border-radius:22px;overflow:hidden;border:10px solid #050407;
+      box-shadow:0 0 0 2px rgb(255 255 255/.12),0 60px 120px -30px rgb(0 0 0/.95)"><img src="shots/overlay-compact.jpg" style="display:block;width:100%" alt=""></div>
+    <div style="position:absolute;z-index:11;left:96px;top:596px;display:flex;align-items:center;gap:10px;padding:8px 16px;border-radius:10px;background:var(--ban);font-weight:800;font-size:20px;letter-spacing:.08em">
+      <i style="width:10px;height:10px;border-radius:50%;background:#fff"></i>LIVE</div>
+    <div style="position:absolute;z-index:11;left:72px;top:1130px;font-size:22px;color:var(--dim)">OBS browser source · 1920×1080 · transparent</div>`,
+  free: () => `
+    <div class="glow" style="left:600px;top:500px;width:520px;height:700px;background:rgb(43 212 200/.2)"></div>
+    <ul class="feat" style="position:absolute;z-index:12;left:72px;top:${lang === 'bn' ? 440 : 400}px;width:560px">
+      ${s.items.map(([a, b], i) => `<li><i style="background:${['var(--ban)', 'var(--pick)', 'var(--decider)', 'var(--atk)', 'var(--def)'][i]}">✓</i><span>${a}<small>${b}</small></span></li>`).join('')}
+    </ul>
+    ${phone('mobile-board.png', 'left:690px;top:430px;width:350px;transform:rotate(4deg)')}`,
+};
+
+document.getElementById('slide').innerHTML = topRow + V[id]() + copy + foot;
+</script>
+</body>
+</html>

@@ -101,7 +101,7 @@ function Footer() {
           <span className="foot-sign">
             © {new Date().getFullYear()} {BRAND.full}
             <a className="maker" href="https://tam11a.dev" target="_blank" rel="noreferrer">
-              Designed and built by <b>tam11a</b>
+              Designed and built by <b>Tam</b>
             </a>
           </span>
         </div>

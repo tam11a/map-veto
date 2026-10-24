@@ -191,6 +191,6 @@ The license covers this repository's code and its own assets (the Map Veto logo 
 - Rotation fallback: the [Valorant Wiki](https://valorant.fandom.com) (CC BY-SA)
 - Fonts: Big Shoulders Display and Barlow, from Google Fonts
 
-Designed and built by [tam11a](https://tam11a.dev).
+Designed and built by [Tam](https://tam11a.dev).
 
 Map Veto is a fan-made tool and is not affiliated with or endorsed by Riot Games. VALORANT and all related names and artwork are trademarks of Riot Games, Inc.

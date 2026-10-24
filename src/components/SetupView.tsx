@@ -288,6 +288,10 @@ function RuleSet() {
   const seq = getSeq(S);
   const active = presets.find(p => p.format === S.format && sameSeq(p.seq, seq) && p.sidePick === S.sidePick && p.sideRule === S.sideRule && p.deciderRule === S.deciderRule);
   const userPreset = active && S.presets.some(p => p.id === active.id) ? active : null;
+  // the format tabs pick Bo1/Bo2/Bo3/Bo5; the dropdown only offers variants within the chosen format
+  const builtinHere = BUILTIN_PRESETS.filter(p => p.format === S.format);
+  const savedHere = S.presets.filter(p => p.format === S.format);
+  const variants = builtinHere.length + savedHere.length > 1;
   const [naming, setNaming] = useState(false);
   const [name, setName] = useState('');
 
@@ -314,22 +318,28 @@ function RuleSet() {
   return (
     <div className="flex flex-wrap items-center gap-x-6 gap-y-3 border-b border-white/10 pb-4">
       <div className="flex flex-wrap items-center gap-3">
-        <Label htmlFor="preset-sel" className="text-sm text-muted-foreground">Rule set</Label>
-        <Select value={active?.id ?? ''} onValueChange={apply}>
-          <SelectTrigger id="preset-sel" className="min-w-52"><SelectValue placeholder="Custom order" /></SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              <SelectLabel>Common orders</SelectLabel>
-              {BUILTIN_PRESETS.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
-            </SelectGroup>
-            {S.presets.length > 0 && (
-              <SelectGroup>
-                <SelectLabel>Saved in this browser</SelectLabel>
-                {S.presets.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
-              </SelectGroup>
-            )}
-          </SelectContent>
-        </Select>
+        {variants && (
+          <>
+            <Label htmlFor="preset-sel" className="text-sm text-muted-foreground">Rule set</Label>
+            <Select value={active?.id ?? ''} onValueChange={apply}>
+              <SelectTrigger id="preset-sel" className="min-w-52"><SelectValue placeholder="Custom order" /></SelectTrigger>
+              <SelectContent>
+                {builtinHere.length > 0 && (
+                  <SelectGroup>
+                    <SelectLabel>Common {FORMATS[S.format].label} orders</SelectLabel>
+                    {builtinHere.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
+                  </SelectGroup>
+                )}
+                {savedHere.length > 0 && (
+                  <SelectGroup>
+                    <SelectLabel>Saved in this browser</SelectLabel>
+                    {savedHere.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
+                  </SelectGroup>
+                )}
+              </SelectContent>
+            </Select>
+          </>
+        )}
         {naming ? (
           <form className="flex items-center gap-2" onSubmit={e => { e.preventDefault(); save(); }}>
             <Input autoFocus value={name} onChange={e => setName(e.target.value)} maxLength={40} aria-label="Rule set name" placeholder="e.g. League Bo3" className="h-9 w-44" />

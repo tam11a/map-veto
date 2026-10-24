@@ -141,3 +141,7 @@
   @keyframes pulse-line { 50% { opacity: 0.3; } }
   @keyframes toss { 0% { translate: 0 60px; } 35% { translate: 0 -70px; } 70% { translate: 0 10px; } 100% { translate: 0 0; } }
 }
+
+/* the stream overlay (an OBS browser source) needs a see-through page */
+html.is-overlay, html.is-overlay body { background: transparent !important; }
+html.overlay-bg body { background: #0b0e14 !important; }

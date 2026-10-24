@@ -530,10 +530,10 @@ export function Timeline({ teams, hist, setup: given }: { teams: [string, string
           <div
             key={i}
             data-now={now || undefined}
+            data-done={i < n || undefined}
             className={cn(
-              'tl relative min-w-23 shrink-0 rounded-md border border-white/10 bg-card px-2.5 py-1.5 transition-[opacity,border-color,box-shadow]',
+              'relative min-w-23 shrink-0 rounded-md border border-white/10 bg-card px-2.5 py-1.5 transition-[opacity,border-color,box-shadow]',
               i < n || now ? 'opacity-100' : 'opacity-60',
-              i < n && 'done',
               now && 'border-(--tc) shadow-[0_0_0_1px_var(--tc)] after:absolute after:inset-x-2.5 after:-bottom-px after:h-0.5 after:bg-(--tc) motion-safe:after:animate-pulse-line',
             )}
             style={vars({ '--tc': st.team != null ? TEAMC[st.team] : DECIDER })}

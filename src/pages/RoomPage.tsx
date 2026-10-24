@@ -1,19 +1,21 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { Icon } from '../components/Icons';
-import { MapArt } from '../components/MapArt';
-import { Overlay } from '../components/Overlay';
-import { MapCard, type Rec, TeamCard, Timeline, TurnBanner } from '../components/VetoView';
+import { ExternalLinkIcon, LinkIcon, Undo2Icon } from 'lucide-react';
+import { ConfirmDialog, Panel, Segmented } from '../components/kit';
+import { Board, MapCard, type Rec, SideDialog, SoundButton, TeamCard, Timeline, TurnBanner } from '../components/VetoView';
+import { Button } from '../components/ui/button';
+import { Checkbox } from '../components/ui/checkbox';
+import { Label } from '../components/ui/label';
 import { DECIDER, TEAMC } from '../data/maps';
-import { confetti, cx, vars } from '../lib/fx';
+import { confetti, vars } from '../lib/fx';
 import { OVERLAY_DEFAULTS, type OverlayOptions, overlayQuery } from '../lib/overlay';
 import { type Role, roomLinks, rememberToken, savedInvite, savedToken, useRoom } from '../lib/rooms';
 import { copyText, payload, planPath } from '../lib/share';
-import { cue, setSound, useSound } from '../lib/sound';
+import { cue, useSound } from '../lib/sound';
 import { useTitle } from '../lib/useTitle';
 import { curStep, games, getMap, remaining } from '../lib/veto';
 import { useApp } from '../state';
-import type { Side, TeamIdx } from '../types';
+import type { TeamIdx } from '../types';
 
 const ROLE_TEAM: Record<Role, TeamIdx | null> = { a: 0, b: 1, host: null };
 
@@ -39,6 +41,7 @@ export function RoomPage() {
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => { const t = setInterval(() => setNow(Date.now()), 250); return () => clearInterval(t); }, []);
   const [busy, setBusy] = useState(false);
+  const [restart, setRestart] = useState(false);
   const sound = useSound();
 
   const S = room?.setup, hist = room?.veto.hist ?? [], teams = room?.veto.teams ?? ['', ''] as [string, string];
@@ -98,10 +101,10 @@ export function RoomPage() {
 
   if (!room || !S) {
     return (
-      <div className="container room-wait">
-        <h1>{error ? 'Can’t open this room' : 'Joining the room…'}</h1>
-        {error && <p>{error}</p>}
-        {error && <Link className="btn" to="/veto">Start a new veto</Link>}
+      <div className="container grid justify-items-center gap-4 py-32 text-center">
+        <h1 className="text-4xl font-extrabold tracking-[-0.03em]">{error ? 'Can’t open this room' : 'Joining the room…'}</h1>
+        {error && <p className="max-w-[52ch] text-muted-foreground">{error}</p>}
+        {error && <Button asChild variant="secondary"><Link to="/veto">Start a new veto</Link></Button>}
       </div>
     );
   }
@@ -111,24 +114,33 @@ export function RoomPage() {
   const canUndo = !!lastReal && (role === 'host' || (myTeam != null && lastReal.team === myTeam));
   const logoOf = (i: TeamIdx) => S.logos[S.teams[0] === teams[i] ? 0 : S.teams[1] === teams[i] ? 1 : i];
   const sideStep = step?.k === 'side' ? step : null;
+  const seat = myTeam != null ? TEAMC[myTeam] : role === 'host' ? DECIDER : 'var(--mute)';
 
   return (
-    <div className="container page-app room">
-      <div className="room-bar">
-        <span className={cx('room-role', role && `r-${role}`)} style={vars({ '--tc': myTeam != null ? TEAMC[myTeam] : role === 'host' ? DECIDER : 'var(--mute)' })}>
-          <i />{role === 'host' ? 'You’re the host: you can act for both teams' : myTeam != null ? `You’re the captain of ${teams[myTeam]}` : 'Spectating'}
+    <div className="container grid gap-0 pt-8 pb-16">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+        <span
+          data-role-badge
+          className="inline-flex items-center gap-2 rounded-full border border-(--tc)/50 bg-(--tc)/10 px-3.5 py-1.5 text-sm font-semibold"
+          style={vars({ '--tc': seat })}
+        >
+          <i className="size-2 rounded-full bg-(--tc) shadow-[0_0_0_3px_color-mix(in_srgb,var(--tc)_25%,transparent)]" />
+          {role === 'host' ? 'You’re the host: you can act for both teams' : myTeam != null ? `You’re the captain of ${teams[myTeam]}` : 'Spectating'}
         </span>
-        <span className="room-id">Room <b>{room.id}</b>{error && <em> · reconnecting</em>}</span>
+        <span className="text-sm text-muted-foreground">
+          Room <b className="font-bold tracking-[0.06em] text-foreground">{room.id}</b>
+          {error && <em className="not-italic text-decider"> · reconnecting</em>}
+        </span>
       </div>
 
       {role === 'host' && !room.done && <Invite id={room.id} teams={teams} />}
 
-      <div className="vbar">
+      <div className="grid grid-cols-2 items-stretch gap-3 lg:grid-cols-[1fr_minmax(320px,auto)_1fr]">
         {([0, 1] as const).map(t => <TeamCard key={t} team={t} name={teams[t]} hist={hist} active={step?.team === t} logo={logoOf(t)} />)}
         <TurnBanner step={step} teams={teams} timer={S.timer} deadline={room.deadline} now={now} paused={null} setup={S} waiting={!!step && !mine} doneText="The match plan is ready to open" />
       </div>
       <Timeline teams={teams} hist={hist} setup={S} />
-      <div className="board" data-mode={live ? step!.k : 'idle'} style={vars({ '--tc': step?.team != null ? TEAMC[step.team] : DECIDER })}>
+      <Board mode={live ? step!.k : 'idle'} color={step?.team != null ? TEAMC[step.team] : DECIDER}>
         {S.pool.map(mapId => (
           <MapCard
             key={mapId}
@@ -144,38 +156,31 @@ export function RoomPage() {
             onAct={() => move({ type: 'act', map: mapId })}
           />
         ))}
-      </div>
+      </Board>
 
-      <div className="vfoot">
-        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-          {room.done && <button className="btn primary" onClick={openPlan}>Open the match plan</button>}
-          {role && <button className="btn" onClick={() => move({ type: 'undo' })} disabled={!canUndo || busy}><Icon.undo /> Undo</button>}
-          {role === 'host' && <button className="btn ghost" disabled={!hist.length || busy} onClick={() => { if (confirm('Restart the veto for everyone?')) move({ type: 'restart' }); }}>Restart</button>}
-          <button className="btn ghost" onClick={() => setSound(!sound)} aria-pressed={sound} aria-label={sound ? 'Sound on. Turn off' : 'Sound off. Turn on'}>{sound ? <Icon.sound /> : <Icon.mute />}</button>
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap gap-2">
+          {room.done && <Button onClick={openPlan}>Open the match plan</Button>}
+          {role && <Button variant="secondary" onClick={() => move({ type: 'undo' })} disabled={!canUndo || busy}><Undo2Icon /> Undo</Button>}
+          {role === 'host' && <Button variant="ghost" disabled={!hist.length || busy} onClick={() => setRestart(true)}>Restart</Button>}
+          <SoundButton sound={sound} />
         </div>
-        <div className="hint" style={{ alignSelf: 'center' }}>
+        <p className="text-sm text-muted-foreground">
           {room.done ? `Finished. ${games(hist).length} map${games(hist).length === 1 ? '' : 's'} to play.` : role ? 'Moves sync to everyone in the room within a second.' : 'This is a watch-only link.'}
-        </div>
+        </p>
       </div>
 
-      <Overlay open={!!sideStep && mine} labelledBy="room-side-title">
-        {sideStep && (
-          <>
-            <div className="hero-art"><MapArt map={getMap(S, sideStep.map)} kind="splash" watermark={false} /></div>
-            <div className="body">
-              <div className="kicker" style={{ color: sideStep.team != null ? TEAMC[sideStep.team] : undefined }}>{sideStep.team != null && teams[sideStep.team]} chooses a starting side</div>
-              <h2 id="room-side-title">{getMap(S, sideStep.map).name}</h2>
-              <div className="sides">
-                {(['atk', 'def'] as Side[]).map(sd => (
-                  <button key={sd} className={sd} disabled={busy} onClick={() => move({ type: 'side', side: sd })}>
-                    <b>{sd === 'atk' ? 'ATTACK' : 'DEFENSE'}</b><small>{sd === 'atk' ? 'Start on offense and plant the spike' : 'Start holding the sites'}</small><kbd>{sd === 'atk' ? 'A' : 'D'}</kbd>
-                  </button>
-                ))}
-              </div>
-            </div>
-          </>
-        )}
-      </Overlay>
+      <ConfirmDialog open={restart} onOpenChange={setRestart} title="Restart the veto for everyone?" confirmLabel="Restart" onConfirm={() => move({ type: 'restart' })}>
+        Every step is cleared for both captains and spectators, and the veto starts again from the first ban.
+      </ConfirmDialog>
+      <SideDialog
+        step={sideStep && mine ? sideStep : null}
+        setup={S}
+        teams={teams}
+        mapNo={sideStep ? games(hist).findIndex(g => g.map === sideStep.map) + 1 : 0}
+        disabled={busy}
+        onChoose={sd => move({ type: 'side', side: sd })}
+      />
     </div>
   );
 }
@@ -197,38 +202,42 @@ function Invite({ id, teams }: { id: string; teams: [string, string] }) {
   ];
   const set = (p: Partial<OverlayOptions>) => setOv(o => ({ ...o, ...p }));
   const preview = links.overlay + overlayQuery(ov) + (overlayQuery(ov) ? '&' : '?') + 'bg=1';
+  const check = (key: 'maps' | 'title', label: string) => (
+    <div className="flex items-center gap-2">
+      <Checkbox id={`ov-${key}`} checked={ov[key]} onCheckedChange={v => set({ [key]: v === true })} />
+      <Label htmlFor={`ov-${key}`} className="text-sm">{label}</Label>
+    </div>
+  );
   return (
-    <section className={cx('invite', !open && 'closed')} aria-label="Invite links">
-      <header>
-        <h2>Invite the captains</h2>
-        <p className="hint">Send each captain their own link. Anyone with a captain link can act for that team, so share them privately.</p>
-        <button className="btn ghost sm" onClick={() => setOpen(o => !o)} aria-expanded={open}>{open ? 'Hide' : 'Show links'}</button>
-      </header>
+    <Panel data-invite className="mb-4 grid gap-3 p-5" aria-label="Invite links">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h2 className="text-xl font-bold tracking-tight">Invite the captains</h2>
+          <p className="mt-0.5 text-sm text-muted-foreground">Send each captain their own link. Anyone with a captain link can act for that team, so share them privately.</p>
+        </div>
+        <Button size="sm" variant="ghost" onClick={() => setOpen(o => !o)} aria-expanded={open}>{open ? 'Hide' : 'Show links'}</Button>
+      </div>
       {open && (
-        <ul>
+        <ul className="grid gap-1.5">
           {rows.map(([label, url, col]) => (
-            <li key={label} style={vars({ '--tc': col })}>
-              <span><i />{label}</span>
-              <code>{url.replace(/\?t=.+$/, '?t=…')}</code>
-              <button className="btn sm" onClick={() => copy(label + ' link', url)}><Icon.link /> Copy</button>
+            <li key={label} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-lg border border-white/10 bg-black/25 py-1.5 pr-1.5 pl-3 md:grid-cols-[220px_minmax(0,1fr)_auto]" style={vars({ '--tc': col })}>
+              <span className="flex min-w-0 items-center gap-2 text-sm font-semibold"><i className="size-2 shrink-0 rounded-[2px] bg-(--tc)" /><span className="truncate">{label}</span></span>
+              <code className="hidden truncate text-xs text-muted-foreground md:block">{url.replace(/\?t=.+$/, '?t=…')}</code>
+              <Button size="sm" variant="secondary" onClick={() => copy(label + ' link', url)}><LinkIcon /> Copy</Button>
             </li>
           ))}
-          <li className="ov-opts" style={vars({ '--tc': DECIDER })} aria-label="Overlay layout">
-            <span>Overlay layout</span>
-            <div className="ov-opts-in">
-              <div className="seg" role="group" aria-label="Position">
-                {(['bottom', 'top'] as const).map(p => <button key={p} className={cx(ov.pos === p && 'on')} aria-pressed={ov.pos === p} onClick={() => set({ pos: p })}>{p === 'bottom' ? 'Bottom' : 'Top'}</button>)}
-              </div>
-              <div className="seg" role="group" aria-label="Style">
-                {([false, true] as const).map(c => <button key={String(c)} className={cx(ov.compact === c && 'on')} aria-pressed={ov.compact === c} onClick={() => set({ compact: c })}>{c ? 'One row' : 'Full'}</button>)}
-              </div>
-              <button className={cx('filter-toggle', ov.maps && 'on')} aria-pressed={ov.maps} onClick={() => set({ maps: !ov.maps })}><span className="ft-box">{ov.maps && <Icon.check />}</span>Maps</button>
-              <button className={cx('filter-toggle', ov.title && 'on')} aria-pressed={ov.title} onClick={() => set({ title: !ov.title })}><span className="ft-box">{ov.title && <Icon.check />}</span>Title</button>
-              <a className="btn ghost sm" href={preview} target="_blank" rel="noreferrer">Preview</a>
+          <li className="grid items-center gap-3 rounded-lg border border-white/10 bg-black/25 px-3 py-2.5 md:grid-cols-[220px_minmax(0,1fr)]" aria-label="Overlay layout">
+            <span className="text-sm font-semibold">Overlay layout</span>
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+              <Segmented<'bottom' | 'top'> label="Position" size="sm" value={ov.pos} onChange={pos => set({ pos })} options={[{ value: 'bottom', label: 'Bottom' }, { value: 'top', label: 'Top' }]} />
+              <Segmented<'full' | 'row'> label="Style" size="sm" value={ov.compact ? 'row' : 'full'} onChange={v => set({ compact: v === 'row' })} options={[{ value: 'full', label: 'Full' }, { value: 'row', label: 'One row' }]} />
+              {check('maps', 'Maps')}
+              {check('title', 'Title')}
+              <Button asChild size="sm" variant="ghost"><a href={preview} target="_blank" rel="noreferrer"><ExternalLinkIcon /> Preview</a></Button>
             </div>
           </li>
         </ul>
       )}
-    </section>
+    </Panel>
   );
 }

@@ -1,0 +1,8 @@
+# keep LF in the repository on every platform
+* text=auto eol=lf
+
+*.jpg binary
+*.png binary
+*.gif binary
+*.webp binary
+*.ico binary

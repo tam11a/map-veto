@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions and ideas
+    url: https://github.com/tam11a/map-veto/discussions
+    about: Ask how something works or share how you run vetoes.
+  - name: Report a security problem
+    url: https://github.com/tam11a/map-veto/security/advisories/new
+    about: Please report vulnerabilities privately, not in a public issue.

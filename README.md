@@ -223,7 +223,14 @@ The key is only read on the server, by the Netlify function, the build-time snap
 
 ## Contributing
 
-Bug reports, ideas and pull requests are welcome. [CONTRIBUTING.md](CONTRIBUTING.md) covers the architecture, the design system, code style, testing, and how to add maps, rule sets and features.
+Bug reports, ideas and pull requests are welcome.
+
+- **Found a bug or have an idea?** [Open an issue](https://github.com/tam11a/map-veto/issues/new/choose). There's a form for bugs, feature ideas and an out-of-date map rotation.
+- **Want to build something?** The [roadmap](ROADMAP.md) lists what's planned, and [good first issues](https://github.com/tam11a/map-veto/labels/good%20first%20issue) are small and self-contained.
+- **Before your first pull request**, read [CONTRIBUTING.md](CONTRIBUTING.md). It covers the architecture, the design system, code style, testing, and how to add maps, rule sets and features.
+- **Questions** go in [Discussions](https://github.com/tam11a/map-veto/discussions).
+
+Everyone taking part follows the [Code of Conduct](CODE_OF_CONDUCT.md). Report security problems privately, as described in [SECURITY.md](SECURITY.md). Changes are listed in the [changelog](CHANGELOG.md).
 
 ## License
 

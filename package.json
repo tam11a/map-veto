@@ -1,14 +1,34 @@
 {
   "name": "map-veto",
-  "private": true,
   "version": "1.0.0",
-  "license": "MIT",
-  "author": "tam11a",
+  "private": true,
+  "description": "Run a pro-style Valorant map veto for Bo1, Bo2, Bo3 and Bo5, then share the plan with your team.",
+  "keywords": [
+    "valorant",
+    "map-veto",
+    "map-picker",
+    "esports",
+    "veto",
+    "tournament",
+    "react",
+    "vite"
+  ],
+  "homepage": "https://map-veto.tam11a.dev",
+  "bugs": {
+    "url": "https://github.com/tam11a/map-veto/issues"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/tam11a/map-veto.git"
   },
-  "homepage": "https://map-veto.tam11a.dev",
+  "license": "MIT",
+  "author": {
+    "name": "Tam",
+    "url": "https://tam11a.dev"
+  },
+  "engines": {
+    "node": ">=20"
+  },
   "type": "module",
   "scripts": {
     "predev": "node scripts/fetch-rotation.mjs",

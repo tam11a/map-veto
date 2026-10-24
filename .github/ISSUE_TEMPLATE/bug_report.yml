@@ -1,0 +1,56 @@
+name: Bug report
+description: Something in Map Veto doesn't work as expected.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for reporting. A share link or the steps to reproduce make bugs much faster to fix.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you saw, and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open the lobby with a Bo3
+        2. Ban Abyss and Bind
+        3. ...
+    validations:
+      required: true
+  - type: input
+    id: link
+    attributes:
+      label: Share link or page
+      description: A plan's share link reproduces it exactly. Never paste a captain link from an online room; anyone with it can act for that team.
+      placeholder: https://map-veto.tam11a.dev/...
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where does it happen?
+      multiple: true
+      options:
+        - Lobby (setup)
+        - Coin toss
+        - Live veto
+        - Online room
+        - Stream overlay
+        - Match plan or exports
+        - Maps or map pages
+        - Landing page or guide
+        - Somewhere else
+  - type: input
+    id: device
+    attributes:
+      label: Browser and device
+      placeholder: Chrome 131 on Windows 11, Safari on iPhone 15
+    validations:
+      required: true
+  - type: textarea
+    id: extra
+    attributes:
+      label: Screenshots or anything else

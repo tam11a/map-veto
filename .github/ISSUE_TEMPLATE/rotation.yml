@@ -1,0 +1,27 @@
+name: Map rotation is out of date
+description: The competitive map pool on the site doesn't match the game.
+labels: [rotation]
+title: "Rotation: "
+body:
+  - type: markdown
+    attributes:
+      value: The pool comes from Riot's queue data or the Valorant Wiki, with a hand-checked fallback. When Riot changes the pool at a new act, the fallback in `src/data/maps.ts` needs updating.
+  - type: textarea
+    id: pool
+    attributes:
+      label: The current competitive pool
+      placeholder: Abyss, Bind, Corrode, Haven, Lotus, Summit, Sunset
+    validations:
+      required: true
+  - type: input
+    id: source
+    attributes:
+      label: Source
+      description: Patch notes or another official link for the change.
+    validations:
+      required: true
+  - type: input
+    id: shown
+    attributes:
+      label: What the Maps page shows
+      description: The maps it lists and the source line under the title (Live rotation, Rotation snapshot or Built-in rotation).

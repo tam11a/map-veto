@@ -1,7 +1,8 @@
 # Contributing to Map Veto
 
-Thanks for helping out. This guide covers how the code is organized, the conventions it follows, and how to make common changes. Read the [README](README.md) first for what the app does.
+Thanks for helping out. This guide covers how the code is organized, the conventions it follows, and how to make common changes. Read the [README](README.md) first for what the app does. Everyone taking part follows the [Code of Conduct](CODE_OF_CONDUCT.md).
 
+- [Finding something to work on](#finding-something-to-work-on)
 - [Getting started](#getting-started)
 - [How the code is organized](#how-the-code-is-organized)
 - [Core concepts](#core-concepts)
@@ -9,6 +10,13 @@ Thanks for helping out. This guide covers how the code is organized, the convent
 - [Common changes](#common-changes)
 - [Testing](#testing)
 - [Pull requests](#pull-requests)
+
+## Finding something to work on
+
+- The [roadmap](ROADMAP.md) lists what's planned next. Each item links to an issue.
+- Issues labelled [good first issue](https://github.com/tam11a/map-veto/labels/good%20first%20issue) are small and don't need much context.
+- For anything bigger than a bug fix, comment on the issue (or open one with the feature form) before you start, so we can agree on the approach and nobody duplicates work.
+- Report bugs and out-of-date map rotations with the [issue forms](https://github.com/tam11a/map-veto/issues/new/choose), and security problems privately as described in [SECURITY.md](SECURITY.md).
 
 ## Getting started
 
@@ -26,7 +34,7 @@ npm run check        # tsc + vitest
 npm run build        # production build
 ```
 
-Requirements: Node 20 or newer. No environment variables are needed. `HENRIK_API_KEY` in `.env.local` is optional (see the README) and must never be committed; `.env*` files other than `.env.example` are gitignored.
+Requirements: Node 20 or newer (`.nvmrc` pins it for nvm and CI). No environment variables are needed. `HENRIK_API_KEY` in `.env.local` is optional (see the README) and must never be committed; `.env*` files other than `.env.example` are gitignored.
 
 ## How the code is organized
 
@@ -74,7 +82,8 @@ src/
     exportPng.ts         canvas renderers for the landscape and story images
     sound.ts             WebAudio cues (no audio files)
     overlay.ts           stream overlay link options (?pos, ?compact, ?maps, ?title)
-    fx.ts                cx(), vars(), confetti, reduced-motion check
+    fx.ts                vars(), confetti, reduced-motion check
+    utils.ts             cn() for merging class names
 
   data/
     maps.ts              MAPS, COMPETITIVE_POOL, FORMATS, team colours, defaultSetup()
@@ -93,8 +102,20 @@ scripts/
   fetch-rotation.mjs     writes the snapshot before dev and build
 
 public/                  static files: logo, favicon, og.jpg, sw.js, manifest, _redirects
-docs/                    design notes, the feature-gap audit, README media
+docs/media/              README screenshots and GIFs
+og.html, src/og/         dev-only page that renders public/og.jpg (open /og.html on the dev server)
 ```
+
+At the top level:
+
+| File | What it's for |
+| --- | --- |
+| `netlify.toml` | Build, functions, SPA routing and cache headers for Netlify |
+| `vite.config.ts` | Vite, Tailwind, the dev API routes, `robots.txt`/`sitemap.xml` and vendor chunking |
+| `components.json` | shadcn/ui settings, used by `npx shadcn add` |
+| `.github/` | CI, Dependabot, issue forms and the pull request template |
+| `ROADMAP.md`, `CHANGELOG.md` | What's planned, and what has shipped |
+| `.nvmrc`, `.editorconfig`, `.gitattributes` | Node 20, editor defaults, and LF line endings everywhere |
 
 ## Core concepts
 
@@ -187,12 +208,15 @@ The UI is built with **Tailwind CSS v4** and **shadcn/ui** (Radix primitives). T
 1. Fork the repo and branch from `main`.
 2. Keep each PR to one change; refactors go in a separate PR from features.
 3. Run `npm run check` and `npm run build`.
-4. Describe what changed and why, and add before/after screenshots for UI changes (phone and desktop).
+4. Fill in the pull request template: what changed and why, how you tested it, and before/after screenshots for UI changes (phone and desktop).
 5. Write commit messages in the imperative with a short summary line, for example `Add knife round option for the decider`.
+6. Add a line to the [changelog](CHANGELOG.md) under an "Unreleased" heading for anything users will notice.
+
+Pull requests are squash-merged, so the PR title becomes the commit on `main`.
 
 Code style: TypeScript strict mode with no unused locals or parameters, function components and hooks, and named exports. Match the surrounding code, including its comment density. Comments explain *why*, not what. Interface text uses sentence case and plain verbs ("Start the veto", not "Submit"), and error messages say what to do next.
 
-When reporting a bug, include the URL (share links reproduce a plan exactly), your browser and device, and the steps to get there.
+When reporting a bug, use the bug form. Include the URL (share links reproduce a plan exactly), your browser and device, and the steps to get there.
 
 By contributing, you agree that your contributions are licensed under the project's [MIT License](LICENSE).
 

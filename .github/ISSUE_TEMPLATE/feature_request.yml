@@ -1,0 +1,38 @@
+name: Feature idea
+description: Suggest something Map Veto should do.
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: Check the [roadmap](https://github.com/tam11a/map-veto/blob/main/ROADMAP.md) first; your idea might already be planned.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What are you trying to do?
+      description: The situation and what gets in the way, for example "our league bans in pairs and I can't set that up".
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would help?
+      description: How you'd like it to work. Rough is fine.
+    validations:
+      required: true
+  - type: dropdown
+    id: who
+    attributes:
+      label: Who is this for?
+      multiple: true
+      options:
+        - Captains
+        - Coaches
+        - Tournament organisers
+        - Casters and streamers
+        - Players
+  - type: checkboxes
+    id: help
+    attributes:
+      label: Contributing
+      options:
+        - label: I'd like to build this myself.

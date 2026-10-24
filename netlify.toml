@@ -13,6 +13,7 @@
 
 # The custom domain is the canonical address: send the old netlify.app address there,
 # keeping the path and query (share links, rooms and overlays keep working).
+# public/_redirects is applied before this file, so the same rule sits at its top too.
 [[redirects]]
   from = "https://map-veto.netlify.app/*"
   to = "https://map-veto.tam11a.dev/:splat"

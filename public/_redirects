@@ -1,1 +1,4 @@
+# Old address -> custom domain (path and query kept). Must come before the SPA rule.
+https://map-veto.netlify.app/*  https://map-veto.tam11a.dev/:splat  301!
+
 /*    /index.html   200
